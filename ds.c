@@ -190,6 +190,135 @@ int ds_liststack_getnelem( const ds_liststack_t *this_ )
 	return this_->n_elem;
 }
 
+
+typedef struct rbnode {
+	unsigned char color;
+	void *key;
+	struct rbnode *left, *right;
+	struct rbnode *parent;
+} rbnode_t;
+
+rbnode *rbnode_alloc( size_t key_size_, const void *key_ )
+{
+	rbnode_t *node = xalloc( sizeof(rbnode_t) );
+	
+	node->key = malloc( key_size_ );
+	memcpy( node->key, key_, key_size_ );
+}
+
+typedef struct {
+	size_t key_size;
+	int (*key_compare)( const void *, const void * );
+	rbnode_t *root;
+} ds_rbtree_t;
+
+void ds_rbtree_ctor( ds_rbtree_t *this_, size_t key_size_, int (*key_compare)( const void *, const void *) )
+{
+	memset( this_, 0, sizeof(*this_) );
+	this_->key_size = key_size_;
+}
+
+void rbtree_leftrotate( ds_rbtree_t *this_, rbnode_t *x_ )
+{
+	rbnode_t *y = x_->right;
+
+	// Assign x.right and set parent
+	x_->right = y->left;
+	if( x_->right ) {
+		x->right->parent = x;
+	}
+
+	// Set the parent of y and adjust parent
+	y->parent = x_->parent;
+	if( y->parent == NULL ) {
+		this_->root = y; // Reset tree root
+	} else if( y->parent->left == x_ ) {
+		y->parent->left = y;
+	} else {
+		y->parent->right = y;
+	}
+
+	y->left = x;
+	x_->parent = y;
+	
+}
+
+void rbtree_rightrotate( ds_rbtree_t *this_, rbnode_t *y_ )
+{
+	rbnode_t *x = y_->left;
+
+	// Assign x.right and set parent
+	y_->left = x->right;
+	if( y_->left ) {
+		y_->left->parent = y;
+	}
+
+	// Set the parent of y and adjust parent
+	x->parent = y_->parent;
+	if( x->parent == NULL ) {
+		this_->root = x; // Reset tree root
+	} else if( x->parent->left == y_ ) {
+		x->parent->left = x;
+	} else {
+		x->parent->right = x;
+	}
+
+	x->right = y;
+	y_->parent = x;
+}
+
+void rbtree_insert_fixup( ds_rbtree_t *this_, rbnode_t *z_ )
+{
+	rbnode_t *zp;
+	rbnode_t *zpp;
+	rbnode_t *y;
+
+	zp = z_->parent;
+	
+	while( zp->color == RB_RED ) {
+
+		zpp = zp->parent;
+		
+		if( zp == zpp->left ) {
+			y = zpp->right;
+			if( y->color == RB_RED ) {
+				zp->color = RB_BLACK;
+				y->color = RB_BLACK;
+				zpp->color = RB_RED;
+				z_ = zpp;
+			} else if( 
+		}
+
+
+void ds_rbtree_insert( ds_rbtree_t *this_, void *key_ )
+{
+	rbnode_t *x = &this_->root;
+	rbnode_t *y = NULL;
+	rbnode_t *z = rbnode_alloc( this_->key_size, key_ );
+
+	while ( x ) {
+		y = x;
+		if( this_->key_compare( z->key, x->key ) < 0 ) {
+			x = x->left;
+		} else {
+			x = x->right;
+		}
+	}
+	z->parent = y;
+
+	if( y == NULL ) {
+		this_->root = z;
+	} else if( this_->key_compare( z->key, y->key ) < 0 ) {
+		y->left = z;
+	} else {
+		y->right = z;
+	}
+	z->color = RB_RED;
+
+	rbtree_insert_fixup( this_, z );
+}
+
+
 int main(void)
 {
 	ds_stack_t stack;
