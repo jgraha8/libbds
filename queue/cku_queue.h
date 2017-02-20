@@ -47,7 +47,7 @@ void cku_queue_dtor( struct cku_queue *queue );
  * @param elem_len Length in bytes of each data element
  * @retval Queue data structure
  */
-struct cku_queue *cku_queue_alloc( struct cku_queue *queue, size_t n_elem, size_t elem_len );
+struct cku_queue *cku_queue_alloc( size_t n_elem, size_t elem_len );
 
 /**
  * @brief Frees the queue data structrue 

@@ -11,24 +11,33 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void *xalloc( size_t n_elem, size_t elem_len )
+static void *xalloc( size_t len )
 {
-	void *v = malloc( n_elem * elem_len );
+	void *v = malloc( len );
 	assert(v);
-	memset( v, 0, n_elem * elem_len);
+	memset( v, 0, len );
 	return v;
 }
 
-static void *xrealloc( void *v, size_t n_elem_old, size_t n_elem, size_t elem_len )
+static void *xrealloc( void *v, size_t len_old, size_t len )
 {
-	void *_v = realloc( v, n_elem * elem_len );
+	void *_v = realloc( v, len );
 	assert( _v );
-	if( n_elem > n_elem_old ) {
-		memset( _v + n_elem_old * elem_len,
+	if( len > len_old ) {
+		memset( _v + len_old,
 			0,
-			(n_elem - n_elem_old)*elem_len );
+			len - len_old );
 	}
 	return _v;
+}
+
+static inline void xmemswap( void *a, void *b, size_t len )
+{
+	char tmp[len];
+	
+	memcpy( tmp, a  , len );
+	memcpy( a  , b  , len );
+	memcpy( b  , tmp, len );
 }
 
 #endif

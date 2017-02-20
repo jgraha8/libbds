@@ -5,25 +5,7 @@
 
 static size_t initial_stack_len = 8;
 
-static void *xalloc( size_t size_ )
-{
-	void *v = malloc( size_ );
-	assert( v );
-	memset( v, 0, size_ );
-
-	return v;
-}
-
-static void *xrealloc( void *v_, size_t size_, size_t new_size_ )
-{
-	v_ = realloc( v_, new_size_ );
-	assert( v_ );
-	// Zero the new bytes
-	if( new_size_ > size_ )
-		memset( v_ + size_, 0, new_size_ - size_ );
-
-	return v_;
-}
+#include "memutil.h"
 
 typedef struct ds_stack_t {
 	int top;
