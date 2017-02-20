@@ -1,75 +1,3 @@
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-
-static size_t initial_stack_len = 8;
-
-#include "memutil.h"
-
-typedef struct ds_stack_t {
-	int top;
-	size_t elem_size;
-	size_t len;
-	void *v;
-} ds_stack_t;
-
-void ds_set_stacklen( size_t len_ )
-{
-	initial_stack_len = len_;
-}
-
-size_t ds_stack_getlen( ds_stack_t *this_ ) 
-{
-	return this_->len;
-}
-
-int ds_stack_getnelem( ds_stack_t *this_ )
-{
-	return this_->top+1;
-}
-
-void ds_stack_ctor( ds_stack_t *this_, size_t elem_size_ )
-{
-	memset( this_, 0, sizeof(*this_) );
-
-	this_->top = -1;
-	this_->elem_size = elem_size_;
-	this_->len = initial_stack_len;
-	this_->v = xalloc( this_->len * elem_size_ );
-}
-
-void ds_stack_dtor( ds_stack_t *this_ )
-{
-	free( this_->v );
-	memset(this_, 0, sizeof(*this_) );
-}
-
-void ds_stack_push( ds_stack_t *this_, const void *data_ )
-{
-	if( this_->top == this_->len - 1 ) {
-		size_t size = this_->len * this_->elem_size;
-		
-		this_->v = xrealloc( this_->v, size, 2*size );
-		this_->len *= 2;
-	}
-	
-	this_->top++;
-	memcpy( this_->v + this_->top * this_->elem_size, data_, this_->elem_size );
-}
-
-int ds_stack_pop( ds_stack_t *this_, void *data_ )
-{
-	if( this_->top == -1 )
-		return -1;
-	
-	memcpy( data_, this_->v + this_->top*this_->elem_size, this_->elem_size );
-	this_->top--;
-
-	return 0;
-}
-
-
 typedef struct listnode {
 	size_t elem_size;
 	void *v;
@@ -303,7 +231,7 @@ void ds_rbtree_insert( ds_rbtree_t *this_, void *key_ )
 
 int main(void)
 {
-	ds_stack_t stack;
+	struct cku_stack stack;
 
 	int i,j;
 

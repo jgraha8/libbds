@@ -4,11 +4,13 @@ ACLOCAL_AMFLAGS = -I m4
 #SUBDIRS= dscs bspline lagrange psolver sparselu
 SUBDIRS= \
 	ckunkwurx \
-	queue
+	queue	\
+	stack
 
 #SUBLIBS = bspline/libdscsbspline.la lagrange/libdscslagrange.la psolver/libdscspsolver.la sparselu/libdscssparselu.la
 SUBLIBS = \
-	queue/libckuqueue.la
+	queue/libckuqueue.la \
+	stack/libckustack.la
 
 lib_LTLIBRARIES = libckunkwurx.la
 libckunkwurx_la_SOURCES = version.c

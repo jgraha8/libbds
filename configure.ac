@@ -125,6 +125,7 @@ AC_CONFIG_FILES([	\
 Makefile		\
 ckunkwurx/Makefile	\
 queue/Makefile 		\
+stack/Makefile		\
 ])
 
 

@@ -1,3 +1,9 @@
+/** @file
+ *  @brief Queue data structure module
+ *
+ *  @author Jason Graham <jgraha8@gmail.com>
+ */
+
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
