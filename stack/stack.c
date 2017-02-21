@@ -9,8 +9,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <ckunkwurx/cku_stack.h>
 #include "memutil.h"
+#include <ckunkwurx/cku_stack.h>
+
 
 static void resize_stack( struct cku_stack *stack )
 {
@@ -48,25 +49,47 @@ int cku_stack_pop( struct cku_stack *stack, void *v )
 {
 	int rc = 0;
 
-	rc = cku_stack_gettop( stack, v );
-	if( rc != 0 ) return rc;
+	void *v_top = (void *)cku_stack_gettop( stack );
+	if( v_top == NULL ) return 1;
+
+	// Only perform the copy if a buffer is provided; otherwise we
+	// are just poping and discarding
+	if( v != NULL ) 
+		memcpy( v, v_top, stack->elem_len );
 
 	--stack->i_top;
 
 	return 0;
 }
 
-bool cku_stack_isempty( struct cku_stack *stack )
-{
-	return ( stack->i_top == -1 );
-}
-
-int cku_stack_gettop( struct cku_stack *stack, void *v )
+const void *cku_stack_gettop( const struct cku_stack *stack )
 {
 	if( cku_stack_isempty( stack ) )
-		return 1;
+		return NULL;
 	
-	memcpy( v, stack->v + stack->i_top*stack->elem_len, stack->elem_len );
+	return stack->v + stack->i_top*stack->elem_len;
+}
+
+const void *cku_stack_lsearch( const struct cku_stack *stack, const void *key,
+			       int (*compar)( const void *a, const void *b ) )
+{
+	unsigned long i;
+	const void *v;
+
+	for( i=0; i<=stack->i_top; ++i ) {
+		v = stack->v + i*stack->elem_len;
+		if( compar( key, v ) == 0 ) return v;
+	}
+	return NULL;
+}
+
+int cku_stack_modify( struct cku_stack *stack, const void *key, const void *v,
+		      int (*compar)( const void *a, const void *b ) )
+{
+	void *v_key = (void *)cku_stack_lsearch( stack, key, compar );
+
+	if( v_key == NULL ) return 1;
+	memcpy( v_key, v, sizeof(stack->elem_len) );
 
 	return 0;
 }
