@@ -21,6 +21,7 @@ struct cku_queue {
 	size_t elem_len; ///< Length in bytes of each data element
         unsigned int i_front;     ///< Beginning element of the queue
 	unsigned int i_back;	 ///< Ending index of the queue (first empty element)
+	unsigned int i_iter;
 	void *v;         ///< Ring buffer containing the data
 };
 
@@ -81,8 +82,6 @@ void cku_queue_push( struct cku_queue *queue, const void *v );
  */   
 const void *cku_queue_pop( struct cku_queue *queue, void *v );
 
-const void *cku_queue_end( struct cku_queue *queue, void *v );
-
 __inline__
 static const void *cku_queue_front( const struct cku_queue *queue )
 {
@@ -106,5 +105,27 @@ static const void *cku_queue_end( const struct cku_queue *queue )
 {
 	return (const void *)( queue->v + cku_queue_iend( queue ) * queue->elem_len );
 }
+
+__inline__
+static const void *cku_queue_iterbegin( struct cku_queue *queue )
+{
+	queue->i_iter = queue->i_front;
+	return queue->v + queue->i_iter * queue->elem_len;
+}
+
+__inline__
+static const void *cku_queue_iterend( const struct cku_queue *queue )
+{
+	return cku_queue_end( queue );
+}
+
+__inline__
+static const void *cku_queue_iterate( struct cku_queue *queue )
+{
+	queue->i_iter = ( queue->i_iter + 1 ) % queue->n_alloc;
+	return queue->v + queue->i_iter * queue->elem_len;
+}
+
+void cku_queue_linearize( struct cku_queue *queue );
 
 #endif // __CKU_QUEUE_H__

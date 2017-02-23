@@ -37,6 +37,25 @@ static void resize_queue( struct cku_queue *queue )
 	queue->n_alloc  = n_alloc;
 }
 
+__inline__
+static void __queue_incr_back( struct cku_queue *queue )
+{
+	queue->i_back = ( queue->i_back + 1 ) % queue->n_alloc;
+}
+
+__inline__
+static void __queue_incr_front( struct cku_queue *queue )
+{
+	queue->i_front = ( queue->i_front + 1 ) % queue->n_alloc;
+}
+
+__inline__
+static void __queue_incr_iter( struct cku_queue *queue )
+{
+	queue->i_iter = ( queue->i_iter + 1 ) % queue->n_alloc;
+}
+
+
 void cku_queue_ctor( struct cku_queue *queue, size_t n_alloc, size_t elem_len )
 {
 	memset(queue, 0, sizeof(*queue));
@@ -45,6 +64,9 @@ void cku_queue_ctor( struct cku_queue *queue, size_t n_alloc, size_t elem_len )
 	queue->elem_len = elem_len;
 
 	queue->v = xalloc( n_alloc * elem_len );
+
+	queue->i_front = 0;
+	queue->i_back  = n_alloc - 1;
 }
 
 void cku_queue_dtor( struct cku_queue *queue )
@@ -77,11 +99,6 @@ bool cku_queue_isempty( const struct cku_queue *queue )
 
 void cku_queue_push( struct cku_queue *queue, const void *v )
 {
-	if( queue->n_elem == queue->n_alloc ) {
-		assert( (queue->i_back + 1) % queue->n_alloc == queue->i_front );
-		resize_queue( queue );
-	}
-
 	// Get index of vacant
 	__queue_incr_back( queue );
 	
@@ -91,6 +108,12 @@ void cku_queue_push( struct cku_queue *queue, const void *v )
 		queue->elem_len );
 	
 	++queue->n_elem;
+
+	if( queue->i_front == cku_queue_iend( queue ) ) {
+		assert( cku_queue_iend( queue ) == queue->i_front );
+		resize_queue( queue );
+	}
+	
 }
 
 const void *cku_queue_pop( struct cku_queue *queue, void *v )
@@ -108,60 +131,80 @@ const void *cku_queue_pop( struct cku_queue *queue, void *v )
 }
 
 
+// [0x] [1x] [2x] [3x] [4x] [o] [] [] [] [] [5x] 
+//                      b    e               f
+// [0x] [1x] [2x] [3x] [4x] [5x] [] [] [] [] [o]
+// [5x] [1x] [2x] [3x] [4x] [0x] [] [] [] [] [o]
+// [5x] [0x] [2x] [3x] [4x] [1x] [] [] [] [] [o]
+// [5x] [0x] [1x] [3x] [4x] [2x] [] [] [] [] [o]
+// [5x] [0x] [1x] [2x] [4x] [3x] [] [] [] [] [o]
+// [5x] [0x] [1x] [2x] [3x] [4x] [] [] [] [] [o] 
 
-// [0x] [1x] [2x] [3o] [4o] [5o] [6x] [7x] [8x]
-//            b                    f     
-// [6x] [1x] [2x] [3o] [4o] [5o] [0x] [7x] [8x]
-// [6x] [7x] [2x] [3o] [4o] [5o] [0x] [1x] [8x]
-// [6x] [7x] [8x] [3o] [4o] [5o] [0x] [1x] [2x]
-// [6x] [7x] [8x] [0x] [4o] [5o] [3o] [1x] [2x]
-// [6x] [7x] [8x] [0x] [1x] [5o] [3o] [4o] [2x]
-// [6x] [7x] [8x] [0x] [1x] [2x] [3o] [4o] [5o]
+
+// [0x] [1x] [2x] [3x] [4x] [o] [] [] [5x] [6x] [7x] 
+//                      b    e            f
 
 
-// [0x] [1x] [2x] [3x] [4o] [5o] [6o] [7o]
-//             f    b   e               
-// [2x] [1x] [0x] [3x] [4o] [5o] [6o] [7o]
-// [2x] [3x] [0x] [1x] [4o] [5o] [6o] [7o]
+//  0    1    2    3    4    5    6    7
+//                           0    1    2    
+// [0x] [1x] [2x] [3x] [4x] [5x] [6x] [7x] [o] [] [] 
+// [5x] [1x] [2x] [3x] [4x] [0x] [6x] [7x] [o] [] [] : i=0, j=0
+// [5x] [6x] [2x] [3x] [4x] [0x] [1x] [7x] [o] [] [] : i=1, j=1
+// [5x] [6x] [7x] [3x] [4x] [0x] [1x] [2x] [o] [] [] : i=2, j=2
+// [5x] [6x] [7x] [0x] [4x] [3x] [1x] [2x] [o] [] [] : i=3, j=0
+// [5x] [6x] [7x] [0x] [1x] [3x] [4x] [2x] [o] [] [] : i=4, j=1
+// [5x] [6x] [7x] [0x] [1x] [2x] [4x] [3x] [o] [] [] : i=5, j=2
 
-// [0x] [1x] [2x] [3o] [4o] [5o] [6x] [7x]
-//             b    e             f     
+// [5x] [6x] [7x] [0x] [1x] [4x] [2x] [3x] [o] [] [] : i=6, j=0
+// [5x] [6x] [7x] [0x] [1x] [4x] [3x] [2x] [o] [] [] : i=7, j=1
 
-// [6x] [1x] [2x] [3o] [4o] [5o] [0x] [7x]
-// [6x] [7x] [2x] [3o] [4o] [5o] [0x] [1x]
-// [6x] [7x] [0x] [3o] [4o] [5o] [2x] [1x]
-// [6x] [7x] [0x] [1x] [4o] [5o] [2x] [3o]
-// [6x] [7x] [0x] [1x] [2x] [5o] [4o] [3o]
+// [5x] [6x] [7x] [0x] [1x] [2x] [4x] [3x] [o] [] []
 
-// [0x] [1x] [2x] [3o] [4o] [5o] [6x] [7x]
-//             b    e             f  
- /* static void lshift_blk( void *v, void *blk_a, void *blk_b, size_t elem_len ) */
+
+
+// [0x] [1x] [2x] [3x] [4x] [o] [] [] [] [] [5x] 
+//                      b    e               f
+
+// Shift front block to end index
+// [0x] [1x] [2x] [3x] [4x] [5x] [] [] [] [] [o]
+
+// Swap all front block with front of vector
+// [5x] [1x] [2x] [3x] [4x] [0x] [] [] [] [] [o]
+
+// Perform memcpy for all remaining (non-swapped) back block elements
+// [5x] [1x] [2x] [3x] [4x] [0x] [1x] [2x] [3x] [4x] [o]
+
+// Perform memmove to shift block to the left
+// [5x] [0x] [1x] [2x] [3x] [4x] [] [] [] [] [o]
+
+/* static void lshift_blk( void *v, void *blk_a, void *blk_b, size_t elem_len ) */
 /* { */
 	
 /* } */
+
+#define min( a, b ) ( a < b ? a : b )
+#define max( a, b ) ( a > b ? a : b )
 
 
 void cku_queue_linearize( struct cku_queue *queue )
 {
 
-	const unsigned int i_end = cku_queue_iend( queue );
+	unsigned int i_front = queue->i_front;
+	unsigned int i_back  = queue->i_back;
 
+
+	if( i_front <= i_back ) return;
+
+	unsigned int blk_size = queue->n_elem - i_front;
+	void *buffer = xmalloc( blk_size * queue->n_elem );
+
+	unsigned int _blk_size=0;
+	unsigned int iblk=0;
+	while(1) {
+		_blk_size = min( 
 	
-	if( queue->i_front < i_end ) return;
-	
-	const size_t elem_len     = queue->elem_len;
-	const unsigned int n_swap = modulol( i_end - queue->i_front, queue->n_alloc );
-	
-	unsigned int j = queue->i_front;
-
-	for( i=0; i<n_swap; ++i ) {
-		void *vi = queue->v + i*elem_len;
-		void *vj = queue->v + j*elem_len;
-		xmemswap( vi, vj, elem_len );
-
-		j = ( j + 1 ) % queue->n_alloc;
-	}
-
 	queue->i_front = 0;
-	queue->i_back  = queue->n_elem - 1;
+	queue->i_back = queue->n_elem - 1;
+
+	free(v);
 }
