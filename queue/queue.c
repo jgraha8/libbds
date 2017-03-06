@@ -37,23 +37,48 @@ static void resize_queue( struct cku_queue *queue )
 	queue->n_alloc  = n_alloc;
 }
 
-__inline__
-static void __queue_incr_back( struct cku_queue *queue )
-{
-	queue->i_back = ( queue->i_back + 1 ) % queue->n_alloc;
-}
+/* __inline__ */
+/* static void __queue_incr_back( struct cku_queue *queue ) */
+/* { */
+/* 	queue->back = ( queue->back + 1 ) % queue->n_alloc; */
+/* } */
 
 __inline__
 static void __queue_incr_front( struct cku_queue *queue )
 {
-	queue->i_front = ( queue->i_front + 1 ) % queue->n_alloc;
+	queue->front = ( queue->front + 1 ) % queue->n_alloc;
 }
 
-__inline__
-static void __queue_incr_iter( struct cku_queue *queue )
-{
-	queue->i_iter = ( queue->i_iter + 1 ) % queue->n_alloc;
-}
+/* __inline__ */
+/* static void __queue_back( struct cku_queue *queue ) */
+/* { */
+/* 	return ( queue->front + queue->n_elem - 1 ) % queue->n_alloc; */
+/* } */
+
+
+/* __inline__ */
+/* static void __queue_end( struct cku_queue *queue ) */
+/* { */
+/* 	return ( __queue_back( queue ) + 1 ) % queue->n_alloc; */
+/* } */
+
+/* __inline__ */
+/* static void *__queue_frontptr( struct cku_queue *queue ) */
+/* { */
+/* 	return queue->v + queue->front * queue->elem_len; */
+/* } */
+
+/* __inline__ */
+/* static void *__queue_backptr( struct cku_queue *queue ) */
+/* { */
+/* 	return queue->v + __queue_back( queue ) + queue->elem_len; */
+/* } */
+
+/* __inline__ */
+/* static void *__queue_endptr( struct cku_queue *queue ) */
+/* { */
+/* 	return queue->v + __queue_end( queue ) + queue->elem_len; */
+/* } */
 
 
 void cku_queue_ctor( struct cku_queue *queue, size_t n_alloc, size_t elem_len )
@@ -64,9 +89,6 @@ void cku_queue_ctor( struct cku_queue *queue, size_t n_alloc, size_t elem_len )
 	queue->elem_len = elem_len;
 
 	queue->v = xalloc( n_alloc * elem_len );
-
-	queue->i_front = 0;
-	queue->i_back  = n_alloc - 1;
 }
 
 void cku_queue_dtor( struct cku_queue *queue )
@@ -92,27 +114,28 @@ void cku_queue_free( struct cku_queue **queue )
 	*queue = NULL;
 }
 
+
 bool cku_queue_isempty( const struct cku_queue *queue )
 {
 	return ( queue->n_elem == 0 );
 }
 
-void cku_queue_push( struct cku_queue *queue, const void *v )
+__inline__
+static bool cku_queue_isfull( const struct cku_queue *queue )
 {
-	// Get index of vacant
-	__queue_incr_back( queue );
-	
-	// Copy to the vacant location
-	memcpy( queue->v + queue->i_back * queue->elem_len,
-		v,
-		queue->elem_len );
-	
-	++queue->n_elem;
+	return ( queue->n_elem == queue->n_alloc );
+}
 
-	if( queue->i_front == cku_queue_iend( queue ) ) {
-		assert( cku_queue_iend( queue ) == queue->i_front );
+void cku_queue_push( struct cku_queue *queue, const void *v )
+{	
+	if( cku_queue_isfull( queue ) ) {
+		assert( cku_queue_end( queue ) == queue->front );
 		resize_queue( queue );
 	}
+	
+	// Copy to the vacant location
+	memcpy( (void *)cku_queue_endptr( queue ), v, queue->elem_len );
+	queue->n_elem++;
 	
 }
 
@@ -121,7 +144,7 @@ const void *cku_queue_pop( struct cku_queue *queue, void *v )
 	if( cku_queue_isempty( queue ) ) 
 		return NULL;
 
-	const void *v_front = queue->v + queue->i_front * queue->elem_len;
+	const void *v_front = cku_queue_frontptr( queue );
 	if( v != NULL ) memcpy( v, v_front, queue->elem_len );
 
 	__queue_incr_front( queue );
@@ -189,22 +212,21 @@ const void *cku_queue_pop( struct cku_queue *queue, void *v )
 void cku_queue_linearize( struct cku_queue *queue )
 {
 
-	unsigned int i_front = queue->i_front;
-	unsigned int i_back  = queue->i_back;
+	const unsigned int front = queue->front;
+	const unsigned int back  = cku_queue_back( queue );
 
+	if( front <= back ) return;
 
-	if( i_front <= i_back ) return;
+	const size_t blk_len = (queue->n_alloc - front) * queue->elem_len;
+	void *buffer = xalloc( blk_len );
 
-	unsigned int blk_size = queue->n_elem - i_front;
-	void *buffer = xmalloc( blk_size * queue->n_elem );
+	// Store the trailing segment of the data vector into a buffer
+	memcpy( buffer, cku_queue_frontptr(queue), blk_len );
+	// Shift the remaining elements to make room for the front of the data vector
+	memmove( queue->v + blk_len, queue->v, front * queue->elem_len );
+	// Copy the front data vector block to the front
+	memcpy( queue->v, buffer, blk_len );
+	free(buffer);
 
-	unsigned int _blk_size=0;
-	unsigned int iblk=0;
-	while(1) {
-		_blk_size = min( 
-	
-	queue->i_front = 0;
-	queue->i_back = queue->n_elem - 1;
-
-	free(v);
+	queue->front = 0;
 }
