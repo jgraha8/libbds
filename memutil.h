@@ -24,9 +24,7 @@ static void *xrealloc( void *v, size_t len_old, size_t len )
 	void *_v = realloc( v, len );
 	assert( _v );
 	if( len > len_old ) {
-		memset( _v + len_old,
-			0,
-			len - len_old );
+		memset( _v + len_old, 0, len - len_old );
 	}
 	return _v;
 }

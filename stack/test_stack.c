@@ -10,15 +10,15 @@ static int int_test( struct cku_stack *stack )
 	if( ! cku_stack_isempty( stack ) ) return 1;
 
 	int i,j;
-	int rc;
+	const int *k;
 	for( i=0; i<N; ++i ) {
 		cku_stack_push( stack, &i );
 	}
 
 	for( i=N-1; i>=0; --i ) {
-		rc = cku_stack_pop( stack, &j );
-		if( rc != 0 ) return rc;
-		if( j != i ) return 1;
+		if( ( k = cku_stack_pop( stack, &j ) ) == NULL )
+			return -1;
+		if( j != i || *k != i ) return 1;
 	}
 	return 0;
 }
@@ -32,18 +32,18 @@ static int double_test( struct cku_stack *stack )
 
 	int i;
 	double a,b;
-	int rc;
+	const double *c;
 	for( i=0; i<N; ++i ) {
 		a = (double)i; 
 		cku_stack_push( stack, &a );
 	}
 
 	for( i=N-1; i>=0; --i ) {
-		rc = cku_stack_pop( stack, &b );
-		if( rc != 0 ) return rc;
+		if( ( c = cku_stack_pop( stack, &b ) ) == NULL ) 
+			return -1;
 
 		a = (double)i;
-		if( a != b ) return 1;
+		if( b != a || *c != a ) return 1;
 	}
 
 	return 0;

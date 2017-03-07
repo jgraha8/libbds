@@ -106,20 +106,6 @@ const void *cku_queue_pop( struct cku_queue *queue, void *v )
 	return v_front;
 }
 
-
-// [0x] [1x] [2x] [3x] [4x] [o] [] [] [] [] [5x] 
-//                      b    e               f
-// [0x] [1x] [2x] [3x] [4x] [5x] [] [] [] [] [o]
-// [5x] [1x] [2x] [3x] [4x] [0x] [] [] [] [] [o]
-// [5x] [0x] [2x] [3x] [4x] [1x] [] [] [] [] [o]
-// [5x] [0x] [1x] [3x] [4x] [2x] [] [] [] [] [o]
-// [5x] [0x] [1x] [2x] [4x] [3x] [] [] [] [] [o]
-// [5x] [0x] [1x] [2x] [3x] [4x] [] [] [] [] [o] 
-
-
-// [0x] [1x] [2x] [3x] [4x] [o] [] [] [5x] [6x] [7x] 
-//                      b    e            f
-
 void cku_queue_linearize( struct cku_queue *queue )
 {
 

@@ -17,12 +17,14 @@ static void resize_stack( struct cku_stack *stack )
 {
 	const size_t len = ( stack->n_alloc * stack->elem_len );
 	stack->v = xrealloc( stack->v, len, len << 1 );
-	stack->n_elem <<= 1;
+	stack->n_alloc <<= 1;
 }
 
 void cku_stack_ctor( struct cku_stack *stack, size_t n_alloc, size_t elem_len )
 {
 	memset( stack, 0, sizeof(*stack) );
+
+	assert( n_alloc > 0 );
 
 	stack->n_alloc = n_alloc;
 	stack->elem_len = elem_len;
@@ -46,8 +48,6 @@ void cku_stack_push( struct cku_stack *stack, const void *v )
 
 const void *cku_stack_pop( struct cku_stack *stack, void *v )
 {
-	int rc = 0;
-
 	void *v_top = (void *)cku_stack_topptr( stack );
 	if( v_top == NULL ) return NULL;
 
@@ -82,13 +82,13 @@ const void *cku_stack_lsearch( const struct cku_stack *stack, const void *key,
 	return NULL;
 }
 
-int cku_stack_modify( struct cku_stack *stack, const void *key, const void *v,
-		      int (*compar)( const void *a, const void *b ) )
+const void *cku_stack_modify( struct cku_stack *stack, const void *key, const void *v,
+			      int (*compar)( const void *a, const void *b ) )
 {
 	void *v_key = (void *)cku_stack_lsearch( stack, key, compar );
 
-	if( v_key == NULL ) return -1;
+	if( v_key == NULL ) return NULL;
 	memcpy( v_key, v, sizeof(stack->elem_len) );
 
-	return 0;
+	return v_key;
 }
