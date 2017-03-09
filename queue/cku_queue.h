@@ -97,12 +97,23 @@ void cku_queue_push( struct cku_queue *queue, const void *v );
 const void *cku_queue_pop( struct cku_queue *queue, void *v );
 
 /**
+ * @brief Clears the queue (does not deallocate memory)
+ *
+ * @param queue Address of queue object 
+ */
+inline static void cku_queue_clear( struct cku_queue *queue )
+{
+	queue->front=0;
+	queue->n_elem=0;
+}
+
+/**
  * @brief Gets the address of queue data vector
  *
  * @param queue Address of the queue object
  * @retval Address of the internal queue vector
  */
-static inline const void *cku_queue_ptr( const struct cku_queue *queue )
+inline static const void *cku_queue_ptr( const struct cku_queue *queue )
 {
 	return (const void *)queue->v;
 }
@@ -114,7 +125,7 @@ static inline const void *cku_queue_ptr( const struct cku_queue *queue )
  * @param stack Address of the queue object
  * @retval Index of front element in the queue
  */
-static inline size_t cku_queue_front( const struct cku_queue *queue )
+inline static size_t cku_queue_front( const struct cku_queue *queue )
 {
 	return queue->front;
 }
@@ -125,7 +136,7 @@ static inline size_t cku_queue_front( const struct cku_queue *queue )
  * @param stack address of the stack object
  * @retval address of the internal queue vector of the front data element (returns @c NULL if the queue is empty)
  */
-static inline const void *cku_queue_frontptr( const struct cku_queue *queue )
+inline static const void *cku_queue_frontptr( const struct cku_queue *queue )
 {
 	if( cku_queue_isempty( queue ) )
 		return NULL;
@@ -138,7 +149,7 @@ static inline const void *cku_queue_frontptr( const struct cku_queue *queue )
  * @param stack Address of the queue object
  * @retval Index of back element in the queue
  */
-static inline size_t cku_queue_back( const struct cku_queue *queue )
+inline static size_t cku_queue_back( const struct cku_queue *queue )
 {
 	return ( queue->front + queue->n_elem - 1 ) % queue->n_alloc;
 }
@@ -149,7 +160,7 @@ static inline size_t cku_queue_back( const struct cku_queue *queue )
  * @param stack Address of the stack object
  * @retval Address of the internal queue vector of the back data element (returns @c NULL if the queue is empty)
  */
-static inline const void *cku_queue_backptr( const struct cku_queue *queue )
+inline static const void *cku_queue_backptr( const struct cku_queue *queue )
 {
 	if( cku_queue_isempty( queue ) )
 		return NULL;	
