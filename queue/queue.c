@@ -127,3 +127,20 @@ void cku_queue_linearize( struct cku_queue *queue )
 
 	queue->front = 0;
 }
+
+const void *cku_queue_lsearch( struct cku_queue *queue, const void *key,
+			       int (*compar)( const void *, const void *) )
+{
+	size_t i;
+	const void *v;
+
+	for( i=0; i<stack->n_elem; ++i ) {
+		v = stack->v + i*stack->elem_len;
+		if( compar( key, v ) == 0 ) return v;
+	}
+	return NULL;
+}
+
+	
+}
+	
