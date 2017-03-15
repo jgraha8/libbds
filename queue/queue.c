@@ -36,6 +36,7 @@ static void __queue_incr_front( struct cku_queue *queue )
 __inline__
 static size_t __queue_end( const struct cku_queue *queue )
 {
+	assert( queue->n_alloc > 0 );
 	return ( ( cku_queue_back( queue ) + 1 ) % queue->n_alloc );
 }
 
@@ -128,19 +129,17 @@ void cku_queue_linearize( struct cku_queue *queue )
 	queue->front = 0;
 }
 
-const void *cku_queue_lsearch( struct cku_queue *queue, const void *key,
+const void *cku_queue_lsearch( const struct cku_queue *queue, const void *key,
 			       int (*compar)( const void *, const void *) )
 {
-	size_t i;
+	size_t i,j;
 	const void *v;
 
-	for( i=0; i<stack->n_elem; ++i ) {
-		v = stack->v + i*stack->elem_len;
+	j=queue->front;
+	for( i=0; i<queue->n_elem; ++i ) {
+		v = queue->v + j*queue->elem_len;
 		if( compar( key, v ) == 0 ) return v;
+		j = ( j + 1 ) % queue->n_alloc;
 	}
 	return NULL;
 }
-
-	
-}
-	

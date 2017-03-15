@@ -151,7 +151,8 @@ inline static const void *cku_queue_frontptr( const struct cku_queue *queue )
  */
 inline static size_t cku_queue_back( const struct cku_queue *queue )
 {
-	return ( queue->front + queue->n_elem - 1 ) % queue->n_alloc;
+	// Becareful with the subtraction of non-signed integral types
+	return ( queue->front + queue->n_elem + queue->n_alloc - 1 ) % queue->n_alloc;
 }
 
 /**
@@ -177,5 +178,9 @@ inline static const void *cku_queue_backptr( const struct cku_queue *queue )
  * @param stack Address of the stack object
  */
 void cku_queue_linearize( struct cku_queue *queue );
+
+const void *cku_queue_lsearch( const struct cku_queue *queue, const void *key,
+			       int (*compar)( const void *, const void *) );
+
 
 #endif // __CKU_QUEUE_H__
