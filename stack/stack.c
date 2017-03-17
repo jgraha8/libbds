@@ -23,7 +23,6 @@ static void resize_stack( struct cku_stack *stack )
 void cku_stack_ctor( struct cku_stack *stack, size_t n_alloc, size_t elem_len )
 {
 	memset( stack, 0, sizeof(*stack) );
-
 	assert( n_alloc > 0 );
 
 	stack->n_alloc = n_alloc;
