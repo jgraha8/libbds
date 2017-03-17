@@ -125,6 +125,16 @@ const void *cku_stack_lsearch( const struct cku_stack *stack, const void *key,
 			       int (*compar)( const void *, const void *) );
 
 /**
+ * @brief Peforms a binary search for a data element using bsearch
+ *
+ * @param stack Address of the stack object
+ * @param key Address of the key object
+ * @param compar Address of the comparator function
+ */
+const void *cku_stack_bsearch( const struct cku_stack *stack, const void *key,
+			       int (*compar)( const void *a, const void *b ) );
+
+/**
  * @brief Modifies a stack data element
  *
  * @param stack Address of the stack object
@@ -135,5 +145,13 @@ const void *cku_stack_lsearch( const struct cku_stack *stack, const void *key,
 const void *cku_stack_modify( struct cku_stack *stack, const void *key, const void *v,
 			      int (*compar)( const void *, const void *) );
 
+/**
+ * @brief Sorts all elements in the stack using qsort
+ *
+ * @param stack Address of the stack object
+ * @param compar Address of the comparator function
+ */
+void cku_stack_qsort( struct cku_stack *stack,
+		      int (*compar)( const void *, const void *) );
 
 #endif // __CKU_STACK_H__

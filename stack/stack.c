@@ -82,6 +82,12 @@ const void *cku_stack_lsearch( const struct cku_stack *stack, const void *key,
 	return NULL;
 }
 
+const void *cku_stack_bsearch( const struct cku_stack *stack, const void *key,
+			       int (*compar)( const void *a, const void *b ) )
+{
+	return bsearch( key, stack->v, stack->n_elem, stack->elem_len, compar );
+}
+
 const void *cku_stack_modify( struct cku_stack *stack, const void *key, const void *v,
 			      int (*compar)( const void *a, const void *b ) )
 {
@@ -91,4 +97,10 @@ const void *cku_stack_modify( struct cku_stack *stack, const void *key, const vo
 	memcpy( v_key, v, sizeof(stack->elem_len) );
 
 	return v_key;
+}
+
+void cku_stack_qsort( struct cku_stack *stack,
+		      int (*compar)( const void *, const void *) )
+{
+	qsort(stack->v, stack->n_elem, stack->elem_len, compar );	
 }
