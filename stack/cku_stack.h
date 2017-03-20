@@ -32,8 +32,10 @@ void cku_stack_ctor( struct cku_stack *stack, size_t n_alloc, size_t elem_len );
 
 /**
  * @brief Destructor for the stack data structure
+ * @param stack Address of the stack object 
+ * @param elem_dtor Destructor for each data element (disabled if NULL)
  */
-void cku_stack_dtor( struct cku_stack *stack );
+void cku_stack_dtor( struct cku_stack *stack, void (*elem_dtor)(void *) );
 
 /**
  * @brief Pushes a data element onto the stack

@@ -37,8 +37,9 @@ void cku_queue_ctor( struct cku_queue *queue, size_t n_alloc, size_t elem_len );
  * @brief Destructor for the queue data structrue
  *
  * @param queue Address of queue object
+ * @param elem_dtor Destructor for each data element (disabled if NULL)
  */
-void cku_queue_dtor( struct cku_queue *queue );
+void cku_queue_dtor( struct cku_queue *queue, void (*elem_dtor)(void *) );
 
 /**
  * @brief Allocator for the queue data structrue
@@ -53,8 +54,9 @@ struct cku_queue *cku_queue_alloc( size_t n_alloc, size_t elem_len );
  * @brief Frees the queue data structrue 
  *
  * @param queue Address of queue object address (sets the queue object address to @c NULL)
+ * @param elem_dtor Destructor for each data element (disabled if NULL) 
  */
-void cku_queue_free( struct cku_queue **queue );
+void cku_queue_free( struct cku_queue **queue, void (*elem_dtor)(void *) );
 
 /**
  * @brief Tests if the queue is empty

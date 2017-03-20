@@ -57,10 +57,19 @@ void cku_queue_ctor( struct cku_queue *queue, size_t n_alloc, size_t elem_len )
 	queue->v = xalloc( n_alloc * elem_len );
 }
 
-void cku_queue_dtor( struct cku_queue *queue )
+void cku_queue_dtor( struct cku_queue *queue, void (*elem_dtor)(void *) )
 {
-	if( queue->v )
-		free( queue->v );
+	if( queue->v == NULL ) goto fini;
+
+	if( elem_dtor != NULL ) {
+		size_t n;
+		for( n=0; n<queue->n_alloc; ++n ) {
+			elem_dtor( queue->v + n * queue->elem_len );
+		}
+	}
+	free( queue->v );
+
+ fini:
 	memset( queue, 0, sizeof(*queue) );
 }
 
@@ -71,11 +80,11 @@ struct cku_queue *cku_queue_alloc( size_t n_alloc, size_t elem_len )
 	return queue;
 }
 
-void cku_queue_free( struct cku_queue **queue )
+void cku_queue_free( struct cku_queue **queue, void (*elem_dtor)(void *) )
 {
 	if( *queue == NULL ) return;
 
-	cku_queue_dtor( *queue );
+	cku_queue_dtor( *queue, elem_dtor );
 	free( *queue );
 	*queue = NULL;
 }

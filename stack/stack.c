@@ -30,9 +30,17 @@ void cku_stack_ctor( struct cku_stack *stack, size_t n_alloc, size_t elem_len )
 	stack->v = xalloc( n_alloc * elem_len );
 }
 
-void cku_stack_dtor( struct cku_stack *stack )
+void cku_stack_dtor( struct cku_stack *stack, void (*elem_dtor)(void *) )
 {
-	if( stack->v ) free( stack->v );
+	if( stack->v == NULL ) goto fini;
+	if ( elem_dtor != NULL ) {
+		size_t n;
+		for( n=0; n<stack->n_alloc; ++n ) {
+			elem_dtor( stack->v + n * stack->elem_len );
+		}
+	}
+	free( stack->v );
+ fini:
 	memset(stack, 0, sizeof(*stack) );
 }
 
