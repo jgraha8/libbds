@@ -68,7 +68,6 @@ void cku_queue_dtor( struct cku_queue *queue, void (*elem_dtor)(void *) )
 		}
 	}
 	free( queue->v );
-
  fini:
 	memset( queue, 0, sizeof(*queue) );
 }
@@ -114,6 +113,17 @@ const void *cku_queue_pop( struct cku_queue *queue, void *v )
 	queue->n_elem--;
 
 	return v_front;
+}
+
+void cku_queue_clear( struct cku_queue *queue, void (*elem_dtor)(void *) )
+{
+	if( elem_dtor != NULL ) {
+		while( !cku_queue_isempty( queue ) ) {
+			elem_dtor( (void *)cku_queue_pop( queue, NULL ) );
+		}
+	}
+	queue->front=0;
+	queue->n_elem=0;
 }
 
 void cku_queue_linearize( struct cku_queue *queue )

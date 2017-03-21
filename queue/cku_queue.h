@@ -101,13 +101,10 @@ const void *cku_queue_pop( struct cku_queue *queue, void *v );
 /**
  * @brief Clears the queue (does not deallocate memory)
  *
- * @param queue Address of queue object 
+ * @param queue Address of queue object
+ * @param elem_dtor Destructor for each data element (disabled if NULL) 
  */
-inline static void cku_queue_clear( struct cku_queue *queue )
-{
-	queue->front=0;
-	queue->n_elem=0;
-}
+void cku_queue_clear( struct cku_queue *queue, void (*elem_dtor)(void *) );
 
 /**
  * @brief Gets the address of queue data vector
@@ -119,7 +116,6 @@ inline static const void *cku_queue_ptr( const struct cku_queue *queue )
 {
 	return (const void *)queue->v;
 }
-
 
 /**
  * @brief Gets the index of the front of the queue
