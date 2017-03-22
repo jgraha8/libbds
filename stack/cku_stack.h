@@ -52,7 +52,7 @@ void cku_stack_push( struct cku_stack *stack, const void *v );
  * @param v Address of a buffer to copy the popped data element (if @c NULL then the element is not copied)
  * @retval Address of the internal stack vector of popped data element (returns @c NULL if the stack is empty)
  */
-const void *cku_stack_pop( struct cku_stack *stack, void *v );
+void *cku_stack_pop( struct cku_stack *stack, void *v );
 
 /**
  * @brief Gets the index of the top of the stack (index of last pushed element)
@@ -110,11 +110,9 @@ static inline bool cku_stack_isfull( const struct cku_stack *stack )
  * @brief Clears the stack (does not deallocate memory)
  *
  * @param stack Address of the stack object
+ * @param elem_dtor Destructor for each data element (disabled if NULL) 
  */
-static inline void cku_stack_clear( struct cku_stack *stack )
-{
-	stack->n_elem = 0;
-}
+void cku_stack_clear( struct cku_stack *stack, void (*elem_dtor)(void *) );
 
 /**
  * @brief Peforms a linear search for a data element

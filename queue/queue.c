@@ -27,21 +27,18 @@ static void resize_queue( struct cku_queue *queue )
 }
 
 
-__inline__
-static void __queue_incr_front( struct cku_queue *queue )
+inline static void __queue_incr_front( struct cku_queue *queue )
 {
 	queue->front = ( queue->front + 1 ) % queue->n_alloc;
 }
 
-__inline__
-static size_t __queue_end( const struct cku_queue *queue )
+inline static size_t __queue_end( const struct cku_queue *queue )
 {
 	assert( queue->n_alloc > 0 );
 	return ( ( cku_queue_back( queue ) + 1 ) % queue->n_alloc );
 }
 
-__inline__
-static const void *__queue_endptr( const struct cku_queue *queue )
+inline static const void *__queue_endptr( const struct cku_queue *queue )
 {
 	return (const void *)( queue->v + __queue_end( queue ) * queue->elem_len );
 }
@@ -59,16 +56,10 @@ void cku_queue_ctor( struct cku_queue *queue, size_t n_alloc, size_t elem_len )
 
 void cku_queue_dtor( struct cku_queue *queue, void (*elem_dtor)(void *) )
 {
-	if( queue->v == NULL ) goto fini;
-
-	if( elem_dtor != NULL ) {
-		size_t n;
-		for( n=0; n<queue->n_alloc; ++n ) {
-			elem_dtor( queue->v + n * queue->elem_len );
-		}
+	if( queue->v != NULL ) {
+		cku_queue_clear( queue, elem_dtor );
+		free( queue->v );
 	}
-	free( queue->v );
- fini:
 	memset( queue, 0, sizeof(*queue) );
 }
 
@@ -102,9 +93,9 @@ void cku_queue_push( struct cku_queue *queue, const void *v )
 	
 }
 
-const void *cku_queue_pop( struct cku_queue *queue, void *v )
+void *cku_queue_pop( struct cku_queue *queue, void *v )
 {
-	const void *v_front = cku_queue_frontptr( queue );
+	void *v_front = (void *)cku_queue_frontptr( queue );
 	if( v_front == NULL ) return NULL;
 	
 	if( v != NULL ) memcpy( v, v_front, queue->elem_len );
@@ -119,7 +110,7 @@ void cku_queue_clear( struct cku_queue *queue, void (*elem_dtor)(void *) )
 {
 	if( elem_dtor != NULL ) {
 		while( !cku_queue_isempty( queue ) ) {
-			elem_dtor( (void *)cku_queue_pop( queue, NULL ) );
+			elem_dtor( cku_queue_pop( queue, NULL ) );
 		}
 	}
 	queue->front=0;

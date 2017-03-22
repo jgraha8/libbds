@@ -96,7 +96,7 @@ void cku_queue_push( struct cku_queue *queue, const void *v );
  * @param v Address of a buffer to copy the popped data element (if @c NULL then the element is not copied)
  * @retval Address of the internal stack vector of popped data element (returns @c NULL if the queue is empty)
  */   
-const void *cku_queue_pop( struct cku_queue *queue, void *v );
+void *cku_queue_pop( struct cku_queue *queue, void *v );
 
 /**
  * @brief Clears the queue (does not deallocate memory)

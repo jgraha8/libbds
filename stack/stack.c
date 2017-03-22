@@ -32,15 +32,10 @@ void cku_stack_ctor( struct cku_stack *stack, size_t n_alloc, size_t elem_len )
 
 void cku_stack_dtor( struct cku_stack *stack, void (*elem_dtor)(void *) )
 {
-	if( stack->v == NULL ) goto fini;
-	if ( elem_dtor != NULL ) {
-		size_t n;
-		for( n=0; n<stack->n_alloc; ++n ) {
-			elem_dtor( stack->v + n * stack->elem_len );
-		}
+	if( stack->v != NULL ) {
+		cku_stack_clear( stack, elem_dtor );
+		free( stack->v );
 	}
-	free( stack->v );
- fini:
 	memset(stack, 0, sizeof(*stack) );
 }
 
@@ -53,7 +48,7 @@ void cku_stack_push( struct cku_stack *stack, const void *v )
 	memcpy( (void *)cku_stack_topptr(stack), v, stack->elem_len );
 }
 
-const void *cku_stack_pop( struct cku_stack *stack, void *v )
+void *cku_stack_pop( struct cku_stack *stack, void *v )
 {
 	void *v_top = (void *)cku_stack_topptr( stack );
 	if( v_top == NULL ) return NULL;
@@ -66,6 +61,16 @@ const void *cku_stack_pop( struct cku_stack *stack, void *v )
 	stack->n_elem--;
 
 	return v_top;
+}
+
+void cku_stack_clear( struct cku_stack *stack, void (*elem_dtor)(void *) )
+{
+	if ( elem_dtor != NULL ) {
+		while( !cku_stack_isempty( stack ) ) {
+			elem_dtor( cku_stack_pop( stack, NULL ) );
+		}		
+	}
+	stack->n_elem = 0;
 }
 
 const void *cku_stack_topptr( const struct cku_stack *stack )
