@@ -55,6 +55,16 @@ void cku_stack_push( struct cku_stack *stack, const void *v );
 void *cku_stack_pop( struct cku_stack *stack, void *v );
 
 /**
+ * @brief Provides the number of elements in the stack
+ *
+ * @param stack Address of stack object
+ */
+static inline size_t cku_stack_size( const struct cku_stack *stack )
+{
+	return stack->n_elem;
+}
+
+/**
  * @brief Gets the index of the top of the stack (index of last pushed element)
  *
  * @param stack Address of the stack object

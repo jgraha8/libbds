@@ -59,6 +59,16 @@ struct cku_queue *cku_queue_alloc( size_t n_alloc, size_t elem_len );
 void cku_queue_free( struct cku_queue **queue, void (*elem_dtor)(void *) );
 
 /**
+ * @brief Provides the number of elements in the queue
+ *
+ * @param queue Address of queue object
+ */
+static inline size_t cku_queue_size( const struct cku_queue *queue )
+{
+	return queue->n_elem;
+}
+
+/**
  * @brief Tests if the queue is empty
  *
  * @param queue Address of queue object
@@ -79,7 +89,6 @@ static inline bool cku_queue_isfull( const struct cku_queue *queue )
 {
 	return ( queue->n_elem == queue->n_alloc );
 }
-
 
 /**
  * @brief Pushes an element into the back of the queue
