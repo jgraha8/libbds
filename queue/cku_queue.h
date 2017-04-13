@@ -19,6 +19,7 @@ struct cku_queue {
 	size_t n_alloc;  ///< Number of elements allocated in data vector @c v
 	size_t n_elem;   ///< Number of elements currently in the queue  
 	size_t elem_len; ///< Length in bytes of each data element
+	bool auto_resize; ///< Flag for enabling automatic resizing of the queue vector (false by default)
         size_t front;    ///< Index of element at the front of the queue
 	void *v;         ///< Address of ring buffer containing the data
 };
@@ -57,6 +58,17 @@ struct cku_queue *cku_queue_alloc( size_t n_alloc, size_t elem_len );
  * @param elem_dtor Destructor for each data element (disabled if NULL) 
  */
 void cku_queue_free( struct cku_queue **queue, void (*elem_dtor)(void *) );
+
+/**
+ * @brief Resizes the queue using a doubling strategy
+ *
+ * In addition to manually resizing the queue, it can be used to
+ * premptively resize the queue if the auto_resize option is set.
+ *
+ * @param queue Address of queue object
+ *
+ */ 
+void cku_queue_resize( struct cku_queue *queue );
 
 /**
  * @brief Provides the number of elements in the queue

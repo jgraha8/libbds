@@ -15,18 +15,6 @@
 #include "memutil.h"
 
 
-static void resize_queue( struct cku_queue *queue )
-{
-	const size_t n_alloc   = queue->n_alloc << 1; // Double the size (need overflow check here)
-	const size_t elem_len = queue->elem_len;
-	
-	queue->v = xrealloc( queue->v, queue->n_alloc * elem_len, n_alloc * elem_len );
-
-	cku_queue_linearize( queue );
-	queue->n_alloc  = n_alloc;
-}
-
-
 inline static void __queue_incr_front( struct cku_queue *queue )
 {
 	queue->front = ( queue->front + 1 ) % queue->n_alloc;
@@ -79,12 +67,27 @@ void cku_queue_free( struct cku_queue **queue, void (*elem_dtor)(void *) )
 	*queue = NULL;
 }
 
+void cku_queue_resize( struct cku_queue *queue )
+{
+	const size_t n_alloc   = queue->n_alloc << 1; // Double the size (need overflow check here)
+	const size_t elem_len = queue->elem_len;
+	
+	queue->v = xrealloc( queue->v, queue->n_alloc * elem_len, n_alloc * elem_len );
+
+	cku_queue_linearize( queue );
+	queue->n_alloc  = n_alloc;
+}
 
 void cku_queue_push( struct cku_queue *queue, const void *v )
 {	
 	if( cku_queue_isfull( queue ) ) {
 		assert( __queue_end( queue ) == queue->front );
-		resize_queue( queue );
+		if( queue->auto_resize ) {
+			cku_queue_resize( queue );
+		} else {
+			fprintf(stderr,"error: cku::cku_queue_push queue is full and auto_resize = false: cannot perform push\n");
+			exit(EXIT_FAILURE);
+		}
 	}
 	
 	// Copy to the vacant location
