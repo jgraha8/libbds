@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define CKU_QUEUE_ISLINEAR( front, back ) ( (front) <= (back) )
+
 /**
  * @brief Queue data structure
  *
@@ -60,27 +62,6 @@ struct cku_queue *cku_queue_alloc( size_t n_alloc, size_t elem_len );
 void cku_queue_free( struct cku_queue **queue, void (*elem_dtor)(void *) );
 
 /**
- * @brief Resizes the queue using a doubling strategy
- *
- * In addition to manually resizing the queue, it can be used to
- * premptively resize the queue if the auto_resize option is set.
- *
- * @param queue Address of queue object
- *
- */ 
-void cku_queue_resize( struct cku_queue *queue );
-
-/**
- * @brief Provides the number of elements in the queue
- *
- * @param queue Address of queue object
- */
-static inline size_t cku_queue_size( const struct cku_queue *queue )
-{
-	return queue->n_elem;
-}
-
-/**
  * @brief Tests if the queue is empty
  *
  * @param queue Address of queue object
@@ -100,6 +81,27 @@ static inline bool cku_queue_isempty( const struct cku_queue *queue )
 static inline bool cku_queue_isfull( const struct cku_queue *queue )
 {
 	return ( queue->n_elem == queue->n_alloc );
+}
+
+/**
+ * @brief Resizes the queue using a doubling strategy
+ *
+ * In addition to manually resizing the queue, it can be used to
+ * premptively resize the queue if the auto_resize option is set.
+ *
+ * @param queue Address of queue object
+ *
+ */ 
+void cku_queue_resize( struct cku_queue *queue );
+
+/**
+ * @brief Provides the number of elements in the queue
+ *
+ * @param queue Address of queue object
+ */
+static inline size_t cku_queue_size( const struct cku_queue *queue )
+{
+	return queue->n_elem;
 }
 
 /**
@@ -186,6 +188,18 @@ inline static const void *cku_queue_backptr( const struct cku_queue *queue )
 		return NULL;	
 	return (const void *)( queue->v + cku_queue_back( queue ) * queue->elem_len );
 }
+
+/**
+ * @brief Tests if all elements in the queue are linear
+ *
+ * @param queue Address of queue object
+ * @retval Returns true if the queue is linear; false otherwise
+ */ 
+static inline bool cku_queue_islinear( struct cku_queue *queue )
+{
+	return CKU_QUEUE_ISLINEAR( queue->front, cku_queue_back(queue) );
+}
+
 
 /**
  * @brief Linearizes the queue ring buffer

@@ -14,7 +14,6 @@
 #include <ckunkwurx/cku_queue.h>
 #include "memutil.h"
 
-
 inline static void __queue_incr_front( struct cku_queue *queue )
 {
 	queue->front = ( queue->front + 1 ) % queue->n_alloc;
@@ -122,11 +121,11 @@ void cku_queue_clear( struct cku_queue *queue, void (*elem_dtor)(void *) )
 
 void cku_queue_linearize( struct cku_queue *queue )
 {
-
+	
 	const size_t front = queue->front;
 	const size_t back  = cku_queue_back( queue );
 
-	if( front <= back ) return;
+	if( CKU_QUEUE_ISLINEAR( front, back ) ) return;
 
 	const size_t blk_len = (queue->n_alloc - front) * queue->elem_len;
 	void *buffer = xalloc( blk_len );
