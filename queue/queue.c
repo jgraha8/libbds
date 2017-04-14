@@ -119,6 +119,25 @@ void cku_queue_clear( struct cku_queue *queue, void (*elem_dtor)(void *) )
 	queue->n_elem=0;
 }
 
+void cku_queue_clear_nfront( struct cku_queue *queue, size_t n_clear, void (*elem_dtor)(void *) )
+{
+	if( cku_queue_size(queue) < n_clear ) {
+		printf("warning: cku::cku_queue_clear_nfront: n_clear larger than size of queue\n");
+		cku_queue_clear( queue, elem_dtor );
+		return;
+	}
+
+	if( elem_dtor != NULL ) {
+		size_t n;
+		for( n = 0; n<n_clear; ++n ) {
+			elem_dtor( cku_queue_pop( queue, NULL ) );
+		}
+	} else {
+		queue->front = ( queue->front + n_clear ) % queue->n_alloc;
+		queue->n_elem -= n_clear;
+	}
+}
+
 void cku_queue_linearize( struct cku_queue *queue )
 {
 	

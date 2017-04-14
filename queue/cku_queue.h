@@ -130,6 +130,17 @@ void *cku_queue_pop( struct cku_queue *queue, void *v );
 void cku_queue_clear( struct cku_queue *queue, void (*elem_dtor)(void *) );
 
 /**
+ * @brief Clears n-elements from the front of the queue (does not deallocate memory)
+ *
+ * If @c n_clear is greater than or equal to the size of the queue, the entire is queue is cleared.
+ *
+ * @param queue Address of queue object
+ * @param n_clear Number of elements to clear
+ * @param elem_dtor Destructor for each data element (disabled if NULL) 
+ */
+void cku_queue_clear_nfront( struct cku_queue *queue, size_t n_clear, void (*elem_dtor)(void *) );
+
+/**
  * @brief Gets the address of queue data vector
  *
  * @param queue Address of the queue object
