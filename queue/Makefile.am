@@ -2,13 +2,13 @@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example /usr/lib
-noinst_LTLIBRARIES = libckuqueue.la
+noinst_LTLIBRARIES = libbdsqueue.la
 
-pkginclude_HEADERS = cku_queue.h
+pkginclude_HEADERS = bds_queue.h
 
 AM_CPPFLAGS = -I${top_srcdir}
 
-libckuqueue_la_SOURCES = queue.c
+libbdsqueue_la_SOURCES = queue.c
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.

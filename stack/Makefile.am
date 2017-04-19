@@ -2,13 +2,13 @@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example /usr/lib
-noinst_LTLIBRARIES = libckustack.la
+noinst_LTLIBRARIES = libbdsstack.la
 
-pkginclude_HEADERS = cku_stack.h
+pkginclude_HEADERS = bds_stack.h
 
 AM_CPPFLAGS = -I${top_srcdir}
 
-libckustack_la_SOURCES = stack.c
+libbdsstack_la_SOURCES = stack.c
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.

@@ -4,20 +4,20 @@
  *  @author Jason Graham <jgraha8@gmail.com>
  */
 
-#ifndef __CKU_QUEUE_H__
-#define __CKU_QUEUE_H__
+#ifndef __BDS_QUEUE_H__
+#define __BDS_QUEUE_H__
 
 #include <stdlib.h>
 #include <stdbool.h>
 
-#define CKU_QUEUE_ISLINEAR( front, back ) ( (front) <= (back) )
+#define BDS_QUEUE_ISLINEAR( front, back ) ( (front) <= (back) )
 
 /**
  * @brief Queue data structure
  *
  * Data are stored in a ring buffer.
  */
-struct cku_queue {
+struct bds_queue {
 	size_t n_alloc;  ///< Number of elements allocated in data vector @c v
 	size_t n_elem;   ///< Number of elements currently in the queue  
 	size_t elem_len; ///< Length in bytes of each data element
@@ -34,7 +34,7 @@ struct cku_queue {
  * @param n_alloc Number of elements to allocate in the data buffer
  * @param elem_len Length in bytes of each data element
  */
-void cku_queue_ctor( struct cku_queue *queue, size_t n_alloc, size_t elem_len );
+void bds_queue_ctor( struct bds_queue *queue, size_t n_alloc, size_t elem_len );
 
 /**
  * @brief Destructor for the queue data structrue
@@ -42,7 +42,7 @@ void cku_queue_ctor( struct cku_queue *queue, size_t n_alloc, size_t elem_len );
  * @param queue Address of queue object
  * @param elem_dtor Destructor for each data element (disabled if NULL)
  */
-void cku_queue_dtor( struct cku_queue *queue, void (*elem_dtor)(void *) );
+void bds_queue_dtor( struct bds_queue *queue, void (*elem_dtor)(void *) );
 
 /**
  * @brief Allocator for the queue data structrue
@@ -51,7 +51,7 @@ void cku_queue_dtor( struct cku_queue *queue, void (*elem_dtor)(void *) );
  * @param elem_len Length in bytes of each data element
  * @retval Queue data structure
  */
-struct cku_queue *cku_queue_alloc( size_t n_alloc, size_t elem_len );
+struct bds_queue *bds_queue_alloc( size_t n_alloc, size_t elem_len );
 
 /**
  * @brief Frees the queue data structrue 
@@ -59,7 +59,7 @@ struct cku_queue *cku_queue_alloc( size_t n_alloc, size_t elem_len );
  * @param queue Address of queue object address (sets the queue object address to @c NULL)
  * @param elem_dtor Destructor for each data element (disabled if NULL) 
  */
-void cku_queue_free( struct cku_queue **queue, void (*elem_dtor)(void *) );
+void bds_queue_free( struct bds_queue **queue, void (*elem_dtor)(void *) );
 
 /**
  * @brief Tests if the queue is empty
@@ -67,7 +67,7 @@ void cku_queue_free( struct cku_queue **queue, void (*elem_dtor)(void *) );
  * @param queue Address of queue object
  * @retval Returns true if the queue is empty; false otherwise
  */
-static inline bool cku_queue_isempty( const struct cku_queue *queue )
+static inline bool bds_queue_isempty( const struct bds_queue *queue )
 {
 	return ( queue->n_elem == 0 );
 }
@@ -78,7 +78,7 @@ static inline bool cku_queue_isempty( const struct cku_queue *queue )
  * @param queue Address of queue object
  * @retval Returns true if the queue is full; false otherwise
  */
-static inline bool cku_queue_isfull( const struct cku_queue *queue )
+static inline bool bds_queue_isfull( const struct bds_queue *queue )
 {
 	return ( queue->n_elem == queue->n_alloc );
 }
@@ -92,14 +92,14 @@ static inline bool cku_queue_isfull( const struct cku_queue *queue )
  * @param queue Address of queue object
  *
  */ 
-void cku_queue_resize( struct cku_queue *queue );
+void bds_queue_resize( struct bds_queue *queue );
 
 /**
  * @brief Provides the number of elements in the queue
  *
  * @param queue Address of queue object
  */
-static inline size_t cku_queue_size( const struct cku_queue *queue )
+static inline size_t bds_queue_size( const struct bds_queue *queue )
 {
 	return queue->n_elem;
 }
@@ -110,7 +110,7 @@ static inline size_t cku_queue_size( const struct cku_queue *queue )
  * @param queue Address of queue object
  * @param v Address of data element to enqueue
  */   
-void cku_queue_push( struct cku_queue *queue, const void *v );
+void bds_queue_push( struct bds_queue *queue, const void *v );
 
 /**
  * @brief Pops an element from the front of the queue
@@ -119,7 +119,7 @@ void cku_queue_push( struct cku_queue *queue, const void *v );
  * @param v Address of a buffer to copy the popped data element (if @c NULL then the element is not copied)
  * @retval Address of the internal stack vector of popped data element (returns @c NULL if the queue is empty)
  */   
-void *cku_queue_pop( struct cku_queue *queue, void *v );
+void *bds_queue_pop( struct bds_queue *queue, void *v );
 
 /**
  * @brief Clears the queue (does not deallocate memory)
@@ -127,7 +127,7 @@ void *cku_queue_pop( struct cku_queue *queue, void *v );
  * @param queue Address of queue object
  * @param elem_dtor Destructor for each data element (disabled if NULL) 
  */
-void cku_queue_clear( struct cku_queue *queue, void (*elem_dtor)(void *) );
+void bds_queue_clear( struct bds_queue *queue, void (*elem_dtor)(void *) );
 
 /**
  * @brief Clears n-elements from the front of the queue (does not deallocate memory)
@@ -138,7 +138,7 @@ void cku_queue_clear( struct cku_queue *queue, void (*elem_dtor)(void *) );
  * @param n_clear Number of elements to clear
  * @param elem_dtor Destructor for each data element (disabled if NULL) 
  */
-void cku_queue_clear_nfront( struct cku_queue *queue, size_t n_clear, void (*elem_dtor)(void *) );
+void bds_queue_clear_nfront( struct bds_queue *queue, size_t n_clear, void (*elem_dtor)(void *) );
 
 /**
  * @brief Gets the address of queue data vector
@@ -146,7 +146,7 @@ void cku_queue_clear_nfront( struct cku_queue *queue, size_t n_clear, void (*ele
  * @param queue Address of the queue object
  * @retval Address of the internal queue vector
  */
-inline static const void *cku_queue_ptr( const struct cku_queue *queue )
+inline static const void *bds_queue_ptr( const struct bds_queue *queue )
 {
 	return (const void *)queue->v;
 }
@@ -157,7 +157,7 @@ inline static const void *cku_queue_ptr( const struct cku_queue *queue )
  * @param stack Address of the queue object
  * @retval Index of front element in the queue
  */
-inline static size_t cku_queue_front( const struct cku_queue *queue )
+inline static size_t bds_queue_front( const struct bds_queue *queue )
 {
 	return queue->front;
 }
@@ -168,9 +168,9 @@ inline static size_t cku_queue_front( const struct cku_queue *queue )
  * @param stack address of the stack object
  * @retval address of the internal queue vector of the front data element (returns @c NULL if the queue is empty)
  */
-inline static const void *cku_queue_frontptr( const struct cku_queue *queue )
+inline static const void *bds_queue_frontptr( const struct bds_queue *queue )
 {
-	if( cku_queue_isempty( queue ) )
+	if( bds_queue_isempty( queue ) )
 		return NULL;
 	return (const void *)( queue->v + queue->front * queue->elem_len );
 }
@@ -181,7 +181,7 @@ inline static const void *cku_queue_frontptr( const struct cku_queue *queue )
  * @param stack Address of the queue object
  * @retval Index of back element in the queue
  */
-inline static size_t cku_queue_back( const struct cku_queue *queue )
+inline static size_t bds_queue_back( const struct bds_queue *queue )
 {
 	// Becareful with the subtraction of non-signed integral types
 	return ( queue->front + queue->n_elem + queue->n_alloc - 1 ) % queue->n_alloc;
@@ -193,11 +193,11 @@ inline static size_t cku_queue_back( const struct cku_queue *queue )
  * @param stack Address of the stack object
  * @retval Address of the internal queue vector of the back data element (returns @c NULL if the queue is empty)
  */
-inline static const void *cku_queue_backptr( const struct cku_queue *queue )
+inline static const void *bds_queue_backptr( const struct bds_queue *queue )
 {
-	if( cku_queue_isempty( queue ) )
+	if( bds_queue_isempty( queue ) )
 		return NULL;	
-	return (const void *)( queue->v + cku_queue_back( queue ) * queue->elem_len );
+	return (const void *)( queue->v + bds_queue_back( queue ) * queue->elem_len );
 }
 
 /**
@@ -206,9 +206,9 @@ inline static const void *cku_queue_backptr( const struct cku_queue *queue )
  * @param queue Address of queue object
  * @retval Returns true if the queue is linear; false otherwise
  */ 
-static inline bool cku_queue_islinear( struct cku_queue *queue )
+static inline bool bds_queue_islinear( struct bds_queue *queue )
 {
-	return CKU_QUEUE_ISLINEAR( queue->front, cku_queue_back(queue) );
+	return BDS_QUEUE_ISLINEAR( queue->front, bds_queue_back(queue) );
 }
 
 
@@ -217,14 +217,14 @@ static inline bool cku_queue_islinear( struct cku_queue *queue )
  *
  * This procedure ensures that all elements are contiguous starting
  * from @c front to @c back. The address of the queue data vector
- * returned by @c cku_queue_ptr is not modified.
+ * returned by @c bds_queue_ptr is not modified.
  *
  * @param stack Address of the stack object
  */
-void cku_queue_linearize( struct cku_queue *queue );
+void bds_queue_linearize( struct bds_queue *queue );
 
-const void *cku_queue_lsearch( const struct cku_queue *queue, const void *key,
+const void *bds_queue_lsearch( const struct bds_queue *queue, const void *key,
 			       int (*compar)( const void *, const void *) );
 
 
-#endif // __CKU_QUEUE_H__
+#endif // __BDS_QUEUE_H__

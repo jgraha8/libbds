@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 dnl AC_PREREQ([2.59])
-AC_INIT([ckunkwurx], [0.0.0], [jgraha8@gmail.com])
+AC_INIT([libbds], [0.0.0], [jgraha8@gmail.com])
 
 AM_INIT_AUTOMAKE([gnu])
 AC_CONFIG_HEADERS([config.h])
@@ -118,12 +118,12 @@ DX_RTF_FEATURE([OFF])
 DX_XML_FEATURE([OFF])
 DX_PDF_FEATURE([ON])
 DX_PS_FEATURE([OFF])
-DX_INIT_DOXYGEN([ckunkwurx],[doxygen/doxygen.cfg],[docs])
+DX_INIT_DOXYGEN([libbds],[doxygen/doxygen.cfg],[docs])
 
 
 AC_CONFIG_FILES([	\
 Makefile		\
-ckunkwurx/Makefile	\
+libbds/Makefile		\
 queue/Makefile 		\
 stack/Makefile		\
 ])
