@@ -14,15 +14,26 @@
 #include <libbds/bds_queue.h>
 #include "memutil.h"
 
+#ifdef QUEUE_POW2_ALLOC
+#define MOD( a, b ) ( (a) & ((b)-1) )
+#else
+#define MOD( a, b ) ( (a) % (b) )
+#endif
+
+/* static inline double log2( double x ) */
+/* { */
+/* 	return ( log(x) / log(2.0) ); */
+/* } */
+
 inline static void __queue_incr_front( struct bds_queue *queue )
 {
-	queue->front = ( queue->front + 1 ) % queue->n_alloc;
+	queue->front = MOD( queue->front + 1, queue->n_alloc);
 }
 
 inline static size_t __queue_end( const struct bds_queue *queue )
 {
 	assert( queue->n_alloc > 0 );
-	return ( ( bds_queue_back( queue ) + 1 ) % queue->n_alloc );
+	return MOD( bds_queue_back( queue ) + 1, queue->n_alloc );
 }
 
 inline static const void *__queue_endptr( const struct bds_queue *queue )
@@ -35,7 +46,11 @@ void bds_queue_ctor( struct bds_queue *queue, size_t n_alloc, size_t elem_len )
 {
 	memset(queue, 0, sizeof(*queue));
 
+#ifdef QUEUE_POW2_ALLOC	
+	queue->n_alloc   = (1UL << (unsigned long)ceil( log2( n_alloc ) ));
+#else
 	queue->n_alloc   = n_alloc;
+#endif
 	queue->elem_len = elem_len;
 
 	queue->v = xalloc( n_alloc * elem_len );
@@ -133,7 +148,7 @@ void bds_queue_clear_nfront( struct bds_queue *queue, size_t n_clear, void (*ele
 			elem_dtor( bds_queue_pop( queue, NULL ) );
 		}
 	} else {
-		queue->front = ( queue->front + n_clear ) % queue->n_alloc;
+		queue->front = MOD( queue->front + n_clear, queue->n_alloc);
 		queue->n_elem -= n_clear;
 	}
 }
@@ -170,7 +185,7 @@ const void *bds_queue_lsearch( const struct bds_queue *queue, const void *key,
 	for( i=0; i<queue->n_elem; ++i ) {
 		v = queue->v + j*queue->elem_len;
 		if( compar( key, v ) == 0 ) return v;
-		j = ( j + 1 ) % queue->n_alloc;
+		j = MOD( j + 1,  queue->n_alloc );
 	}
 	return NULL;
 }
