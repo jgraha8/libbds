@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+#include "config.h"
 /**
  * @brief Stack data structure
  */

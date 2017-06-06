@@ -17,7 +17,7 @@ libbds_la_SOURCES = version.c
 libbds_la_LDFLAGS=-version-info 0:0:0
 libbds_la_LIBADD = $(SUBLIBS)
 
-pkginclude_HEADERS = bds_version.h
+pkginclude_HEADERS = bds_version.h bds_modulus.h
 
 noinst_HEADERS = memutil.h
 

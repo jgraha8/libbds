@@ -14,12 +14,6 @@
 #include <libbds/bds_queue.h>
 #include "memutil.h"
 
-#ifdef QUEUE_POW2_ALLOC
-#define MOD( a, b ) ( (a) & ((b)-1) )
-#else
-#define MOD( a, b ) ( (a) % (b) )
-#endif
-
 /* static inline double log2( double x ) */
 /* { */
 /* 	return ( log(x) / log(2.0) ); */
@@ -27,13 +21,13 @@
 
 inline static void __queue_incr_front( struct bds_queue *queue )
 {
-	queue->front = MOD( queue->front + 1, queue->n_alloc);
+	queue->front = BDS_MOD( queue->front + 1, queue->n_alloc);
 }
 
 inline static size_t __queue_end( const struct bds_queue *queue )
 {
 	assert( queue->n_alloc > 0 );
-	return MOD( bds_queue_back( queue ) + 1, queue->n_alloc );
+	return BDS_MOD( bds_queue_back( queue ) + 1, queue->n_alloc );
 }
 
 inline static const void *__queue_endptr( const struct bds_queue *queue )
@@ -46,7 +40,7 @@ void bds_queue_ctor( struct bds_queue *queue, size_t n_alloc, size_t elem_len )
 {
 	memset(queue, 0, sizeof(*queue));
 
-#ifdef QUEUE_POW2_ALLOC	
+#ifdef BDS_USE_OPTIMIZED_MOD
 	queue->n_alloc   = (1UL << (unsigned long)ceil( log2( n_alloc ) ));
 #else
 	queue->n_alloc   = n_alloc;
@@ -99,7 +93,7 @@ void bds_queue_push( struct bds_queue *queue, const void *v )
 		if( queue->auto_resize ) {
 			bds_queue_resize( queue );
 		} else {
-			fprintf(stderr,"error: cku::bds_queue_push queue is full and auto_resize = false: cannot perform push\n");
+			fprintf(stderr,"error: bds_queue_push queue is full and auto_resize = false: cannot perform push\n");
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -137,7 +131,7 @@ void bds_queue_clear( struct bds_queue *queue, void (*elem_dtor)(void *) )
 void bds_queue_clear_nfront( struct bds_queue *queue, size_t n_clear, void (*elem_dtor)(void *) )
 {
 	if( bds_queue_size(queue) < n_clear ) {
-		printf("warning: cku::bds_queue_clear_nfront: n_clear larger than size of queue\n");
+		printf("warning: bds_queue_clear_nfront: n_clear larger than size of queue\n");
 		bds_queue_clear( queue, elem_dtor );
 		return;
 	}
@@ -148,7 +142,7 @@ void bds_queue_clear_nfront( struct bds_queue *queue, size_t n_clear, void (*ele
 			elem_dtor( bds_queue_pop( queue, NULL ) );
 		}
 	} else {
-		queue->front = MOD( queue->front + n_clear, queue->n_alloc);
+		queue->front = BDS_MOD( queue->front + n_clear, queue->n_alloc);
 		queue->n_elem -= n_clear;
 	}
 }
@@ -185,7 +179,7 @@ const void *bds_queue_lsearch( const struct bds_queue *queue, const void *key,
 	for( i=0; i<queue->n_elem; ++i ) {
 		v = queue->v + j*queue->elem_len;
 		if( compar( key, v ) == 0 ) return v;
-		j = MOD( j + 1,  queue->n_alloc );
+		j = BDS_MOD( j + 1,  queue->n_alloc );
 	}
 	return NULL;
 }

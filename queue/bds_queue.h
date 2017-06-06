@@ -9,12 +9,8 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-
-#ifdef QUEUE_POW2_ALLOC
-#define MOD( a, b ) ( (a) & ((b)-1) )
-#else
-#define MOD( a, b ) ( (a) % (b) )
-#endif
+#include <config.h>
+#include <libbds/bds_modulus.h>
 
 #define BDS_QUEUE_ISLINEAR( front, back ) ( (front) <= (back) )
 
@@ -190,7 +186,7 @@ inline static const void *bds_queue_frontptr( const struct bds_queue *queue )
 inline static size_t bds_queue_back( const struct bds_queue *queue )
 {
 	// return ( queue->front + queue->n_elem + queue->n_alloc - 1 ) % queue->n_alloc;
-	return MOD( queue->front + queue->n_elem + queue->n_alloc - 1, queue->n_alloc );
+	return BDS_MOD( queue->front + queue->n_elem + queue->n_alloc - 1, queue->n_alloc );
 }
 
 /**
@@ -232,7 +228,5 @@ void bds_queue_linearize( struct bds_queue *queue );
 const void *bds_queue_lsearch( const struct bds_queue *queue, const void *key,
 			       int (*compar)( const void *, const void *) );
 
-
-#undef MOD // Do not export MOD macro
 
 #endif // __BDS_QUEUE_H__

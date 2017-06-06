@@ -50,6 +50,16 @@ AC_CHECK_HEADERS([assert.h stdbool.h stdio.h stdlib.h string.h math.h assert.h s
 # Add C99 flag
 CFLAGS="${CFLAGS} -std=c99"
 
+# Process options
+dnl Example of default-disabled feature
+AC_ARG_ENABLE([optimized_mod],
+    AS_HELP_STRING([--enable-optimized-mod], [enable optimized modulus operations (enforces power-of-two allocation for relevant vectors)]))
+
+AS_IF([test "x$enable_optimized_mod" = "xyes"], [
+    AC_SUBST([BDS_USE_OPTIMIZED_MOD],[1])
+])
+
+AC_OUTPUT(bds_modulus.h)
 dnl ## Make sure flags are set to something (otherwise macros may set them later).
 dnl AM_CFLAGS="${AM_CFLAGS}"
 dnl AM_CXXFLAGS="${AM_CXXFLAGS}"
