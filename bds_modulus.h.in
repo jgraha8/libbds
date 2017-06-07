@@ -5,16 +5,19 @@
  * @author Jason Graham <jason.graham@nrl.navy.mil>
  */
 
-#ifndef __BDS_MODULUS_H__
-#define __BDS_MODULUS_H__
+/* #ifndef __BDS_MODULUS_H__ */
+/* #define __BDS_MODULUS_H__ */
 
 #define BDS_USE_OPTIMIZED_MOD @BDS_USE_OPTIMIZED_MOD@
 
 #if BDS_USE_OPTIMIZED_MOD == 1
 #define BDS_MOD( a, b ) ( (a) & ((b)-1) )
 #else
+#ifndef __BDS_MODULUS_WARN__
 #warning "using non-optimized modulus"
+#define __BDS_MODULUS_WARN__
+#endif
 #define BDS_MOD( a, b ) ( (a) % (b) )
 #endif
 
-#endif // __BDS_MODULUS_H__
+// #endif // __BDS_MODULUS_H__

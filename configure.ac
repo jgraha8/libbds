@@ -4,8 +4,10 @@
 dnl AC_PREREQ([2.59])
 AC_INIT([libbds], [0.0.0], [jgraha8@gmail.com])
 
-AM_INIT_AUTOMAKE([gnu])
+AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADERS([config.h])
+AM_INIT_AUTOMAKE([gnu])
+
 ## AM_MAINTAINER_MODE turns off "rebuild rules" that contain dependencies
 ## for Makefiles, configure, src/H5config.h, etc.  If AM_MAINTAINER_MODE
 ## is *not* included here, these files will be rebuilt if out of date.
@@ -48,16 +50,16 @@ AC_CHECK_HEADERS([assert.h stdbool.h stdio.h stdlib.h string.h math.h assert.h s
 #AC_CHECK_HEADERS([gsl/gsl_errno.h gsl/gsl_spline.h])
 
 # Add C99 flag
-CFLAGS="${CFLAGS} -std=c99"
-
+CFLAGS="${CFLAGS} -std=c99
+"
 # Process options
 dnl Example of default-disabled feature
 AC_ARG_ENABLE([optimized_mod],
     AS_HELP_STRING([--enable-optimized-mod], [enable optimized modulus operations (enforces power-of-two allocation for relevant vectors)]))
 
-AS_IF([test "x$enable_optimized_mod" = "xyes"], [
-    AC_SUBST([BDS_USE_OPTIMIZED_MOD],[1])
-])
+AS_IF([test "x$enable_optimized_mod" = "xyes"],
+      [AC_SUBST([BDS_USE_OPTIMIZED_MOD],[1])],
+      [AC_SUBST([BDS_USE_OPTIMIZED_MOD],[0])])
 
 AC_OUTPUT(bds_modulus.h)
 dnl ## Make sure flags are set to something (otherwise macros may set them later).
