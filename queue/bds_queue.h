@@ -9,7 +9,6 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <config.h>
 #include <libbds/bds_modulus.h>
 
 #define BDS_QUEUE_ISLINEAR( front, back ) ( (front) <= (back) )
