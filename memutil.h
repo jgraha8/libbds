@@ -29,13 +29,11 @@ static void *xrealloc( void *v, size_t len_old, size_t len )
 	return _v;
 }
 
-static inline void xmemswap( void *a, void *b, size_t len )
+static inline void xmemswap( void *a, void *b, size_t len, void *buf )
 {
-	char tmp[len];
-	
-	memcpy( tmp, a  , len );
+	memcpy( buf, a  , len );
 	memcpy( a  , b  , len );
-	memcpy( b  , tmp, len );
+	memcpy( b  , buf, len );
 }
 
 #endif
