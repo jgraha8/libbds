@@ -1,9 +1,13 @@
 #ifndef __BDS_STRING_H__
 #define __BDS_STRING_H__
 
+#include <stdbool.h>
+
 bool bds_string_contains( const char *str, const char *substr );
 
 char *bds_string_adjustl( char *str );
+
+char *bds_string_adjustr( char *str );
 
 char *bds_string_trim( char *str );
 

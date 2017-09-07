@@ -17,11 +17,10 @@ char *bds_string_adjustl( char *str )
 {
 	const size_t str_len = strlen(str);
 
-	char *c = str;
+	const char *c = str;
 	while( *c == ' ' ) ++c;
 	
 	long long move_len = c - str;
-	
 	if( move_len == str_len ) { // Occurs when string is empty
 		*str = '\0';
 	} else {
@@ -30,6 +29,27 @@ char *bds_string_adjustl( char *str )
 
 	return str;
 }
+
+char *bds_string_adjustr( char *str )
+{
+	const size_t str_len = strlen(str);
+	const char *const str_end = str + str_len;
+	const char *c = str_end;
+
+	while( c != str &&  *(c-1) == ' ' ) --c;
+
+	const long long move_len = str_end - c;
+
+	if( move_len == str_len ) {
+		*str = '\0';
+	} else {
+		memmove( str + move_len, str, str_len - move_len);
+		memset( str, ' ', move_len);
+	}
+
+	return str;
+}
+
 
 char *bds_string_trim( char *str )
 {
@@ -75,9 +95,12 @@ void bds_string_tokenize_w( char *str, const char *delim, size_t *num_tok, char 
 			break;
 
 		if( strncmp( c, delim, delim_len ) == 0 ) {
-			// New string
-			*c = '\0';			
-			append_tok( str, &alloc_tok, num_tok, tok );
+			// Do not include empty strings
+			if( c - str > 0 ) {
+				// New string
+				*c = '\0';			
+				append_tok( str, &alloc_tok, num_tok, tok );
+			}
 			__str = str = c + delim_len;
 		} else {
 			__str = c + 1;
