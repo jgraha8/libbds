@@ -165,7 +165,7 @@ lock_old_archive_extraction=no
 LTCC="gcc"
 
 # LTCC compiler flags.
-LTCFLAGS="-g -O2 -std=c99"
+LTCFLAGS="-O0 -Wall -g -std=c99 -std=c99"
 
 # Take the output of nm and produce a listing of raw symbols and C names.
 global_symbol_pipe="sed -n -e 's/^.*[	 ]\\([ABCDGIRSTW][ABCDGIRSTW]*\\)[	 ][	 ]*\\([_A-Za-z][_A-Za-z0-9]*\\)\$/\\1 \\2 \\2/p' | sed '/ __gnu_lto/d'"
@@ -285,7 +285,7 @@ hardcode_into_libs=yes
 sys_lib_search_path_spec="/usr/lib/gcc/x86_64-pc-linux-gnu/4.9.4 /usr/lib64 /lib64 /usr/x86_64-pc-linux-gnu/lib /usr/lib /lib "
 
 # Detected run-time system search path for libraries.
-sys_lib_dlsearch_path_spec="/lib /usr/lib /lib64 /usr/lib64 /usr/local/lib64 /lib32 /usr/lib32 /usr/local/lib32 /lib /usr/lib /usr/local/lib /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.4/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.4 /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3 /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.5/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.5 /opt/intel/opencl /usr/lib32/OpenCL/vendors/nvidia /usr/lib64/OpenCL/vendors/nvidia /usr/lib64/qt4 /usr/lib64/sidplay/builders /usr/lib/sidplay/builders /opt/cuda/lib64 /opt/cuda/lib /opt/cuda/nvvm/lib64 /usr/lib64/fltk /usr/lib64/octave/4.2.1 "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/lib32/opengl/nvidia/lib /usr/lib64/opengl/nvidia/lib /lib64 /usr/lib64 /usr/local/lib64 /lib32 /usr/lib32 /usr/local/lib32 /lib /usr/lib /usr/local/lib /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.4/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.4 /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.9.3 /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.5/32 /usr/lib/gcc/x86_64-pc-linux-gnu/4.8.5 /opt/intel/opencl /usr/lib32/OpenCL/vendors/nvidia /usr/lib64/OpenCL/vendors/nvidia /usr/lib64/qt4 /usr/lib64/sidplay/builders /usr/lib/sidplay/builders /opt/cuda/lib64 /opt/cuda/lib /opt/cuda/nvvm/lib64 /usr/lib64/fltk /usr/lib64/octave/4.2.1 "
 
 # Explicit LT_SYS_LIBRARY_PATH set during ./configure time.
 configure_time_lt_sys_library_path=""

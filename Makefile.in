@@ -421,13 +421,15 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = \
 	libbds \
 	queue	\
-	stack
+	stack	\
+	string
 
 
 #SUBLIBS = bspline/libdscsbspline.la lagrange/libdscslagrange.la psolver/libdscspsolver.la sparselu/libdscssparselu.la
 SUBLIBS = \
 	queue/libbdsqueue.la \
-	stack/libbdsstack.la
+	stack/libbdsstack.la \
+	string/libbdsstring.la
 
 lib_LTLIBRARIES = libbds.la
 libbds_la_SOURCES = version.c

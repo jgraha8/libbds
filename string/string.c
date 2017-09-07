@@ -2,14 +2,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <libbds/bds_string.h>
 
 #define MAX(a,b) ( (a) > (b) ? (a) : (b) )
+
+static inline void append_tok( char *str, size_t *alloc_size, size_t *num_tok, char **(*tok) );
 
 bool bds_string_contains( const char *str, const char *substr )
 {
 	return ( strstr( str, substr ) != NULL );
 }
-
 
 char *bds_string_adjustl( char *str )
 {
@@ -38,14 +40,6 @@ char *bds_string_trim( char *str )
 	return str;
 }
 
-static inline void append_tok( char *str, size_t *alloc_size, size_t *num_tok, char **(*tok) )
-{
-	if( *num_tok == *alloc_size ) {
-		*alloc_size = MAX( (*alloc_size) << 1, 2 );
-		*tok = realloc( *tok, (*alloc_size) * sizeof(**tok) );
-	}
-	(*tok)[(*num_tok)++] = str;	
-}
 
 void bds_string_tokenize( char *str, const char *delim,  size_t *num_tok, char **(*tok) )
 {
@@ -115,39 +109,12 @@ char *bds_string_substr( const char *str, size_t pos, size_t len )
 }
 
 
-int main(int argc, char *argv[] )
+	
+static inline void append_tok( char *str, size_t *alloc_size, size_t *num_tok, char **(*tok) )
 {
-	if( argc != 3 ) {
-		fprintf(stderr, "Usage: %s string arg\n", argv[0]);
-		exit(EXIT_FAILURE);
+	if( *num_tok == *alloc_size ) {
+		*alloc_size = MAX( (*alloc_size) << 1, 2 );
+		*tok = realloc( *tok, (*alloc_size) * sizeof(**tok) );
 	}
-
-	//bds_string_trim( bds_string_adjustl( argv[2] ) );
-	
-	printf("%s contains %s = %d\n",
-	       argv[1], argv[2],
-	       bds_string_contains(argv[1], argv[2]));
-	
-	// Sub-string
-	char *substr = bds_string_substr( argv[1], 4, 6 );
-	if( substr ) {
-		printf("sub-string %s\n", substr );
-	}
-	
-	// Tokenize
-	size_t num_tok;
-	char **tok;
-
-	bds_string_tokenize_w( argv[1], argv[2], &num_tok, &tok );
-
-	for( size_t n=0; n<num_tok; ++n ) {
-		bds_string_trim( bds_string_adjustl( tok[n] ) );		
-		printf("%s\n", tok[n]);
-	}
-
-	free(tok);
-
-	
-	return 0;
+	(*tok)[(*num_tok)++] = str;	
 }
-	

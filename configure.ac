@@ -138,6 +138,7 @@ Makefile		\
 libbds/Makefile		\
 queue/Makefile 		\
 stack/Makefile		\
+string/Makefile		\
 ])
 
 
