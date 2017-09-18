@@ -8,6 +8,10 @@
 
 static inline void append_tok( char *str, size_t *alloc_size, size_t *num_tok, char **(*tok) );
 
+static char *__adjustl( char *str, size_t str_len );
+
+static char *__trim( char *str, size_t str_len );
+
 bool bds_string_contains( const char *str, const char *substr )
 {
 	return ( strstr( str, substr ) != NULL );
@@ -15,19 +19,7 @@ bool bds_string_contains( const char *str, const char *substr )
 
 char *bds_string_adjustl( char *str )
 {
-	const size_t str_len = strlen(str);
-
-	const char *c = str;
-	while( *c == ' ' ) ++c;
-	
-	long long move_len = c - str;
-	if( move_len == str_len ) { // Occurs when string is empty
-		*str = '\0';
-	} else {
-		memmove( str, c, str_len - move_len + 1); // Copy the null character
-	}
-
-	return str;
+	return __adjustl( str, strlen(str) );
 }
 
 char *bds_string_adjustr( char *str )
@@ -39,10 +31,9 @@ char *bds_string_adjustr( char *str )
 	while( c != str &&  *(c-1) == ' ' ) --c;
 
 	const long long move_len = str_end - c;
-
 	if( move_len == str_len ) {
 		*str = '\0';
-	} else {
+	} else if( move_len > 0 ) {
 		memmove( str + move_len, str, str_len - move_len);
 		memset( str, ' ', move_len);
 	}
@@ -50,16 +41,16 @@ char *bds_string_adjustr( char *str )
 	return str;
 }
 
-
 char *bds_string_trim( char *str )
 {
-	char *c = str + strlen(str);
-	while( c != str &&  *(c-1) == ' ' ) --c;
-	*c = '\0';
-
-	return str;
+	return __trim( str, strlen(str) );
 }
 
+char *bds_string_atrim( char *str )
+{
+	const size_t str_len = strlen( str );
+	return __trim( __adjustl( str, str_len ), str_len );
+}
 
 void bds_string_tokenize( char *str, const char *delim,  size_t *num_tok, char **(*tok) )
 {
@@ -77,7 +68,7 @@ void bds_string_tokenize( char *str, const char *delim,  size_t *num_tok, char *
 	}
 }
 
-void bds_string_tokenize_w( char *str, const char *delim, size_t *num_tok, char **(*tok) )
+void bds_string_wtokenize( char *str, const char *delim, size_t *num_tok, char **(*tok) )
 {
 	const char * const str_end = str + strlen(str);
 	const size_t delim_len     = strlen(delim);
@@ -116,22 +107,54 @@ void bds_string_tokenize_w( char *str, const char *delim, size_t *num_tok, char 
 
 }
 
-char *bds_string_substr( const char *str, size_t pos, size_t len )
+char *bds_string_substr( const char *str, size_t len )
 {
-
-	const size_t str_len = strlen(str);
-	
-	if( pos + len > str_len )
+	if( len > strlen(str) )
 		return NULL;	
 			
 	char *substr = malloc( len + 1 );
-	strncpy( substr, str + pos, len );
+	//strncpy( substr, str, len );
+	memcpy( substr, str, len );
 	substr[len] = '\0';
 	
 	return substr;
 }
 
+char *bds_string_find( const char *str, const char *seq ) 
+{
+	return strstr( str, seq );
+}
 
+char *bds_string_rfind( const char *str, const char *seq )
+{
+      	const size_t seq_len = strlen(seq);
+      	const char *s        = str + strlen(str) - seq_len;
+
+	while( s >= str ) {
+		while( *s != seq[0] ) {
+			if( s == str ) break;
+			--s;
+		}
+
+		if( strncmp( s, seq, seq_len ) == 0 ) {
+			return (char *)s;
+		}
+		--s;
+      	}
+
+	return NULL;
+}
+
+
+char *bds_string_dup( const char *str )
+{
+	const size_t str_len = strlen( str );
+	char *s = malloc( str_len + 1 );
+	if( s ) {
+		memcpy( s, str, str_len + 1 );
+	}
+	return s;
+}
 	
 static inline void append_tok( char *str, size_t *alloc_size, size_t *num_tok, char **(*tok) )
 {
@@ -140,4 +163,29 @@ static inline void append_tok( char *str, size_t *alloc_size, size_t *num_tok, c
 		*tok = realloc( *tok, (*alloc_size) * sizeof(**tok) );
 	}
 	(*tok)[(*num_tok)++] = str;	
+}
+
+static char *__adjustl( char *str, size_t str_len )
+{
+	const char *c = str;
+	while( *c == ' ' ) ++c;
+	
+	long long move_len = c - str;
+	if( move_len == str_len ) { // Occurs when string is empty
+		*str = '\0';
+	} else if( move_len > 0 ) {
+		memmove( str, c, str_len - move_len + 1); // Copy the null character
+	}
+
+	return str;
+}
+
+static char *__trim( char *str, size_t str_len )
+{
+	char *c = str + str_len;
+	while( c != str &&  *(c-1) == ' ' ) --c;
+	*c = '\0';
+
+	return str;
+
 }
