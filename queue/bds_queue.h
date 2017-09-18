@@ -212,7 +212,6 @@ static inline bool bds_queue_islinear( struct bds_queue *queue )
 	return BDS_QUEUE_ISLINEAR( queue->front, bds_queue_back(queue) );
 }
 
-
 /**
  * @brief Linearizes the queue ring buffer
  *
