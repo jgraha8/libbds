@@ -16363,7 +16363,7 @@ esac
 
 
 
-ac_config_files="$ac_config_files Makefile libbds/Makefile queue/Makefile stack/Makefile string/Makefile"
+ac_config_files="$ac_config_files Makefile libbds/Makefile queue/Makefile stack/Makefile string/Makefile vector/Makefile"
 
 
 
@@ -17437,6 +17437,7 @@ do
     "queue/Makefile") CONFIG_FILES="$CONFIG_FILES queue/Makefile" ;;
     "stack/Makefile") CONFIG_FILES="$CONFIG_FILES stack/Makefile" ;;
     "string/Makefile") CONFIG_FILES="$CONFIG_FILES string/Makefile" ;;
+    "vector/Makefile") CONFIG_FILES="$CONFIG_FILES vector/Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac
