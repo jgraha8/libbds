@@ -6,15 +6,13 @@ SUBDIRS= \
 	libbds \
 	queue	\
 	stack	\
-	string \
-	vector
+	string
 
 #SUBLIBS = bspline/libdscsbspline.la lagrange/libdscslagrange.la psolver/libdscspsolver.la sparselu/libdscssparselu.la
 SUBLIBS = \
 	queue/libbdsqueue.la \
 	stack/libbdsstack.la \
-	string/libbdsstring.la \
-	vector/libbdsvector.la
+	string/libbdsstring.la
 
 lib_LTLIBRARIES = libbds.la
 libbds_la_SOURCES = version.c

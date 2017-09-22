@@ -139,7 +139,6 @@ libbds/Makefile		\
 queue/Makefile 		\
 stack/Makefile		\
 string/Makefile		\
-vector/Makefile		\
 ])
 
 
