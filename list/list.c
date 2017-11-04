@@ -19,7 +19,7 @@ struct list_node;
 struct list_node {
         void *v;
         struct list_node *next;
-} list_node;
+};
 
 struct bds_list {
         size_t elem_len;
@@ -38,7 +38,6 @@ static int free_list_node(struct list_node *node, struct list_node *prev, void (
         if (elem_dtor)
                 elem_dtor(node->v);
 
-        free(node->v);
         free(node);
 
         return 0;
@@ -51,7 +50,6 @@ static void destroy_list(struct list_node *node, void (*elem_dtor)(void *))
 
         if (elem_dtor)
                 elem_dtor(node->v);
-        free(node->v);
 
         destroy_list(node->next, elem_dtor);
 
@@ -63,6 +61,7 @@ void bds_list_ctor(struct bds_list *list, size_t elem_len, void (*elem_dtor)(voi
         memset(list, 0, sizeof(*list));
 
         list->elem_len = elem_len;
+	list->elem_dtor = elem_dtor;
 }
 
 void bds_list_dtor(struct bds_list *list) { destroy_list(list->head, list->elem_dtor); }
@@ -97,9 +96,9 @@ struct list_node *last_node(struct list_node *node)
 
 struct list_node *alloc_node(size_t elem_len, const void *v)
 {
-        struct list_node *node = xalloc(sizeof(*node));
+        struct list_node *node = xalloc(sizeof(*node) + elem_len);
 
-        node->v = malloc(elem_len);
+        node->v = (void *)node + sizeof(*node);
         memcpy(node->v, v, elem_len);
 
         return node;
@@ -186,22 +185,71 @@ int bds_list_insert_before(struct bds_list *list, const void *v, const void *key
         return 0;
 }
 
+int bds_list_insert_sort(struct bds_list *list, const void *v, int (*compar)(const void *, const void *))
+{
+        struct list_node **node = &list->head;
+	struct list_node *prev = NULL;
+	
+	while( *node && compar(v, (*node)->v) > 0 ) {
+		prev = *node;
+		node = &(*node)->next;
+	}
+	
+	struct list_node *new_node = alloc_node(list->elem_len, v);
+
+	new_node->next = *node;
+	*node = new_node;
+
+	if( prev ) {
+		prev->next = *node;
+	}
+
+        return 0;
+}
+
+
 struct test {
         float f;
         int i;
 };
 
+struct super_test {
+	struct test *test;
+};
+
+struct super_test *alloc_super_test( float f, int i )
+{
+	struct super_test *s = malloc(sizeof(*s));
+	s->test = malloc(sizeof(*s->test));
+
+	s->test->f = f;
+	s->test->i = i;
+
+	return s;
+}
+	
+
 void print_node_int(const struct list_node *node) { printf("%d", *(int *)node->v); }
 
-void print_node_s(const struct list_node *node)
+void print_test(const struct list_node *node)
 {
         const struct test *t = node->v;
         printf("{ %d, %f }", t->i, t->f);
 }
 
-int compar_int(const void *a, const void *b) { return (*(int *)b - *(int *)a); }
+void print_super_test(const struct list_node *node)
+{
+	const struct test *t = (*(struct super_test **)node->v)->test;
+	printf("{ %d, %f }", t->i, t->f);	
+}
 
-int compar_s(const void *a, const void *b) { return (((struct test *)b)->i - ((struct test *)a)->i); }
+int compar_int(const void *a, const void *b) { return (*(int *)a - *(int *)b); }
+
+int compar_test(const void *a, const void *b) { return (((struct test *)a)->i - ((struct test *)b)->i); }
+
+int compar_super_test(const void *a, const void *b) {
+	return ((*(struct super_test **)a)->test->i - (*(struct super_test **)b)->test->i);
+}
 
 void print_list(const struct bds_list *list, void (*print_node)(const struct list_node *))
 {
@@ -219,30 +267,54 @@ void print_list(const struct bds_list *list, void (*print_node)(const struct lis
         printf("\n");
 }
 
-#define COMPAR compar_s
-#define PRINT_NODE print_node_s
+void test_struct_dtor(void *v)
+{
+	struct test *t = v;
+	memset(t, 0, sizeof(*t));
+	return;
+}
+
+void super_test_free(void *v)
+{
+	struct super_test *s = *(struct super_test **)v;
+
+	test_struct_dtor( s->test );
+	free( s->test );
+	free(s);
+
+	return;
+}
+
+#define COMPAR compar_super_test
+#define PRINT_NODE print_super_test
+#define ELEM_DTOR super_test_free
+
+//#define print_list(a,b)
 
 int main(void)
 {
 
-        struct bds_list *list = bds_list_alloc(sizeof(struct test), NULL);
+        struct bds_list *list = bds_list_alloc(sizeof(struct super_test *), ELEM_DTOR);
 
-        struct test i = { 42, 43.0 };
-        bds_list_append(list, &i);
-
-        print_list(list, PRINT_NODE);
-
-        struct test j = { 21, 22.0 };
-        assert( bds_list_insert_before(list, &j, &i, COMPAR) == 0 );
-        print_list(list, PRINT_NODE);
-
-        j.i = 84;
-	j.f = 85.0;
+	struct super_test *s;	
+        //struct test i = { 42, 43.0 };
+	struct super_test *key = alloc_super_test( 43, 42 );
 	
-        assert( bds_list_insert_after(list, &j, &i, COMPAR) == 0 );
+        bds_list_insert_sort(list, &key, COMPAR);
+
         print_list(list, PRINT_NODE);
 
-        assert( bds_list_remove(list, &i, COMPAR) == 0 );
+	s = alloc_super_test(86, 84);	
+        assert( bds_list_insert_sort(list, &s, COMPAR) == 0 );
+        print_list(list, PRINT_NODE);
+	
+	s = alloc_super_test(22,21);
+        assert( bds_list_insert_sort(list, &s, COMPAR) == 0 );
+        print_list(list, PRINT_NODE);
+
+
+
+        assert( bds_list_remove(list, &key, COMPAR) == 0 );
         print_list(list, PRINT_NODE);
 
         bds_list_free(&list);
