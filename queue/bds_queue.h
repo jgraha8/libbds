@@ -13,6 +13,10 @@
 
 #define BDS_QUEUE_ISLINEAR( front, back ) ( (front) <= (back) )
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief Queue data structure
  *
@@ -26,7 +30,6 @@ struct bds_queue {
         size_t front;    ///< Index of element at the front of the queue
 	void *v;         ///< Address of ring buffer containing the data
 };
-
 
 /**
  * @brief Constructor for the queue data structrue
@@ -226,5 +229,8 @@ void bds_queue_linearize( struct bds_queue *queue );
 const void *bds_queue_lsearch( const struct bds_queue *queue, const void *key,
 			       int (*compar)( const void *, const void *) );
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __BDS_QUEUE_H__

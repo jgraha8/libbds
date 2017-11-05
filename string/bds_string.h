@@ -1,8 +1,18 @@
+/** @file
+ *  @brief C-string module definitions
+ *
+ *  @author Jason Graham <jgraha8@gmail.com>
+ */
+
 #ifndef __BDS_STRING_H__
 #define __BDS_STRING_H__
 
 #include <stdbool.h>
 #include <unistd.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 char *bds_string_dup( const char *str );
 
@@ -25,5 +35,9 @@ void bds_string_tokenize( char *str, const char *delim,  size_t *num_tok, char *
 void bds_string_wtokenize( char *str, const char *delim, size_t *num_tok, char **(*tok) );
 
 char *bds_string_substr( const char *str, size_t len );
+
+#ifdef __cplusplus
+}
+#endif	
 
 #endif // __BDS_STRING_H__

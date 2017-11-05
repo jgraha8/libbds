@@ -1,3 +1,9 @@
+/** @file
+ *  @brief C-string module
+ *
+ *  @author Jason Graham <jgraha8@gmail.com>
+ */
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

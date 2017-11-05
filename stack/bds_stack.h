@@ -11,6 +11,10 @@
 #include <stdbool.h>
 #include <sys/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 /**
  * @brief Stack data structure
  */
@@ -164,4 +168,8 @@ const void *bds_stack_modify( struct bds_stack *stack, const void *key, const vo
 void bds_stack_qsort( struct bds_stack *stack,
 		      int (*compar)( const void *, const void *) );
 
+#ifdef __cplusplus
+}
+#endif
+	
 #endif // __BDS_STACK_H__
