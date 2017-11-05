@@ -1,3 +1,11 @@
+/** @file
+ *  @brief Stack data structure module definitions
+ *
+ *  @author Jason Graham <jgraha8@gmail.com>
+ */
+
+#ifndef __BDS_LIST_H__
+#define __BDS_LIST_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,8 +19,7 @@ struct bds_list_node;
 
 /* void bds_list_dtor(struct bds_list *list); */
 
-struct bds_list *bds_list_alloc(size_t object_len, int (*object_compar)(const void *, const void *),
-                                void (*object_dtor)(void *));
+struct bds_list *bds_list_alloc(size_t object_len, void (*object_dtor)(void *));
 
 void bds_list_free(struct bds_list **list);
 
@@ -31,14 +38,18 @@ void bds_list_print(const struct bds_list *list, void (*print_object)(const void
 
 void bds_list_append(struct bds_list *list, const void *object);
 
-int bds_list_remove(struct bds_list *list, const void *key);
+int bds_list_remove(struct bds_list *list, const void *key, int (*object_compar)(const void *, const void *));
 
-int bds_list_insert_after(struct bds_list *list, const void *object, const void *key);
+int bds_list_insert_after(struct bds_list *list, const void *object, const void *key,
+                          int (*object_compar)(const void *, const void *));
 
-int bds_list_insert_before(struct bds_list *list, const void *object, const void *key);
+int bds_list_insert_before(struct bds_list *list, const void *object, const void *key,
+                           int (*object_compar)(const void *, const void *));
 
-int bds_list_insert_sort(struct bds_list *list, const void *object);
+int bds_list_insert_sort(struct bds_list *list, const void *object, int (*object_compar)(const void *, const void *));
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif // __BDS_LIST_H__

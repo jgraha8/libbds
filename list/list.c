@@ -20,7 +20,6 @@ struct bds_list_node {
 
 struct bds_list {
         size_t object_len;
-        int (*object_compar)(const void *, const void *);
         void (*object_dtor)(void *);
         struct bds_list_node *head;
 };
@@ -32,27 +31,24 @@ static void free_node(struct bds_list_node **node, void (*object_dtor)(void *));
 static struct bds_list_node **find_node_ptr(struct bds_list_node **node_ptr, const void *key,
                                             int (*object_compar)(const void *, const void *));
 
-void bds_list_ctor(struct bds_list *list, size_t object_len, int (*object_compar)(const void *, const void *),
-                   void (*object_dtor)(void *))
+static void __list_ctor(struct bds_list *list, size_t object_len, void (*object_dtor)(void *))
 {
         memset(list, 0, sizeof(*list));
 
         list->object_len    = object_len;
-        list->object_compar = object_compar;
         list->object_dtor   = object_dtor;
 }
 
-void bds_list_dtor(struct bds_list *list)
+static void __list_dtor(struct bds_list *list)
 {
         destroy_list_nodes(&list->head, list->object_dtor);
         memset(list, 0, sizeof(*list));
 }
 
-struct bds_list *bds_list_alloc(size_t object_len, int (*object_compar)(const void *, const void *),
-                                void (*object_dtor)(void *))
+struct bds_list *bds_list_alloc(size_t object_len, void (*object_dtor)(void *))
 {
         struct bds_list *list = malloc(sizeof(*list));
-        bds_list_ctor(list, object_len, object_compar, object_dtor);
+        __list_ctor(list, object_len, object_dtor);
 
         return list;
 };
@@ -62,7 +58,7 @@ void bds_list_free(struct bds_list **list)
         if (*list == NULL)
                 return;
 
-        bds_list_dtor(*list);
+        __list_dtor(*list);
         free(*list);
         *list = NULL;
 }
@@ -92,9 +88,9 @@ void bds_list_append(struct bds_list *list, const void *object)
         *list_end(&list->head) = alloc_node(list->object_len, object);
 }
 
-int bds_list_remove(struct bds_list *list, const void *key)
+int bds_list_remove(struct bds_list *list, const void *key, int (*object_compar)(const void *, const void *))
 {
-        struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, list->object_compar);
+        struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, object_compar);
 
         // Did not find the key
         if (*node_ptr == NULL)
@@ -107,9 +103,9 @@ int bds_list_remove(struct bds_list *list, const void *key)
         return 0;
 }
 
-int bds_list_insert_after(struct bds_list *list, const void *object, const void *key)
+int bds_list_insert_after(struct bds_list *list, const void *object, const void *key, int (*object_compar)(const void *, const void *))
 {
-        struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, list->object_compar);
+        struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, object_compar);
 
         // Did not find the key
         if (*node_ptr == NULL)
@@ -124,9 +120,9 @@ int bds_list_insert_after(struct bds_list *list, const void *object, const void 
         return 0;
 }
 
-int bds_list_insert_before(struct bds_list *list, const void *object, const void *key)
+int bds_list_insert_before(struct bds_list *list, const void *object, const void *key, int (*object_compar)(const void *, const void *))
 {
-        struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, list->object_compar);
+        struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, object_compar);
 
         // Did not find the key
         if (*node_ptr == NULL)
@@ -139,11 +135,11 @@ int bds_list_insert_before(struct bds_list *list, const void *object, const void
         return 0;
 }
 
-int bds_list_insert_sort(struct bds_list *list, const void *object)
+int bds_list_insert_sort(struct bds_list *list, const void *object, int (*object_compar)(const void *, const void *))
 {
         struct bds_list_node **node_ptr = &list->head;
 
-        while (*node_ptr && list->object_compar(object, (*node_ptr)->object) > 0) {
+        while (*node_ptr && object_compar(object, (*node_ptr)->object) > 0) {
                 node_ptr = &(*node_ptr)->next;
         }
 
