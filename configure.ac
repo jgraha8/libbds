@@ -136,6 +136,7 @@ DX_INIT_DOXYGEN([libbds],[doxygen/doxygen.cfg],[docs])
 AC_CONFIG_FILES([	\
 Makefile		\
 libbds/Makefile		\
+list/Makefile		\
 queue/Makefile 		\
 stack/Makefile		\
 string/Makefile		\

@@ -3,13 +3,15 @@ ACLOCAL_AMFLAGS = -I m4
 
 #SUBDIRS= dscs bspline lagrange psolver sparselu
 SUBDIRS= \
-	libbds \
+	libbds	\
+	list	\
 	queue	\
 	stack	\
 	string
 
 #SUBLIBS = bspline/libdscsbspline.la lagrange/libdscslagrange.la psolver/libdscspsolver.la sparselu/libdscssparselu.la
 SUBLIBS = \
+	list/libbdslist.la \
 	queue/libbdsqueue.la \
 	stack/libbdsstack.la \
 	string/libbdsstring.la

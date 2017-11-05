@@ -11,6 +11,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif 
+
+
 static void *xalloc( size_t len )
 {
 	void *v = malloc( len );
@@ -35,5 +40,9 @@ static inline void xmemswap( void *a, void *b, size_t len, void *buf )
 	memcpy( a  , b  , len );
 	memcpy( b  , buf, len );
 }
+
+#ifdef __cplusplus
+}
+#endif 
 
 #endif

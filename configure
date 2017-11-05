@@ -10883,14 +10883,7 @@ freebsd* | dragonfly*)
     *) objformat=elf ;;
     esac
   fi
-  # Handle Gentoo/FreeBSD as it was Linux
-  case $host_vendor in
-    gentoo)
-      version_type=linux ;;
-    *)
-      version_type=freebsd-$objformat ;;
-  esac
-
+  version_type=freebsd-$objformat
   case $version_type in
     freebsd-elf*)
       library_names_spec='$libname$release$shared_ext$versuffix $libname$release$shared_ext$major $libname$shared_ext'
@@ -10901,12 +10894,6 @@ freebsd* | dragonfly*)
     freebsd-*)
       library_names_spec='$libname$release$shared_ext$versuffix $libname$shared_ext$versuffix'
       need_version=yes
-      ;;
-    linux)
-      library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${release}${shared_ext}$major ${libname}${shared_ext}'
-      soname_spec='${libname}${release}${shared_ext}$major'
-      need_lib_prefix=no
-      need_version=no
       ;;
   esac
   shlibpath_var=LD_LIBRARY_PATH
@@ -16363,7 +16350,7 @@ esac
 
 
 
-ac_config_files="$ac_config_files Makefile libbds/Makefile queue/Makefile stack/Makefile string/Makefile"
+ac_config_files="$ac_config_files Makefile libbds/Makefile list/Makefile queue/Makefile stack/Makefile string/Makefile"
 
 
 
@@ -17434,6 +17421,7 @@ do
     "bds_modulus.h") CONFIG_FILES="$CONFIG_FILES bds_modulus.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "libbds/Makefile") CONFIG_FILES="$CONFIG_FILES libbds/Makefile" ;;
+    "list/Makefile") CONFIG_FILES="$CONFIG_FILES list/Makefile" ;;
     "queue/Makefile") CONFIG_FILES="$CONFIG_FILES queue/Makefile" ;;
     "stack/Makefile") CONFIG_FILES="$CONFIG_FILES stack/Makefile" ;;
     "string/Makefile") CONFIG_FILES="$CONFIG_FILES string/Makefile" ;;
