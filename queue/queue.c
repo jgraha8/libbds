@@ -87,22 +87,22 @@ void bds_queue_resize(struct bds_queue *queue)
         queue->n_alloc = n_alloc;
 }
 
-void bds_queue_push(struct bds_queue *queue, const void *v)
+int bds_queue_push(struct bds_queue *queue, const void *v)
 {
         if (bds_queue_isfull(queue)) {
                 assert(__queue_end(queue) == queue->front);
                 if (queue->auto_resize) {
                         bds_queue_resize(queue);
                 } else {
-                        fprintf(stderr,
-                                "error: bds_queue_push queue is full and auto_resize = false: cannot perform push\n");
-                        exit(EXIT_FAILURE);
+			return 1;
                 }
         }
 
         // Copy to the vacant location
         memcpy((void *)__queue_endptr(queue), v, queue->elem_len);
         queue->n_elem++;
+
+	return 0;
 }
 
 void *bds_queue_pop(struct bds_queue *queue, void *v)

@@ -54,7 +54,7 @@ void bds_queue_dtor(struct bds_queue *queue);
  *
  * @param n_alloc Number of elements to allocate in the data buffer
  * @param elem_len Length in bytes of each data element
- * @param elem_dtor Destructor for each data element (disabled if NULL) 
+ * @param elem_dtor Destructor for each data element (disabled if NULL)
  * @retval Address of queue object
  */
 struct bds_queue *bds_queue_alloc(size_t n_alloc, size_t elem_len, void (*elem_dtor)(void *));
@@ -65,6 +65,25 @@ struct bds_queue *bds_queue_alloc(size_t n_alloc, size_t elem_len, void (*elem_d
  * @param queue Address of queue object address (sets the queue object address to @c NULL)
  */
 void bds_queue_free(struct bds_queue **queue);
+
+/**
+ * @brief Sets the value for the current value for the auto-resize flag
+ *
+ * @param queue Address of queue object
+ * @param Value for the auto-resize flag (true is enable; false is disabled)
+ */
+static inline void bds_queue_set_autoresize(struct bds_queue *queue, bool auto_resize)
+{
+        queue->auto_resize = auto_resize;
+}
+
+/**
+ * @brief Gets the current value of the auto-resize flag
+ *
+ * @param queue Address of queue object
+ * @retval Current value for the auto-resize flag
+ */
+static inline bool bds_queue_get_autoresize(struct bds_queue *queue) { return queue->auto_resize; }
 
 /**
  * @brief Tests if the queue is empty
@@ -105,8 +124,9 @@ static inline size_t bds_queue_size(const struct bds_queue *queue) { return queu
  *
  * @param queue Address of queue object
  * @param v Address of data element to enqueue
+ * @retval Returns 0 upon successful push and non-zero otherwise (e.g. if queue is full and auto-resize is disabled; see @c bds_queue_set_autoresize)
  */
-void bds_queue_push(struct bds_queue *queue, const void *v);
+int bds_queue_push(struct bds_queue *queue, const void *v);
 
 /**
  * @brief Pops an element from the front of the queue
