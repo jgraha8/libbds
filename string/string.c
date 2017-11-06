@@ -14,9 +14,9 @@
 
 static inline void append_tok( char *str, size_t *alloc_size, size_t *num_tok, char **(*tok) );
 
-static char *__adjustl( char *str, size_t str_len );
+static char *__adjustl( char *str, size_t *str_len );
 
-static char *__trim( char *str, size_t str_len );
+static char *__trim( char *str, size_t *str_len );
 
 bool bds_string_contains( const char *str, const char *substr )
 {
@@ -25,7 +25,8 @@ bool bds_string_contains( const char *str, const char *substr )
 
 char *bds_string_adjustl( char *str )
 {
-	return __adjustl( str, strlen(str) );
+	size_t str_len = strlen(str);
+	return __adjustl( str, &str_len );
 }
 
 char *bds_string_adjustr( char *str )
@@ -49,13 +50,14 @@ char *bds_string_adjustr( char *str )
 
 char *bds_string_trim( char *str )
 {
-	return __trim( str, strlen(str) );
+	size_t str_len = strlen(str);	
+	return __trim( str, &str_len );
 }
 
 char *bds_string_atrim( char *str )
 {
-	const size_t str_len = strlen( str );
-	return __trim( __adjustl( str, str_len ), str_len );
+	size_t str_len = strlen( str );
+	return __trim( __adjustl( str, &str_len ), &str_len );
 }
 
 void bds_string_tokenize( char *str, const char *delim,  size_t *num_tok, char **(*tok) )
@@ -171,25 +173,30 @@ static inline void append_tok( char *str, size_t *alloc_size, size_t *num_tok, c
 	(*tok)[(*num_tok)++] = str;	
 }
 
-static char *__adjustl( char *str, size_t str_len )
+static char *__adjustl( char *str, size_t *str_len )
 {
 	const char *c = str;
 	while( *c == ' ' ) ++c;
 	
 	long long move_len = c - str;
-	if( move_len == str_len ) { // Occurs when string is empty
+	if( move_len == *str_len ) { // Occurs when string is empty
+		*str_len = 0;		
 		*str = '\0';
 	} else if( move_len > 0 ) {
-		memmove( str, c, str_len - move_len + 1); // Copy the null character
+		*str_len -= move_len;
+		memmove( str, c, *str_len + 1); // Copy the null character
 	}
 
 	return str;
 }
 
-static char *__trim( char *str, size_t str_len )
+static char *__trim( char *str, size_t *str_len )
 {
-	char *c = str + str_len;
-	while( c != str &&  *(c-1) == ' ' ) --c;
+	char *c = str + (*str_len);
+	while( c != str &&  *(c-1) == ' ' )
+		--c;
+
+	*str_len -= str + (*str_len) - c;
 	*c = '\0';
 
 	return str;
