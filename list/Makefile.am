@@ -10,9 +10,19 @@ AM_CFLAGS = -I${top_srcdir}
 
 libbdslist_la_SOURCES = list.c
 
-check_PROGRAMS = test_list
-test_list_SOURCES = test_list.c
-test_list_LDADD = $(top_builddir)/libbds.la
+check_PROGRAMS = test_list1 test_list2 test_list3 test_list4
+
+test_list1_SOURCES = test_list1.c
+test_list1_LDADD = $(top_builddir)/libbds.la
+
+test_list2_SOURCES = test_list2.c
+test_list2_LDADD = $(top_builddir)/libbds.la
+
+test_list3_SOURCES = test_list3.c
+test_list3_LDADD = $(top_builddir)/libbds.la
+
+test_list4_SOURCES = test_list4.c
+test_list4_LDADD = $(top_builddir)/libbds.la
 
 TESTS = $(check_PROGRAMS)
 

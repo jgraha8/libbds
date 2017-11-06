@@ -89,7 +89,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = test_list$(EXEEXT)
+check_PROGRAMS = test_list1$(EXEEXT) test_list2$(EXEEXT) \
+	test_list3$(EXEEXT) test_list4$(EXEEXT)
 subdir = list
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_prog_doxygen.m4 \
@@ -112,9 +113,18 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am_test_list_OBJECTS = test_list.$(OBJEXT)
-test_list_OBJECTS = $(am_test_list_OBJECTS)
-test_list_DEPENDENCIES = $(top_builddir)/libbds.la
+am_test_list1_OBJECTS = test_list1.$(OBJEXT)
+test_list1_OBJECTS = $(am_test_list1_OBJECTS)
+test_list1_DEPENDENCIES = $(top_builddir)/libbds.la
+am_test_list2_OBJECTS = test_list2.$(OBJEXT)
+test_list2_OBJECTS = $(am_test_list2_OBJECTS)
+test_list2_DEPENDENCIES = $(top_builddir)/libbds.la
+am_test_list3_OBJECTS = test_list3.$(OBJEXT)
+test_list3_OBJECTS = $(am_test_list3_OBJECTS)
+test_list3_DEPENDENCIES = $(top_builddir)/libbds.la
+am_test_list4_OBJECTS = test_list4.$(OBJEXT)
+test_list4_OBJECTS = $(am_test_list4_OBJECTS)
+test_list4_DEPENDENCIES = $(top_builddir)/libbds.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -149,8 +159,12 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libbdslist_la_SOURCES) $(test_list_SOURCES)
-DIST_SOURCES = $(libbdslist_la_SOURCES) $(test_list_SOURCES)
+SOURCES = $(libbdslist_la_SOURCES) $(test_list1_SOURCES) \
+	$(test_list2_SOURCES) $(test_list3_SOURCES) \
+	$(test_list4_SOURCES)
+DIST_SOURCES = $(libbdslist_la_SOURCES) $(test_list1_SOURCES) \
+	$(test_list2_SOURCES) $(test_list3_SOURCES) \
+	$(test_list4_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -534,8 +548,14 @@ noinst_LTLIBRARIES = libbdslist.la
 pkginclude_HEADERS = bds_list.h
 AM_CFLAGS = -I${top_srcdir}
 libbdslist_la_SOURCES = list.c
-test_list_SOURCES = test_list.c
-test_list_LDADD = $(top_builddir)/libbds.la
+test_list1_SOURCES = test_list1.c
+test_list1_LDADD = $(top_builddir)/libbds.la
+test_list2_SOURCES = test_list2.c
+test_list2_LDADD = $(top_builddir)/libbds.la
+test_list3_SOURCES = test_list3.c
+test_list3_LDADD = $(top_builddir)/libbds.la
+test_list4_SOURCES = test_list4.c
+test_list4_LDADD = $(top_builddir)/libbds.la
 TESTS = $(check_PROGRAMS)
 all: all-am
 
@@ -594,9 +614,21 @@ clean-checkPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
-test_list$(EXEEXT): $(test_list_OBJECTS) $(test_list_DEPENDENCIES) $(EXTRA_test_list_DEPENDENCIES) 
-	@rm -f test_list$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(test_list_OBJECTS) $(test_list_LDADD) $(LIBS)
+test_list1$(EXEEXT): $(test_list1_OBJECTS) $(test_list1_DEPENDENCIES) $(EXTRA_test_list1_DEPENDENCIES) 
+	@rm -f test_list1$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_list1_OBJECTS) $(test_list1_LDADD) $(LIBS)
+
+test_list2$(EXEEXT): $(test_list2_OBJECTS) $(test_list2_DEPENDENCIES) $(EXTRA_test_list2_DEPENDENCIES) 
+	@rm -f test_list2$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_list2_OBJECTS) $(test_list2_LDADD) $(LIBS)
+
+test_list3$(EXEEXT): $(test_list3_OBJECTS) $(test_list3_DEPENDENCIES) $(EXTRA_test_list3_DEPENDENCIES) 
+	@rm -f test_list3$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_list3_OBJECTS) $(test_list3_LDADD) $(LIBS)
+
+test_list4$(EXEEXT): $(test_list4_OBJECTS) $(test_list4_DEPENDENCIES) $(EXTRA_test_list4_DEPENDENCIES) 
+	@rm -f test_list4$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(test_list4_OBJECTS) $(test_list4_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -605,7 +637,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/list.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_list.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_list1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_list2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_list3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_list4.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -848,9 +883,30 @@ recheck: all $(check_PROGRAMS)
 	        am__force_recheck=am--force-recheck \
 	        TEST_LOGS="$$log_list"; \
 	exit $$?
-test_list.log: test_list$(EXEEXT)
-	@p='test_list$(EXEEXT)'; \
-	b='test_list'; \
+test_list1.log: test_list1$(EXEEXT)
+	@p='test_list1$(EXEEXT)'; \
+	b='test_list1'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test_list2.log: test_list2$(EXEEXT)
+	@p='test_list2$(EXEEXT)'; \
+	b='test_list2'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test_list3.log: test_list3$(EXEEXT)
+	@p='test_list3$(EXEEXT)'; \
+	b='test_list3'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test_list4.log: test_list4$(EXEEXT)
+	@p='test_list4$(EXEEXT)'; \
+	b='test_list4'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
