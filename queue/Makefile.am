@@ -10,6 +10,13 @@ AM_CPPFLAGS = -I${top_srcdir}
 
 libbdsqueue_la_SOURCES = queue.c
 
+## Process this file with automake to produce Makefile.in
+check_PROGRAMS = test_queue
+test_queue_SOURCES = test_queue.c 
+test_queue_LDADD = $(top_builddir)/libbds.la
+
+TESTS = $(check_PROGRAMS)
+
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
 #libbspline_la_CFLAGS = -I$(top_srcdir)/include
