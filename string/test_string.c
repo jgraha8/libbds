@@ -1,66 +1,66 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <assert.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <libbds/bds_string.h>
 
-#define YESNO( a ) ( a ? "YES" : "NO" )
+#define YESNO(a) (a ? "YES" : "NO")
 
-int main(int argc, char *argv[] )
+int main(int argc, char *argv[])
 {
-	if( argc != 3 ) {
-		fprintf(stderr, "Usage: %s string arg\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
+        const char *input_str   = "The red dog || jumps over the | big dog";
+        const char *input_delim = "||";
 
-	//bds_string_trim( bds_string_adjustl( argv[2] ) );
+        assert(bds_string_contains(input_str, input_delim));
+        assert((bds_string_find(input_str, "dog") - input_str) == 8);
+        assert((bds_string_rfind(input_str, "dog") - input_str) == 36);
 
- 	//bds_string_adjustr( argv[1] );
+        // Sub-string
+        char *substr = bds_string_substr(input_str + 4, 6);
+	assert( substr );
+	assert( strlen(substr) == 6 );
+	assert( strncmp(substr, input_str+4, 6) == 0 );
+	free(substr);
 	
-	printf("\"%s\" contains \"%s\" = %s\n",
-	       argv[1], argv[2],
-	       YESNO(bds_string_contains(argv[1], argv[2])));
+        // Tokenize
+        size_t num_tok;
+        char **tok;
 
-	printf("finding first position of dog in \"%s\" = %zd\n",
-	       argv[1], bds_string_find( argv[1], "dog" ) - argv[1] );
-
-	printf("finding last position of dog in \"%s\" = %zd\n",
-	       argv[1], bds_string_rfind( argv[1], "dog" ) - argv[1] );
-
-	// Sub-string
-	char *substr = bds_string_substr( argv[1] + 4, 6 );
-	if( substr ) {
-		printf("sub-string \"%s\" (%zd)\n", substr, strlen(substr));
-		free( substr );
-	}
+        char *str = bds_string_dup(input_str);
+	assert( strlen(str) == strlen(input_str) );
+	assert( strcmp(str,input_str) == 0 );
 	
-	// Tokenize
-	size_t num_tok;
-	char **tok;
+        bds_string_wtokenize(str, input_delim, &num_tok, &tok);
 
-	char *str = bds_string_dup( argv[1] );
-	bds_string_wtokenize( argv[1], argv[2], &num_tok, &tok );
-
-	for( size_t n=0; n<num_tok; ++n ) {
-		//bds_string_adjustr( tok[n] );
-		bds_string_atrim( tok[n] );
-		printf("%s\n", tok[n]);
-	}
-
-	free(tok);
-
-	printf("========\n");
-	bds_string_tokenize( str, argv[2], &num_tok, &tok );
-
-	for( size_t n=0; n<num_tok; ++n ) {
-		//bds_string_adjustr( tok[n] );
-		bds_string_atrim( tok[n] );
-		printf("%s\n", tok[n]);
-	}
-
-	free(tok);
-
+	assert(num_tok == 2);	
+	const char *atrim_wtok[] = { "The red dog",
+				     "jumps over the | big dog" };
 	
-	return 0;
+        for (size_t n = 0; n < num_tok; ++n) {
+                bds_string_atrim(tok[n]);
+		assert( strcmp(atrim_wtok[n], tok[n]) == 0 );
+	}
+        free(tok);
+	free(str);
+
+	str = bds_string_dup(input_str);	
+        bds_string_tokenize(str, input_delim, &num_tok, &tok);
+
+	assert(num_tok == 3);	
+	const char *atrim_tok[] = { "The red dog",
+				     "jumps over the",
+				     "big dog" };
+	
+
+        for (size_t n = 0; n < num_tok; ++n) {
+                bds_string_atrim(tok[n]);
+		assert( strcmp(atrim_tok[n], tok[n]) == 0 );
+        }
+
+        free(tok);
+	free(str);
+
+        return 0;
 }

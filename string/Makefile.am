@@ -6,14 +6,16 @@ noinst_LTLIBRARIES = libbdsstring.la
 
 pkginclude_HEADERS = bds_string.h
 
-AM_CPPFLAGS = -I${top_srcdir}
+AM_CFLAGS = -I${top_srcdir}
 
 libbdsstring_la_SOURCES = string.c
 
 check_PROGRAMS = test_string
-
 test_string_SOURCES = test_string.c
-test_string_LDADD = $(top_builddir)/string/libbdsstring.la
+test_string_CFLAGS = -I${top_srcdir}
+test_string_LDADD = $(top_builddir)/libbds.la
+
+TESTS = $(check_PROGRAMS)
 
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
