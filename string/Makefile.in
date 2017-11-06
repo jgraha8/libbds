@@ -35,7 +35,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = queue
+check_PROGRAMS = test_string$(EXEEXT)
+subdir = string
 DIST_COMMON = $(pkginclude_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -50,9 +51,12 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
-libbdsqueue_la_LIBADD =
-am_libbdsqueue_la_OBJECTS = queue.lo
-libbdsqueue_la_OBJECTS = $(am_libbdsqueue_la_OBJECTS)
+libbdsstring_la_LIBADD =
+am_libbdsstring_la_OBJECTS = string.lo
+libbdsstring_la_OBJECTS = $(am_libbdsstring_la_OBJECTS)
+am_test_string_OBJECTS = test_string.$(OBJEXT)
+test_string_OBJECTS = $(am_test_string_OBJECTS)
+test_string_DEPENDENCIES = $(top_builddir)/string/libbdsstring.la
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -66,8 +70,8 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = $(libbdsqueue_la_SOURCES)
-DIST_SOURCES = $(libbdsqueue_la_SOURCES)
+SOURCES = $(libbdsstring_la_SOURCES) $(test_string_SOURCES)
+DIST_SOURCES = $(libbdsstring_la_SOURCES) $(test_string_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -235,10 +239,12 @@ top_srcdir = @top_srcdir@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example /usr/lib
-noinst_LTLIBRARIES = libbdsqueue.la
-pkginclude_HEADERS = bds_queue.h
+noinst_LTLIBRARIES = libbdsstring.la
+pkginclude_HEADERS = bds_string.h
 AM_CPPFLAGS = -I${top_srcdir}
-libbdsqueue_la_SOURCES = queue.c
+libbdsstring_la_SOURCES = string.c
+test_string_SOURCES = test_string.c
+test_string_LDADD = $(top_builddir)/string/libbdsstring.la
 all: all-am
 
 .SUFFIXES:
@@ -252,9 +258,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu queue/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu string/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu queue/Makefile
+	  $(AUTOMAKE) --gnu string/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -282,8 +288,20 @@ clean-noinstLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libbdsqueue.la: $(libbdsqueue_la_OBJECTS) $(libbdsqueue_la_DEPENDENCIES) 
-	$(LINK)  $(libbdsqueue_la_OBJECTS) $(libbdsqueue_la_LIBADD) $(LIBS)
+libbdsstring.la: $(libbdsstring_la_OBJECTS) $(libbdsstring_la_DEPENDENCIES) 
+	$(LINK)  $(libbdsstring_la_OBJECTS) $(libbdsstring_la_LIBADD) $(LIBS)
+
+clean-checkPROGRAMS:
+	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+test_string$(EXEEXT): $(test_string_OBJECTS) $(test_string_DEPENDENCIES) 
+	@rm -f test_string$(EXEEXT)
+	$(LINK) $(test_string_OBJECTS) $(test_string_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -291,7 +309,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/queue.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_string.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -423,6 +442,7 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 check: check-am
 all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs:
@@ -456,8 +476,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
-	mostlyclean-am
+clean-am: clean-checkPROGRAMS clean-generic clean-libtool \
+	clean-noinstLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -525,21 +545,22 @@ ps-am:
 
 uninstall-am: uninstall-pkgincludeHEADERS
 
-.MAKE: install-am install-strip
+.MAKE: check-am install-am install-strip
 
-.PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLTLIBRARIES ctags distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-pkgincludeHEADERS \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-pkgincludeHEADERS
+.PHONY: CTAGS GTAGS all all-am check check-am clean \
+	clean-checkPROGRAMS clean-generic clean-libtool \
+	clean-noinstLTLIBRARIES ctags distclean distclean-compile \
+	distclean-generic distclean-libtool distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-pkgincludeHEADERS install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
+	uninstall-am uninstall-pkgincludeHEADERS
 
 
 # Compiler options. Here we are adding the include directory
