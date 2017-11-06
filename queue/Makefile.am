@@ -6,7 +6,7 @@ noinst_LTLIBRARIES = libbdsqueue.la
 
 pkginclude_HEADERS = bds_queue.h
 
-AM_CPPFLAGS = -I${top_srcdir}
+AM_CFLAGS = -I${top_srcdir}
 
 libbdsqueue_la_SOURCES = queue.c
 

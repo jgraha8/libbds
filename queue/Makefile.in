@@ -532,7 +532,7 @@ top_srcdir = @top_srcdir@
 # in the $(libdir) directory. For example /usr/lib
 noinst_LTLIBRARIES = libbdsqueue.la
 pkginclude_HEADERS = bds_queue.h
-AM_CPPFLAGS = -I${top_srcdir}
+AM_CFLAGS = -I${top_srcdir}
 libbdsqueue_la_SOURCES = queue.c
 test_queue_SOURCES = test_queue.c 
 test_queue_LDADD = $(top_builddir)/libbds.la

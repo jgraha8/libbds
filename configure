@@ -12199,8 +12199,8 @@ done
 #AC_CHECK_HEADERS([gsl/gsl_errno.h gsl/gsl_spline.h])
 
 # Add C99 flag
-CFLAGS="${CFLAGS} -std=c99
-"
+CFLAGS="${CFLAGS} -std=c99"
+
 # Process options
 # Check whether --enable-optimized_mod was given.
 if test "${enable_optimized_mod+set}" = set; then :

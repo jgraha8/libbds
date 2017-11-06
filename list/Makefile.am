@@ -6,7 +6,7 @@ noinst_LTLIBRARIES = libbdslist.la
 
 pkginclude_HEADERS = bds_list.h
 
-AM_CPPFLAGS = -I${top_srcdir}
+AM_CFLAGS = -I${top_srcdir}
 
 libbdslist_la_SOURCES = list.c
 

@@ -6,12 +6,12 @@ noinst_LTLIBRARIES = libbdsstack.la
 
 pkginclude_HEADERS = bds_stack.h
 
-AM_CPPFLAGS = -I${top_srcdir}
+AM_CFLAGS = -I${top_srcdir}
 
 libbdsstack_la_SOURCES = stack.c
 
 check_PROGRAMS = test_stack
-test_stack_SOURCES = test_stack.c 
+test_stack_SOURCES = test_stack.c
 test_stack_LDADD = $(top_builddir)/libbds.la
 
 TESTS = $(check_PROGRAMS)

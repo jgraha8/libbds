@@ -50,8 +50,8 @@ AC_CHECK_HEADERS([assert.h stdbool.h stdio.h stdlib.h string.h math.h assert.h s
 #AC_CHECK_HEADERS([gsl/gsl_errno.h gsl/gsl_spline.h])
 
 # Add C99 flag
-CFLAGS="${CFLAGS} -std=c99
-"
+CFLAGS="${CFLAGS} -std=c99"
+
 # Process options
 dnl Example of default-disabled feature
 AC_ARG_ENABLE([optimized_mod],
