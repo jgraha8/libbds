@@ -10,6 +10,12 @@ AM_CFLAGS = -I${top_srcdir}
 
 libbdslist_la_SOURCES = list.c
 
+check_PROGRAMS = test_list
+test_list_SOURCES = test_list.c
+test_list_LDADD = $(top_builddir)/libbds.la
+
+TESTS = $(check_PROGRAMS)
+
 # Compiler options. Here we are adding the include directory
 # to be searched for headers included in the source code.
 #libbspline_la_CFLAGS = -I$(top_srcdir)/include
