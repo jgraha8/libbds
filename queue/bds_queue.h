@@ -173,7 +173,7 @@ inline static const void *bds_queue_frontptr( const struct bds_queue *queue )
 {
 	if( bds_queue_isempty( queue ) )
 		return NULL;
-	return (const void *)( queue->v + queue->front * queue->elem_len );
+	return (const void *)( (char *)queue->v + queue->front * queue->elem_len );
 }
 
 /**
@@ -198,7 +198,7 @@ inline static const void *bds_queue_backptr( const struct bds_queue *queue )
 {
 	if( bds_queue_isempty( queue ) )
 		return NULL;	
-	return (const void *)( queue->v + bds_queue_back( queue ) * queue->elem_len );
+	return (const void *)( (char *)queue->v + bds_queue_back( queue ) * queue->elem_len );
 }
 
 /**

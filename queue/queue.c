@@ -32,7 +32,7 @@ inline static size_t __queue_end( const struct bds_queue *queue )
 
 inline static const void *__queue_endptr( const struct bds_queue *queue )
 {
-	return (const void *)( queue->v + __queue_end( queue ) * queue->elem_len );
+	return (const void *)( (char *)queue->v + __queue_end( queue ) * queue->elem_len );
 }
 
 
@@ -161,7 +161,7 @@ void bds_queue_linearize( struct bds_queue *queue )
 	// Store the trailing segment of the data vector into a buffer
 	memcpy( buffer, bds_queue_frontptr(queue), blk_len );
 	// Shift the remaining elements to make room for the front of the data vector
-	memmove( queue->v + blk_len, queue->v, front * queue->elem_len );
+	memmove( (char *)queue->v + blk_len, queue->v, front * queue->elem_len );
 	// Copy the front data vector block to the front
 	memcpy( queue->v, buffer, blk_len );
 	free(buffer);
@@ -177,7 +177,7 @@ const void *bds_queue_lsearch( const struct bds_queue *queue, const void *key,
 
 	j=queue->front;
 	for( i=0; i<queue->n_elem; ++i ) {
-		v = queue->v + j*queue->elem_len;
+		v = (char *)queue->v + j*queue->elem_len;
 		if( compar( key, v ) == 0 ) return v;
 		j = BDS_MOD( j + 1,  queue->n_alloc );
 	}
