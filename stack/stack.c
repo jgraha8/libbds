@@ -78,7 +78,7 @@ const void *bds_stack_topptr( const struct bds_stack *stack )
 	if( bds_stack_isempty( stack ) )
 		return NULL;
 	
-	return stack->v + bds_stack_top( stack ) * stack->elem_len;
+	return (char *)stack->v + bds_stack_top( stack ) * stack->elem_len;
 }
 
 const void *bds_stack_lsearch( const struct bds_stack *stack, const void *key,
@@ -88,7 +88,7 @@ const void *bds_stack_lsearch( const struct bds_stack *stack, const void *key,
 	const void *v;
 
 	for( i=0; i<stack->n_elem; ++i ) {
-		v = stack->v + i*stack->elem_len;
+		v = (char *)stack->v + i*stack->elem_len;
 		if( compar( key, v ) == 0 ) return v;
 	}
 	return NULL;
