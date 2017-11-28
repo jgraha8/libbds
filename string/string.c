@@ -76,7 +76,7 @@ void bds_string_tokenize( char *str, const char *delim,  size_t *num_tok, char *
 	}
 }
 
-void bds_string_wtokenize( char *str, const char *delim, size_t *num_tok, char **(*tok) )
+void bds_string_tokenize_w( char *str, const char *delim, size_t *num_tok, char **(*tok) )
 {
 	const char * const str_end = str + strlen(str);
 	const size_t delim_len     = strlen(delim);

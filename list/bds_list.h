@@ -1,5 +1,5 @@
 /** @file
- *  @brief Stack data structure module definitions
+ *  @brief Linked list data structure module definitions
  *
  *  @author Jason Graham <jgraha8@gmail.com>
  */

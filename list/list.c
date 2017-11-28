@@ -1,5 +1,5 @@
 /** @file
- *  @brief linked list data structure module
+ *  @brief Linked list data structure module
  *
  *  @author Jason Graham <jgraha8@gmail.com>
  */

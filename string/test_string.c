@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
 	assert( strlen(str) == strlen(input_str) );
 	assert( strcmp(str,input_str) == 0 );
 	
-        bds_string_wtokenize(str, input_delim, &num_tok, &tok);
+        bds_string_tokenize_w(str, input_delim, &num_tok, &tok);
 
 	assert(num_tok == 2);	
 	const char *atrim_wtok[] = { "The red dog",
