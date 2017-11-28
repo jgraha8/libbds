@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 dnl AC_PREREQ([2.59])
-AC_INIT([libbds], [0.0.0], [jgraha8@gmail.com])
+AC_INIT([libbds], [0.1.0], [jgraha8@gmail.com])
 
 AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADERS([config.h])
@@ -50,8 +50,8 @@ AC_CHECK_HEADERS([assert.h stdbool.h stdio.h stdlib.h string.h math.h assert.h s
 #AC_CHECK_HEADERS([gsl/gsl_errno.h gsl/gsl_spline.h])
 
 # Add C99 flag
-CFLAGS="${CFLAGS} -std=c99
-"
+CFLAGS="${CFLAGS} -std=c99"
+
 # Process options
 dnl Example of default-disabled feature
 AC_ARG_ENABLE([optimized_mod],
@@ -136,8 +136,10 @@ DX_INIT_DOXYGEN([libbds],[doxygen/doxygen.cfg],[docs])
 AC_CONFIG_FILES([	\
 Makefile		\
 libbds/Makefile		\
+list/Makefile		\
 queue/Makefile 		\
 stack/Makefile		\
+string/Makefile		\
 ])
 
 

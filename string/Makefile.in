@@ -89,8 +89,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = test_queue$(EXEEXT)
-subdir = queue
+check_PROGRAMS = test_string$(EXEEXT)
+subdir = string
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_prog_doxygen.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
@@ -105,16 +105,19 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
-libbdsqueue_la_LIBADD =
-am_libbdsqueue_la_OBJECTS = queue.lo
-libbdsqueue_la_OBJECTS = $(am_libbdsqueue_la_OBJECTS)
+libbdsstring_la_LIBADD =
+am_libbdsstring_la_OBJECTS = string.lo
+libbdsstring_la_OBJECTS = $(am_libbdsstring_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-am_test_queue_OBJECTS = test_queue.$(OBJEXT)
-test_queue_OBJECTS = $(am_test_queue_OBJECTS)
-test_queue_DEPENDENCIES = $(top_builddir)/libbds.la
+am_test_string_OBJECTS = test_string-test_string.$(OBJEXT)
+test_string_OBJECTS = $(am_test_string_OBJECTS)
+test_string_DEPENDENCIES = $(top_builddir)/libbds.la
+test_string_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_string_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -149,8 +152,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libbdsqueue_la_SOURCES) $(test_queue_SOURCES)
-DIST_SOURCES = $(libbdsqueue_la_SOURCES) $(test_queue_SOURCES)
+SOURCES = $(libbdsstring_la_SOURCES) $(test_string_SOURCES)
+DIST_SOURCES = $(libbdsstring_la_SOURCES) $(test_string_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -530,12 +533,13 @@ top_srcdir = @top_srcdir@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example /usr/lib
-noinst_LTLIBRARIES = libbdsqueue.la
-pkginclude_HEADERS = bds_queue.h
+noinst_LTLIBRARIES = libbdsstring.la
+pkginclude_HEADERS = bds_string.h
 AM_CFLAGS = -I${top_srcdir}
-libbdsqueue_la_SOURCES = queue.c
-test_queue_SOURCES = test_queue.c 
-test_queue_LDADD = $(top_builddir)/libbds.la
+libbdsstring_la_SOURCES = string.c
+test_string_SOURCES = test_string.c
+test_string_CFLAGS = -I${top_srcdir}
+test_string_LDADD = $(top_builddir)/libbds.la
 TESTS = $(check_PROGRAMS)
 all: all-am
 
@@ -550,9 +554,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu queue/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu string/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu queue/Makefile
+	  $(AUTOMAKE) --gnu string/Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
 	  *config.status*) \
@@ -582,8 +586,8 @@ clean-noinstLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libbdsqueue.la: $(libbdsqueue_la_OBJECTS) $(libbdsqueue_la_DEPENDENCIES) $(EXTRA_libbdsqueue_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK)  $(libbdsqueue_la_OBJECTS) $(libbdsqueue_la_LIBADD) $(LIBS)
+libbdsstring.la: $(libbdsstring_la_OBJECTS) $(libbdsstring_la_DEPENDENCIES) $(EXTRA_libbdsstring_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(LINK)  $(libbdsstring_la_OBJECTS) $(libbdsstring_la_LIBADD) $(LIBS)
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -594,9 +598,9 @@ clean-checkPROGRAMS:
 	echo " rm -f" $$list; \
 	rm -f $$list
 
-test_queue$(EXEEXT): $(test_queue_OBJECTS) $(test_queue_DEPENDENCIES) $(EXTRA_test_queue_DEPENDENCIES) 
-	@rm -f test_queue$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(test_queue_OBJECTS) $(test_queue_LDADD) $(LIBS)
+test_string$(EXEEXT): $(test_string_OBJECTS) $(test_string_DEPENDENCIES) $(EXTRA_test_string_DEPENDENCIES) 
+	@rm -f test_string$(EXEEXT)
+	$(AM_V_CCLD)$(test_string_LINK) $(test_string_OBJECTS) $(test_string_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -604,8 +608,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/queue.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_queue.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_string-test_string.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -627,6 +631,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+test_string-test_string.o: test_string.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_string_CFLAGS) $(CFLAGS) -MT test_string-test_string.o -MD -MP -MF $(DEPDIR)/test_string-test_string.Tpo -c -o test_string-test_string.o `test -f 'test_string.c' || echo '$(srcdir)/'`test_string.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_string-test_string.Tpo $(DEPDIR)/test_string-test_string.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_string.c' object='test_string-test_string.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_string_CFLAGS) $(CFLAGS) -c -o test_string-test_string.o `test -f 'test_string.c' || echo '$(srcdir)/'`test_string.c
+
+test_string-test_string.obj: test_string.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_string_CFLAGS) $(CFLAGS) -MT test_string-test_string.obj -MD -MP -MF $(DEPDIR)/test_string-test_string.Tpo -c -o test_string-test_string.obj `if test -f 'test_string.c'; then $(CYGPATH_W) 'test_string.c'; else $(CYGPATH_W) '$(srcdir)/test_string.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_string-test_string.Tpo $(DEPDIR)/test_string-test_string.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_string.c' object='test_string-test_string.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_string_CFLAGS) $(CFLAGS) -c -o test_string-test_string.obj `if test -f 'test_string.c'; then $(CYGPATH_W) 'test_string.c'; else $(CYGPATH_W) '$(srcdir)/test_string.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -848,9 +866,9 @@ recheck: all $(check_PROGRAMS)
 	        am__force_recheck=am--force-recheck \
 	        TEST_LOGS="$$log_list"; \
 	exit $$?
-test_queue.log: test_queue$(EXEEXT)
-	@p='test_queue$(EXEEXT)'; \
-	b='test_queue'; \
+test_string.log: test_string$(EXEEXT)
+	@p='test_string$(EXEEXT)'; \
+	b='test_string'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

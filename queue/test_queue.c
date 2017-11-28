@@ -1,6 +1,6 @@
-#include <ckunkwurx/bds_queue.h>
-
+#include <assert.h>
 #include <stdio.h>
+#include <libbds/bds_queue.h>
 
 #define N 8
 
@@ -24,13 +24,15 @@ static void print_queue( struct bds_queue *queue )
 
 int main()
 {
-	struct bds_queue *queue = bds_queue_alloc( 3, sizeof(int) );
+	struct bds_queue *queue = bds_queue_alloc( 3, sizeof(int), NULL );
 	int i;
 
-
+	if( !bds_queue_get_autoresize(queue) )
+		bds_queue_set_autoresize(queue, true);
+	
 	print_queue( queue );
 	for( i=0; i<N; ++i ) {
-		bds_queue_push( queue, &i );
+		assert( bds_queue_push( queue, &i ) == 0 );
 		print_queue( queue );
 		printf("cmd: push\n");
 	}
@@ -42,7 +44,7 @@ int main()
 	print_queue( queue );
 	
 	for( i=N; i<(N+N+N); ++i ) {
-		bds_queue_push( queue, &i );
+		assert( bds_queue_push( queue, &i ) == 0 );
 		print_queue(queue);
 		printf("cmd: push\n");		
 	}

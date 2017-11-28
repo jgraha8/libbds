@@ -419,19 +419,36 @@ ACLOCAL_AMFLAGS = -I m4
 
 #SUBDIRS= dscs bspline lagrange psolver sparselu
 SUBDIRS = \
-	libbds \
+	libbds	\
+	list	\
 	queue	\
-	stack
+	stack	\
+	string
 
 
 #SUBLIBS = bspline/libdscsbspline.la lagrange/libdscslagrange.la psolver/libdscspsolver.la sparselu/libdscssparselu.la
 SUBLIBS = \
+	list/libbdslist.la \
 	queue/libbdsqueue.la \
-	stack/libbdsstack.la
+	stack/libbdsstack.la \
+	string/libbdsstring.la
 
 lib_LTLIBRARIES = libbds.la
 libbds_la_SOURCES = version.c
-libbds_la_LDFLAGS = -version-info 0:0:0
+#
+# The rules of thumb, when dealing with these values are:
+#
+#    Always increase the revision value.
+#
+#    Increase the current value whenever an interface has been added, removed or changed.
+#
+#    Increase the age value only if the changes made to the ABI are backward compatible.
+#
+# See: https://autotools.io/libtool/version.html
+#
+# version-info current:revision:age
+#
+libbds_la_LDFLAGS = -version-info 1:1:0
 libbds_la_LIBADD = $(SUBLIBS)
 pkginclude_HEADERS = bds_version.h bds_modulus.h
 noinst_HEADERS = memutil.h

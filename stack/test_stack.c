@@ -2,64 +2,90 @@
 
 #define N 128
 
-static int int_test( struct bds_stack *stack )
-{
-	bds_stack_dtor( stack );
-	bds_stack_ctor( stack, 1, sizeof(int));
+static void noop_dtor(void *v) { return; }
 
-	if( ! bds_stack_isempty( stack ) ) return 1;
+#define TEST(TYPE)                                                                                                     \
+        static int test_##TYPE(struct bds_stack *stack)                                                                \
+        {                                                                                                              \
+                bds_stack_dtor(stack);                                                                                 \
+                bds_stack_ctor(stack, 1, sizeof(TYPE), noop_dtor);                                                     \
+                                                                                                                       \
+                if (!bds_stack_isempty(stack))                                                                         \
+                        return 1;                                                                                      \
+                                                                                                                       \
+                int i;                                                                                                 \
+                TYPE a, b;                                                                                             \
+                const TYPE *c;                                                                                         \
+                for (i = 0; i < N; ++i) {                                                                              \
+                        a = (TYPE)i;                                                                                   \
+                        bds_stack_push(stack, &a);                                                                     \
+                }                                                                                                      \
+                                                                                                                       \
+                for (i = N - 1; i >= 1; --i) {                                                                         \
+                        if ((c = bds_stack_pop(stack, &b)) == NULL)                                                    \
+                                return -1;                                                                             \
+                                                                                                                       \
+                        a = (TYPE)i;                                                                                   \
+                        if (b != a || *c != a)                                                                         \
+                                return 1;                                                                              \
+                }                                                                                                      \
+                return 0;                                                                                              \
+        }
 
-	int i,j;
-	const int *k;
-	for( i=0; i<N; ++i ) {
-		bds_stack_push( stack, &i );
-	}
+#define test(TYPE) test_##TYPE
 
-	for( i=N-1; i>=0; --i ) {
-		if( ( k = bds_stack_pop( stack, &j ) ) == NULL )
-			return -1;
-		if( j != i || *k != i ) return 1;
-	}
-	return 0;
-}
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+typedef unsigned long long ulonglong;
+typedef long long longlong;
 
-static int double_test( struct bds_stack *stack )
-{
-	bds_stack_dtor( stack );
-	bds_stack_ctor( stack, 1, sizeof(double));
-
-	if( ! bds_stack_isempty( stack ) ) return 1;
-
-	int i;
-	double a,b;
-	const double *c;
-	for( i=0; i<N; ++i ) {
-		a = (double)i; 
-		bds_stack_push( stack, &a );
-	}
-
-	for( i=N-1; i>=0; --i ) {
-		if( ( c = bds_stack_pop( stack, &b ) ) == NULL ) 
-			return -1;
-
-		a = (double)i;
-		if( b != a || *c != a ) return 1;
-	}
-
-	return 0;
-}
-
+TEST(uchar);
+TEST(ushort);
+TEST(uint);
+TEST(ulong);
+TEST(ulonglong);
+TEST(char);
+TEST(short);
+TEST(int);
+TEST(long);
+TEST(longlong);
+TEST(float);
+TEST(double);
 
 int main()
 {
-	struct bds_stack stack;
-	
-	bds_stack_ctor( &stack, 1, 1 );
+        struct bds_stack stack;
 
-	if( int_test( &stack ) != 0 ) return 1;
-	if( double_test( &stack ) != 0 ) return 2;
+        bds_stack_ctor(&stack, 1, 1, noop_dtor);
 
-	bds_stack_dtor( &stack );
-	
-	return 0;
+        if (test(char)(&stack) != 0)
+                return 1;
+        if (test(short)(&stack) != 0)
+                return 2;
+        if (test(int)(&stack) != 0)
+                return 3;
+        if (test(long)(&stack) != 0)
+                return 4;
+        if (test(longlong)(&stack) != 0)
+                return 5;
+        if (test(uchar)(&stack) != 0)
+                return 6;
+        if (test(ushort)(&stack) != 0)
+                return 7;
+        if (test(uint)(&stack) != 0)
+                return 8;
+        if (test(ulong)(&stack) != 0)
+                return 9;
+        if (test(ulonglong)(&stack) != 0)
+                return 10;
+        if (test(float)(&stack) != 0)
+                return 11;
+        if (test(double)(&stack) != 0)
+                return 12;
+
+        bds_stack_dtor(&stack);
+
+        return 0;
 }
