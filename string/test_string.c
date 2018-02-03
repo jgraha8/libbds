@@ -59,6 +59,12 @@ int main(int argc, char *argv[])
 		assert( strcmp(atrim_tok[n], tok[n]) == 0 );
         }
 
+	assert(bds_string_isnum("12345"));
+	assert(!bds_string_isnum("123A5"));
+	assert(!bds_string_isnum(" "));
+	assert(bds_string_isnum("1"));
+	assert(!bds_string_isnum("1 0 1"));	
+	assert(!bds_string_isnum("!2345"));
         free(tok);
 	free(str);
 

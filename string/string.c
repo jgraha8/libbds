@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include <libbds/bds_string.h>
 
 #define MAX(a,b) ( (a) > (b) ? (a) : (b) )
@@ -151,6 +152,17 @@ char *bds_string_rfind( const char *str, const char *seq )
       	}
 
 	return NULL;
+}
+
+bool bds_string_isnum(const char *str )
+{
+	const char * const str_end = str + strlen(str);
+	while( str != str_end ) {
+		if( ! isdigit(*str) )
+			return false;
+		++str;
+	}
+	return true;
 }
 
 
