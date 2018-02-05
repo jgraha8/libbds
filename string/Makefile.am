@@ -10,10 +10,14 @@ AM_CFLAGS = -I${top_srcdir}
 
 libbdsstring_la_SOURCES = string.c
 
-check_PROGRAMS = test_string
+check_PROGRAMS = test_string test_wstring
 test_string_SOURCES = test_string.c
 test_string_CFLAGS = -I${top_srcdir}
 test_string_LDADD = $(top_builddir)/libbds.la
+
+test_wstring_SOURCES = test_wstring.c
+test_wstring_CFLAGS = -I${top_srcdir}
+test_wstring_LDADD = $(top_builddir)/libbds.la
 
 TESTS = $(check_PROGRAMS)
 

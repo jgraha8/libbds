@@ -89,7 +89,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = test_string$(EXEEXT)
+check_PROGRAMS = test_string$(EXEEXT) test_wstring$(EXEEXT)
 subdir = string
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_prog_doxygen.m4 \
@@ -117,6 +117,12 @@ test_string_OBJECTS = $(am_test_string_OBJECTS)
 test_string_DEPENDENCIES = $(top_builddir)/libbds.la
 test_string_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_string_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_test_wstring_OBJECTS = test_wstring-test_wstring.$(OBJEXT)
+test_wstring_OBJECTS = $(am_test_wstring_OBJECTS)
+test_wstring_DEPENDENCIES = $(top_builddir)/libbds.la
+test_wstring_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_wstring_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -152,8 +158,10 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libbdsstring_la_SOURCES) $(test_string_SOURCES)
-DIST_SOURCES = $(libbdsstring_la_SOURCES) $(test_string_SOURCES)
+SOURCES = $(libbdsstring_la_SOURCES) $(test_string_SOURCES) \
+	$(test_wstring_SOURCES)
+DIST_SOURCES = $(libbdsstring_la_SOURCES) $(test_string_SOURCES) \
+	$(test_wstring_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -540,6 +548,9 @@ libbdsstring_la_SOURCES = string.c
 test_string_SOURCES = test_string.c
 test_string_CFLAGS = -I${top_srcdir}
 test_string_LDADD = $(top_builddir)/libbds.la
+test_wstring_SOURCES = test_wstring.c
+test_wstring_CFLAGS = -I${top_srcdir}
+test_wstring_LDADD = $(top_builddir)/libbds.la
 TESTS = $(check_PROGRAMS)
 all: all-am
 
@@ -602,6 +613,10 @@ test_string$(EXEEXT): $(test_string_OBJECTS) $(test_string_DEPENDENCIES) $(EXTRA
 	@rm -f test_string$(EXEEXT)
 	$(AM_V_CCLD)$(test_string_LINK) $(test_string_OBJECTS) $(test_string_LDADD) $(LIBS)
 
+test_wstring$(EXEEXT): $(test_wstring_OBJECTS) $(test_wstring_DEPENDENCIES) $(EXTRA_test_wstring_DEPENDENCIES) 
+	@rm -f test_wstring$(EXEEXT)
+	$(AM_V_CCLD)$(test_wstring_LINK) $(test_wstring_OBJECTS) $(test_wstring_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
@@ -610,6 +625,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/string.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_string-test_string.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/test_wstring-test_wstring.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -645,6 +661,20 @@ test_string-test_string.obj: test_string.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_string.c' object='test_string-test_string.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_string_CFLAGS) $(CFLAGS) -c -o test_string-test_string.obj `if test -f 'test_string.c'; then $(CYGPATH_W) 'test_string.c'; else $(CYGPATH_W) '$(srcdir)/test_string.c'; fi`
+
+test_wstring-test_wstring.o: test_wstring.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_wstring_CFLAGS) $(CFLAGS) -MT test_wstring-test_wstring.o -MD -MP -MF $(DEPDIR)/test_wstring-test_wstring.Tpo -c -o test_wstring-test_wstring.o `test -f 'test_wstring.c' || echo '$(srcdir)/'`test_wstring.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_wstring-test_wstring.Tpo $(DEPDIR)/test_wstring-test_wstring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_wstring.c' object='test_wstring-test_wstring.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_wstring_CFLAGS) $(CFLAGS) -c -o test_wstring-test_wstring.o `test -f 'test_wstring.c' || echo '$(srcdir)/'`test_wstring.c
+
+test_wstring-test_wstring.obj: test_wstring.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_wstring_CFLAGS) $(CFLAGS) -MT test_wstring-test_wstring.obj -MD -MP -MF $(DEPDIR)/test_wstring-test_wstring.Tpo -c -o test_wstring-test_wstring.obj `if test -f 'test_wstring.c'; then $(CYGPATH_W) 'test_wstring.c'; else $(CYGPATH_W) '$(srcdir)/test_wstring.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/test_wstring-test_wstring.Tpo $(DEPDIR)/test_wstring-test_wstring.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='test_wstring.c' object='test_wstring-test_wstring.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_wstring_CFLAGS) $(CFLAGS) -c -o test_wstring-test_wstring.obj `if test -f 'test_wstring.c'; then $(CYGPATH_W) 'test_wstring.c'; else $(CYGPATH_W) '$(srcdir)/test_wstring.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -869,6 +899,13 @@ recheck: all $(check_PROGRAMS)
 test_string.log: test_string$(EXEEXT)
 	@p='test_string$(EXEEXT)'; \
 	b='test_string'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test_wstring.log: test_wstring$(EXEEXT)
+	@p='test_wstring$(EXEEXT)'; \
+	b='test_wstring'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
