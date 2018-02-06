@@ -24,3 +24,4 @@ stamp-h1
 string/.deps/
 string/.libs/
 string/Makefile
+libtool
