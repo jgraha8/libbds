@@ -42,7 +42,12 @@ int main(int argc, char *argv[])
 	// Test bds_string_dup_concat
 	char *str_dup = bds_string_dup_concat( 2, atrim_wtok[0], atrim_wtok[1] );
 	assert( strcmp( str_dup, "The red dogjumps over the | big dog") == 0 );
-	free( str_dup );
+
+	*str_dup='\0'; // Truncate
+	bds_string_concatf(str_dup, 100, "%s%s", atrim_wtok[0], atrim_wtok[1]);
+	assert(strcmp( str_dup, "The red dogjumps over the | big dog") == 0 );
+
+	free(str_dup);
 	
         for (size_t n = 0; n < num_tok; ++n) {
                 bds_string_atrim(tok[n]);

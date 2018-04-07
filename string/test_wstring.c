@@ -41,7 +41,13 @@ int main(int argc, char *argv[])
 
 	wchar_t *str_dup = bds_wstring_dup_concat( 2, atrim_wtok[0], atrim_wtok[1] );
 	assert( wcscmp( str_dup, L"The red dogjumps over the | big dog") == 0 );
-	free( str_dup );
+
+	memset(str_dup, 0, 4);
+	bds_wstring_concatf(str_dup, 100, L"%ls%ls", atrim_wtok[0], atrim_wtok[1]);
+	fwprintf(stderr, L"%s\n", str_dup);
+	assert(wcscmp( str_dup, L"The red dogjumps over the | big dog") == 0 );
+
+	free(str_dup);
 	
         for (size_t n = 0; n < num_tok; ++n) {
                 bds_wstring_atrim(tok[n]);

@@ -19,6 +19,8 @@ char *bds_string_dup(const char *str);
 
 char *bds_string_dup_concat(int num_substr, const char *str, ...);
 
+char *bds_string_concatf(char *dest, size_t max_len, const char *fmt, ...);	
+
 bool bds_string_contains(const char *str, const char *substr);
 
 size_t bds_string_num_contains(const char *str, const char *substr);
@@ -45,7 +47,9 @@ bool bds_string_isnum(const char *str);
 
 wchar_t *bds_wstring_dup(const wchar_t *str);
 
-wchar_t *bds_wstring_dup_concat( int num_substr, const wchar_t *str, ... );		
+wchar_t *bds_wstring_dup_concat(int num_substr, const wchar_t *str, ...);
+
+wchar_t *bds_wstring_concatf(wchar_t *dest, size_t max_len, const wchar_t *fmt, ...);
 
 bool bds_wstring_contains(const wchar_t *str, const wchar_t *substr);
 
