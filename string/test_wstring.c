@@ -38,6 +38,10 @@ int main(int argc, char *argv[])
 	assert(num_tok == 2);	
 	const wchar_t *atrim_wtok[] = { L"The red dog",
 				     L"jumps over the | big dog" };
+
+	wchar_t *str_dup = bds_wstring_dup_concat( 2, atrim_wtok[0], atrim_wtok[1] );
+	assert( wcscmp( str_dup, L"The red dogjumps over the | big dog") == 0 );
+	free( str_dup );
 	
         for (size_t n = 0; n < num_tok; ++n) {
                 bds_wstring_atrim(tok[n]);

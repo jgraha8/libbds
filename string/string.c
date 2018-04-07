@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <stdarg.h>
 #include <libbds/bds_string.h>
 
 #define MAX(a,b) ( (a) > (b) ? (a) : (b) )
@@ -129,7 +130,7 @@ char *bds_string_atrim( char *str )
 
 wchar_t *bds_wstring_atrim( wchar_t *str )
 {
-	size_t str_len = wcslen( str );
+size_t str_len = wcslen( str );
 	return __w_trim( __w_adjustl( str, &str_len ), &str_len );
 }
 
@@ -361,6 +362,76 @@ wchar_t *bds_wstring_dup( const wchar_t *str )
 		memcpy( s, str, sizeof(wchar_t)*(str_len + 1) );
 	}
 	return s;
+}
+
+char *bds_string_dup_concat( int num_substr, const char *str, ... )
+{
+        va_list ap;
+
+	size_t str_len_tbl[num_substr];
+	const char *str_tbl[num_substr];
+	size_t str_len=0;
+	
+	str_tbl[0] = str;	
+	str_len_tbl[0] = strlen(str_tbl[0]);
+	str_len = str_len_tbl[0];
+	
+	va_start(ap, str);
+	for( int i = 1; i<num_substr; ++i ) {
+		str_tbl[i] = va_arg(ap, const char *);
+		str_len_tbl[i] = strlen(str_tbl[i]);
+		str_len += str_len_tbl[i];
+	}
+	va_end(ap);
+	
+	char *str_dup = malloc( str_len + 1 );
+
+	if( !str_dup )
+		return NULL;
+
+	char *s = str_dup;
+
+	for( int i=0; i<num_substr; ++i ) {
+		memcpy( s, str_tbl[i], str_len_tbl[i] + 1 ); // Copy null terminator
+		s+= str_len_tbl[i]; // Advance to the null terminator
+	}
+	
+	return str_dup;
+}
+
+wchar_t *bds_wstring_dup_concat( int num_substr, const wchar_t *str, ... )
+{
+        va_list ap;
+
+	size_t str_len_tbl[num_substr];
+	const wchar_t *str_tbl[num_substr];
+	size_t str_len=0;
+	
+	str_tbl[0] = str;	
+	str_len_tbl[0] = wcslen(str_tbl[0]);
+	str_len = str_len_tbl[0];
+	
+	va_start(ap, str);
+	for( int i = 1; i<num_substr; ++i ) {
+		str_tbl[i] = va_arg(ap, const wchar_t *);
+		str_len_tbl[i] = wcslen(str_tbl[i]);
+		str_len += str_len_tbl[i];
+	}
+	va_end(ap);
+	
+	wchar_t *str_dup = malloc( sizeof(wchar_t)*(str_len + 1) );
+
+	if( !str_dup )
+		return NULL;
+
+	wchar_t *s = str_dup;
+
+	for( int i=0; i<num_substr; ++i ) {
+		memcpy( s, str_tbl[i], sizeof(wchar_t)*(str_len_tbl[i] + 1) ); // Copy null terminator
+		s+= str_len_tbl[i]; // Advance to the null terminator
+	}
+	
+	return str_dup;
 }
 
 static inline void append_tok( char *str, size_t *alloc_size, size_t *num_tok, char **(*tok) )

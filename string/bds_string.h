@@ -17,8 +17,10 @@ extern "C" {
 
 char *bds_string_dup(const char *str);
 
+char *bds_string_dup_concat(int num_substr, const char *str, ...);
+
 bool bds_string_contains(const char *str, const char *substr);
-	
+
 size_t bds_string_num_contains(const char *str, const char *substr);
 
 char *bds_string_find(const char *str, const char *seq);
@@ -43,9 +45,11 @@ bool bds_string_isnum(const char *str);
 
 wchar_t *bds_wstring_dup(const wchar_t *str);
 
+wchar_t *bds_wstring_dup_concat( int num_substr, const wchar_t *str, ... );		
+
 bool bds_wstring_contains(const wchar_t *str, const wchar_t *substr);
 
-size_t bds_wstring_num_contains(const wchar_t *str, const wchar_t *substr);	
+size_t bds_wstring_num_contains(const wchar_t *str, const wchar_t *substr);
 
 wchar_t *bds_wstring_find(const wchar_t *str, const wchar_t *seq);
 
@@ -66,7 +70,7 @@ void bds_wstring_tokenize_w(wchar_t *str, const wchar_t *delim, size_t *num_tok,
 wchar_t *bds_wstring_substr(const wchar_t *str, size_t len);
 
 bool bds_wstring_isnum(const wchar_t *str);
-	
+
 #ifdef __cplusplus
 }
 #endif

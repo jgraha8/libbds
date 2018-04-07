@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 dnl AC_PREREQ([2.59])
-AC_INIT([libbds], [0.1.0], [jgraha8@gmail.com])
+AC_INIT([libbds], [0.2.0], [jgraha8@gmail.com])
 
 AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADERS([config.h])
@@ -33,6 +33,9 @@ AC_PROG_AWK
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
+# Add C99 flag
+CFLAGS="${CFLAGS} -std=c99"
+
 dnl Initialize Libtool
 LT_INIT
 
@@ -46,11 +49,8 @@ AC_CHECK_LIB([m],[cos])
 #AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
 
 # Checks for header files.
-AC_CHECK_HEADERS([assert.h stdbool.h stdio.h stdlib.h string.h math.h assert.h stdint.h])
+AC_CHECK_HEADERS([assert.h stdbool.h stdio.h stdlib.h string.h math.h assert.h stdint.h stdarg.h])
 #AC_CHECK_HEADERS([gsl/gsl_errno.h gsl/gsl_spline.h])
-
-# Add C99 flag
-CFLAGS="${CFLAGS} -std=c99"
 
 # Process options
 dnl Example of default-disabled feature
