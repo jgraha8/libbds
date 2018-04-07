@@ -13,6 +13,7 @@ int main(int argc, char *argv[])
         const char *input_str   = "The red dog || jumps over the | big dog";
         const char *input_delim = "||";
 
+	assert(bds_string_num_contains(input_str, "dog") == 2 );
         assert(bds_string_contains(input_str, input_delim));
         assert((bds_string_find(input_str, "dog") - input_str) == 8);
         assert((bds_string_rfind(input_str, "dog") - input_str) == 36);

@@ -28,9 +28,35 @@ bool bds_string_contains( const char *str, const char *substr )
 	return ( strstr( str, substr ) != NULL );
 }
 
+size_t bds_string_num_contains( const char *str, const char *substr )
+{
+	size_t num_contains = 0;
+	const size_t substr_len = strlen(substr);
+	
+	const char *s = str;
+	while( ( s = strstr(s, substr) ) ) {
+		++num_contains;
+		s += substr_len;
+	}
+	return num_contains;
+}
+
 bool bds_wstring_contains( const wchar_t *str, const wchar_t *substr )
 {
 	return ( wcsstr( str, substr ) != NULL );
+}
+
+size_t bds_wstring_num_contains( const wchar_t *str, const wchar_t *substr )
+{
+	size_t num_contains = 0;
+	const size_t substr_len = wcslen(substr);
+	
+	const wchar_t *s = str;
+	while( ( s = wcsstr(s, substr) ) ) {
+		++num_contains;
+		s += substr_len;
+	}
+	return num_contains;
 }
 
 char *bds_string_adjustl( char *str )
