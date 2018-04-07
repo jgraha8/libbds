@@ -1,0 +1,73 @@
+#include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <libbds/bds_string.h>
+
+#define YESNO(a) (a ? "YES" : "NO")
+
+int main(int argc, char *argv[])
+{
+        const wchar_t *input_str   = L"The red dog || jumps over the | big dog";
+        const wchar_t *input_delim = L"||";
+
+	assert(bds_wstring_num_contains(input_str, L"dog") == 2 );
+        assert(bds_wstring_contains(input_str, input_delim));
+        assert((bds_wstring_find(input_str, L"dog") - input_str) == 8);
+        assert((bds_wstring_rfind(input_str, L"dog") - input_str) == 36);
+
+        // Sub-string
+        wchar_t *substr = bds_wstring_substr(input_str + 4, 6);
+	assert( substr );
+	assert( wcslen(substr) == 6 );
+	assert( wcsncmp(substr, input_str+4, 6) == 0 );
+	free(substr);
+	
+        // Tokenize
+        size_t num_tok;
+        wchar_t **tok;
+
+        wchar_t *str = bds_wstring_dup(input_str);
+	assert( wcslen(str) == wcslen(input_str) );
+	assert( wcscmp(str,input_str) == 0 );
+	
+        bds_wstring_tokenize_w(str, input_delim, &num_tok, &tok);
+
+	assert(num_tok == 2);	
+	const wchar_t *atrim_wtok[] = { L"The red dog",
+				     L"jumps over the | big dog" };
+	
+        for (size_t n = 0; n < num_tok; ++n) {
+                bds_wstring_atrim(tok[n]);
+		assert( wcscmp(atrim_wtok[n], tok[n]) == 0 );
+	}
+        free(tok);
+	free(str);
+
+	str = bds_wstring_dup(input_str);	
+        bds_wstring_tokenize(str, input_delim, &num_tok, &tok);
+
+	assert(num_tok == 3);	
+	const wchar_t *atrim_tok[] = { L"The red dog",
+				     L"jumps over the",
+				     L"big dog" };
+	
+
+        for (size_t n = 0; n < num_tok; ++n) {
+                bds_wstring_atrim(tok[n]);
+		assert( wcscmp(atrim_tok[n], tok[n]) == 0 );
+        }
+
+	assert(bds_wstring_isnum(L"12345"));
+	assert(!bds_wstring_isnum(L"123A5"));
+	assert(!bds_wstring_isnum(L" "));
+	assert(bds_wstring_isnum(L"1"));
+	assert(!bds_wstring_isnum(L"1 0 1"));	
+	assert(!bds_wstring_isnum(L"!2345"));
+        free(tok);
+	free(str);
+
+        return 0;
+}
