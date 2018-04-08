@@ -234,8 +234,58 @@ void bds_queue_linearize(struct bds_queue *queue);
 const void *bds_queue_lsearch(const struct bds_queue *queue, const void *key,
                               int (*compar)(const void *, const void *));
 
+
 #ifdef __cplusplus
 }
+#endif
+
+#ifdef BDS_NAMESPACE
+typedef struct bds_queue queue_t;
+
+#define queue_ctor bds_queue_ctor
+
+#define queue_dtor bds_queue_dtor
+
+#define queue_alloc bds_queue_alloc
+
+#define queue_free bds_queue_free
+
+#define queue_set_autoresize bds_queue_set_autoresize
+
+#define queue_get_autoresize bds_queue_get_autoresize
+
+#define queue_isempty bds_queue_isempty
+
+#define queue_isfull bds_queue_isfull
+
+#define queue_resize bds_queue_resize
+
+#define queue_size bds_queue_size
+
+#define queue_push bds_queue_push
+
+#define queue_pop bds_queue_pop
+
+#define queue_clear bds_queue_clear
+
+#define queue_clear_nfront bds_queue_clear_nfront
+
+#define queue_ptr bds_queue_ptr
+
+#define queue_front bds_queue_front
+
+#define queue_frontptr bds_queue_frontptr
+
+#define queue_back bds_queue_back
+
+#define queue_backptr bds_queue_backptr
+
+#define queue_islinear bds_queue_islinear
+
+#define queue_lienarize bds_queue_linearize
+
+#define queue_lsearch bds_queue_lsearch
+
 #endif
 
 #endif // __BDS_QUEUE_H__

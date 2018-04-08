@@ -83,8 +83,79 @@ wchar_t *bds_wstring_substr(const wchar_t *str, size_t len);
 
 bool bds_wstring_isnum(const wchar_t *str);
 
+	
 #ifdef __cplusplus
 }
+#endif
+
+#ifdef BDS_NAMESPACE
+#define string_dup bds_string_dup
+
+#define string_dup_concat bds_string_dup_concat
+
+#define string_concatf bds_string_concatf
+
+#define string_contains bds_string_contains
+
+#define string_num_contains bds_string_num_contains
+
+#define string_find bds_string_find
+
+#define string_rfind bds_string_rfind
+
+#define string_adjustl bds_string_adjustl
+
+#define string_adjustr bds_string_adjustr
+
+#define string_trim bds_string_trim
+
+#define string_atrim bds_string_atrim
+
+#define string_toupper bds_string_toupper
+
+#define string_tolower bds_string_tolower
+
+#define string_tokenize bds_string_tokenize
+
+#define string_tokenize_w bds_string_tokenize_w 
+
+#define string_substr bds_string_substr
+
+#define string_isnum bds_string_isnum
+
+#define wstring_dup bds_wstring_dup
+
+#define wstring_dup_concat bds_wstring_dup_concat
+
+#define wstring_concatf bds_wstring_concatf
+
+#define wstring_contains bds_wstring_contains
+
+#define wstring_num_contains bds_wstring_num_contains
+
+#define wstring_find bds_wstring_find
+
+#define wstring_rfind bds_wstring_rfind
+
+#define wstring_adjustl bds_wstring_adjustl
+
+#define wstring_adjustr bds_wstring_adjustr
+
+#define wstring_trim bds_wstring_trim
+
+#define wstring_atrim bds_wstring_atrim
+
+#define wstring_toupper bds_wstring_toupper
+
+#define wstring_tolower bds_wstring_tolower
+
+#define wstring_tokenize bds_wstring_tokenize
+
+#define wstring_tokenize_w bds_wstring_tokenize_w 
+
+#define wstring_substr bds_wstring_substr
+
+#define wstring_isnum bds_wstring_isnum
 #endif
 
 #endif // __BDS_STRING_H__
