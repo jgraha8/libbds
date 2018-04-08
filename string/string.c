@@ -4,569 +4,387 @@
  *  @author Jason Graham <jgraha8@gmail.com>
  */
 
-#include <ctype.h>
-#include <libbds/bds_string.h>
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
+#define _POSIX_C_SOURCE 1
+
 #include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <wctype.h>
+#include <stdarg.h>
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#include <libbds/bds_string.h>
 
-static inline void append_tok(char *str, size_t *alloc_size, size_t *num_tok, char **(*tok));
-static inline void w_append_tok(wchar_t *str, size_t *alloc_size, size_t *num_tok, wchar_t **(*tok));
+#define MAX(a,b) ( (a) > (b) ? (a) : (b) )
 
-static char *__adjustl(char *str, size_t *str_len);
-static wchar_t *__w_adjustl(wchar_t *str, size_t *str_len);
+#define F_STRING(func) func(string, str, char)
+#define F_WSTRING(func) func(wstring, wcs, wchar_t )
 
-static char *__trim(char *str, size_t *str_len);
-static wchar_t *__w_trim(wchar_t *str, size_t *str_len);
+#define L_STRING(func) func(str, char)
+#define L_WSTRING(func) func(wcs, wchar_t)
 
-bool bds_string_contains(const char *str, const char *substr) { return (strstr(str, substr) != NULL); }
-
-size_t bds_string_num_contains(const char *str, const char *substr)
-{
-        size_t num_contains     = 0;
-        const size_t substr_len = strlen(substr);
-
-        const char *s = str;
-        while ((s = strstr(s, substr))) {
-                ++num_contains;
-                s += substr_len;
-        }
-        return num_contains;
-}
-
-bool bds_wstring_contains(const wchar_t *str, const wchar_t *substr) { return (wcsstr(str, substr) != NULL); }
-
-size_t bds_wstring_num_contains(const wchar_t *str, const wchar_t *substr)
-{
-        size_t num_contains     = 0;
-        const size_t substr_len = wcslen(substr);
-
-        const wchar_t *s = str;
-        while ((s = wcsstr(s, substr))) {
-                ++num_contains;
-                s += substr_len;
-        }
-        return num_contains;
-}
-
-char *bds_string_adjustl(char *str)
-{
-        size_t str_len = strlen(str);
-        return __adjustl(str, &str_len);
-}
-
-wchar_t *bds_wstring_adjustl(wchar_t *str)
-{
-        size_t str_len = wcslen(str);
-        return __w_adjustl(str, &str_len);
-}
-
-char *bds_string_adjustr(char *str)
-{
-        const size_t str_len      = strlen(str);
-        const char *const str_end = str + str_len;
-        const char *c             = str_end;
-
-        while (c != str && *(c - 1) == ' ')
-                --c;
-
-        const long long move_len = str_end - c;
-        if (move_len == str_len) {
-                *str = '\0';
-        } else if (move_len > 0) {
-                memmove(str + move_len, str, str_len - move_len);
-                memset(str, ' ', move_len);
-        }
-
-        return str;
-}
-
-wchar_t *bds_wstring_adjustr(wchar_t *str)
-{
-        const size_t str_len         = wcslen(str);
-        const wchar_t *const str_end = str + str_len;
-        const wchar_t *c             = str_end;
-
-        while (c != str && *(c - 1) == ' ')
-                --c;
-
-        const long long move_len = str_end - c;
-        if (move_len == str_len) {
-                *str = '\0';
-        } else if (move_len > 0) {
-                memmove(str + sizeof(wchar_t) * move_len, str, sizeof(wchar_t) * (str_len - move_len));
-                memset(str, ' ', sizeof(wchar_t) * move_len);
-        }
-
-        return str;
-}
-
-char *bds_string_trim(char *str)
-{
-        size_t str_len = strlen(str);
-        return __trim(str, &str_len);
-}
-
-wchar_t *bds_wstring_trim(wchar_t *str)
-{
-        size_t str_len = wcslen(str);
-        return __w_trim(str, &str_len);
-}
-
-char *bds_string_atrim(char *str)
-{
-        size_t str_len = strlen(str);
-        return __trim(__adjustl(str, &str_len), &str_len);
-}
-
-wchar_t *bds_wstring_atrim(wchar_t *str)
-{
-        size_t str_len = wcslen(str);
-        return __w_trim(__w_adjustl(str, &str_len), &str_len);
-}
-
-char *bds_string_toupper(char *str)
-{
-	char *s = str;
-	while( *s ) {
-		*s = toupper(*s);
-		++s;
+#define APPEND_TOK(S,C)							\
+	static inline void __##S##append_tok( C *str, size_t *alloc_size, size_t *num_tok, C **(*tok) ) \
+	{								\
+		if( *num_tok == *alloc_size ) {				\
+			*alloc_size = MAX( (*alloc_size) << 1, 2 );	\
+			*tok = realloc( *tok, (*alloc_size) * sizeof(**tok) ); \
+		}							\
+		(*tok)[(*num_tok)++] = str;				\
 	}
-	return str;
-	
-}
 
-wchar_t *bds_wstring_toupper(wchar_t *str)
-{
-	wchar_t *s = str;
-	while( *s ) {
-		*s = towupper(*s);
-		++s;
+L_STRING(APPEND_TOK);
+L_WSTRING(APPEND_TOK);
+
+#define append_tok(S) __##S##append_tok
+
+
+#define ADJUSTL(S,C)							\
+	static C *__##S##adjustl( C *str, size_t *str_len )		\
+	{								\
+		const C *c = str;					\
+		while( *c == ' ' ) ++c;					\
+									\
+		long long move_len = c - str;				\
+		if( move_len == *str_len ) { /* Occurs when string is empty */ \
+			*str_len = 0;					\
+			*str = '\0';					\
+		} else if( move_len > 0 ) {				\
+			*str_len -= move_len;				\
+			memmove( str, c, sizeof(C)*(*str_len + 1)); /* Copy the null character */ \
+		}							\
+									\
+		return str;						\
 	}
-	return str;
-}
 
+L_STRING(ADJUSTL);
+L_WSTRING(ADJUSTL);      
 
-char *bds_string_tolower(char *str)
-{
-	char *s = str;
-	while( *s ) {
-		*s = tolower(*s);
-		++s;
+#define adjustl(S) __##S##adjustl
+
+#define TRIM(S,C)							\
+	static C *__##S##trim( C *str, size_t *str_len )		\
+	{								\
+		C *c = str + (*str_len);				\
+		while( c != str &&  *(c-1) == ' ' ) {			\
+			--c;						\
+		}							\
+		*str_len -= str + (*str_len) - c;			\
+		*c = '\0';						\
+		return str;						\
 	}
-	return str;
-}
 
-wchar_t *bds_wstring_tolower(wchar_t *str)
-{
-	wchar_t *s = str;
-	while( *s ) {
-		*s = towlower(*s);
-		++s;
+L_STRING(TRIM);
+L_WSTRING(TRIM);
+
+#define trim(S) __##S##trim
+
+#define BDS_STRING_CONTAINS(N,S,C)					\
+	bool bds_##N##_contains( const C *str, const C *substr )	\
+	{								\
+		return ( S##str(str, substr ) != NULL );		\
 	}
-	return str;
+
+
+F_STRING(BDS_STRING_CONTAINS);
+F_WSTRING(BDS_STRING_CONTAINS);
+
+#define BDS_STRING_NUM_CONTAINS(N,S,C)					\
+	size_t bds_##N##_num_contains( const C *str, const C *substr )	\
+	{								\
+		size_t num     = 0;					\
+		const size_t substr_len = S##len(substr);		\
+									\
+		const C *s = str;					\
+		while ((s = S##str(s, substr))) {			\
+			++num;						\
+			s += substr_len;				\
+		}							\
+		return num;						\
+	}
+
+F_STRING(BDS_STRING_NUM_CONTAINS);
+F_WSTRING(BDS_STRING_NUM_CONTAINS);
+
+
+#define BDS_STRING_ADJUSTL(N,S,C)					\
+	C *bds_##N##_adjustl( C *str )					\
+	{								\
+		size_t str_len = S##len(str);				\
+		return adjustl(S)( str, &str_len );			\
+	}						
+
+F_STRING(BDS_STRING_ADJUSTL);
+F_WSTRING(BDS_STRING_ADJUSTL);
+
+#define BDS_STRING_ADJUSTR(N,S,C)					\
+	C *bds_##N##_adjustr( C *str )					\
+	{								\
+		const size_t str_len = S##len(str);			\
+		const C *const str_end = str + str_len;			\
+		const C *c = str_end;					\
+									\
+		while( c != str &&  *(c-1) == ' ' ) --c;		\
+									\
+		const long long move_len = str_end - c;			\
+		if( move_len == str_len ) {				\
+			*str = '\0';					\
+		} else if( move_len > 0 ) {				\
+			memmove( str + sizeof(C)*move_len, str, sizeof(C)*(str_len - move_len)); \
+			memset( str, ' ', sizeof(C)*move_len);		\
+		}							\
+									\
+		return str;						\
+	}
+
+F_STRING(BDS_STRING_ADJUSTR);
+F_WSTRING(BDS_STRING_ADJUSTR);
+
+#define BDS_STRING_TRIM(N,S,C)				\
+	C *bds_##N##_trim( C *str )			\
+	{						\
+		size_t str_len = S##len(str);		\
+		return trim(S)( str, &str_len );	\
+	}
+
+F_STRING(BDS_STRING_TRIM);
+F_WSTRING(BDS_STRING_TRIM);
+
+#define BDS_STRING_ATRIM(N,S,C)						\
+	C *bds_##N##_atrim( C *str )					\
+	{								\
+		size_t str_len = S##len( str );				\
+		return trim(S)( adjustl(S)( str, &str_len ), &str_len ); \
+	}
+
+F_STRING(BDS_STRING_ATRIM);
+F_WSTRING(BDS_STRING_ATRIM);
+
+#define BDS_STRING_TOUPPER(N,C,TOUPPER)			\
+	C *bds_##N##_toupper(C *str)			\
+	{						\
+		C *s = str;				\
+		while( *s ) {				\
+			*s = TOUPPER(*s);		\
+			++s;				\
+		}					\
+		return str;				\
+	}						
+
+BDS_STRING_TOUPPER(string,char,toupper);
+BDS_STRING_TOUPPER(wstring,wchar_t,towupper);
+
+#define BDS_STRING_TOLOWER(N,C,TOLOWER)			\
+	C *bds_##N##_tolower(C *str)			\
+	{						\
+		C *s = str;				\
+		while( *s ) {				\
+			*s = TOLOWER(*s);		\
+			++s;				\
+		}					\
+		return str;				\
+	}						
+
+BDS_STRING_TOLOWER(string,char,tolower);
+BDS_STRING_TOLOWER(wstring,wchar_t,towlower);
+
+
+#define BDS_STRING_TOKENIZE(N,S,C,STRTOK)				\
+	void bds_##N##_tokenize( C *str, const C *delim,  size_t *num_tok, C **(*tok) ) \
+	{								\
+		size_t alloc_tok = 0;					\
+		*tok = NULL;						\
+		*num_tok = 0;						\
+									\
+		C *__str = str;						\
+		C *next = NULL;						\
+									\
+		while( ( str = STRTOK( __str, delim, &next ) ) != NULL ) { \
+			/* New string */				\
+			append_tok(S)( str, &alloc_tok, num_tok, tok );	\
+			__str = NULL;					\
+		}							\
+	}
+
+BDS_STRING_TOKENIZE(string,str,char,strtok_r);
+BDS_STRING_TOKENIZE(wstring,wcs,wchar_t,wcstok);
+
+#define BDS_STRING_TOKENIZE_W(N,S,C)					\
+	void bds_##N##_tokenize_w( C *str, const C *delim, size_t *num_tok, C **(*tok) ) \
+	{								\
+		const C * const str_end = str + S##len(str);		\
+		const size_t delim_len     = S##len(delim);		\
+									\
+		size_t alloc_tok = 0;					\
+		*tok = NULL;						\
+		*num_tok = 0;						\
+									\
+		C *__str = str;						\
+		C *c;							\
+									\
+		while( ( c = S##chr( __str, delim[0] ) ) != NULL ) {	\
+									\
+			if( str_end - c < delim_len )			\
+				break;					\
+									\
+			if( S##ncmp( c, delim, delim_len ) == 0 ) {	\
+				/* Do not include empty strings	*/	\
+				if( c - str > 0 ) {			\
+					/* New string */		\
+					*c = '\0';			\
+					append_tok(S)( str, &alloc_tok, num_tok, tok ); \
+				}					\
+				__str = str = c + delim_len;		\
+			} else {					\
+				__str = c + 1;				\
+			}						\
+									\
+			if( __str >= str_end )				\
+				break;					\
+		}							\
+									\
+		/* Take care of trailing string */			\
+		if( *num_tok > 0 && str < str_end )			\
+			append_tok(S)( str, &alloc_tok, num_tok, tok ); \
+									\
+	}
+
+F_STRING(BDS_STRING_TOKENIZE_W);
+F_WSTRING(BDS_STRING_TOKENIZE_W);
+
+#define BDS_STRING_SUBSTR(N,S,C)				\
+	C *bds_##N##_substr( const C *str, size_t len )		\
+	{							\
+		if( len > S##len(str) )				\
+			return NULL;				\
+								\
+		C *substr = malloc( sizeof(C)*(len + 1) );		\
+		memcpy( substr, str, sizeof(C)*len );			\
+		substr[len] = '\0';					\
+									\
+		return substr;						\
+	}
+
+F_STRING(BDS_STRING_SUBSTR)
+F_WSTRING(BDS_STRING_SUBSTR)
+
+#define BDS_STRING_FIND(N,S,C)						\
+	C *bds_##N##_find( const C *str, const C *seq )			\
+	{								\
+		return S##str( str, seq );				\
+	}								\
+
+F_STRING(BDS_STRING_FIND)
+F_WSTRING(BDS_STRING_FIND)
+
+#define BDS_STRING_RFIND(N,S,C)						\
+	C *bds_##N##_rfind( const C *str, const C *seq )		\
+	{								\
+		const size_t seq_len = S##len(seq);			\
+		const C *s        = str + S##len(str) - seq_len;	\
+									\
+		while( s >= str ) {					\
+			while( *s != seq[0] ) {				\
+				if( s == str ) break;			\
+				--s;					\
+			}						\
+									\
+			if( S##ncmp( s, seq, seq_len ) == 0 ) {		\
+				return (C *)s;				\
+			}						\
+			--s;						\
+		}							\
+									\
+		return NULL;						\
+	}
+
+F_STRING(BDS_STRING_RFIND);
+F_WSTRING(BDS_STRING_RFIND);
+
+#define BDS_STRING_ISNUM(N,S,C,ISDIGIT)				\
+	bool bds_##N##_isnum(const C *str )			\
+	{							\
+		const C * const str_end = str + S##len(str);	\
+		while( str != str_end ) {			\
+			if( ! ISDIGIT(*str) )			\
+				return false;			\
+			++str;					\
+		}						\
+		return true;					\
 }
 
-void bds_string_tokenize(char *str, const char *delim, size_t *num_tok, char **(*tok))
-{
-
-        size_t alloc_tok = 0;
-        *tok             = NULL;
-        *num_tok         = 0;
-
-        char *__str = str;
-
-        while ((str = strtok(__str, delim)) != NULL) {
-                // New string
-                append_tok(str, &alloc_tok, num_tok, tok);
-                __str = NULL;
-        }
-}
-
-void bds_wstring_tokenize(wchar_t *str, const wchar_t *delim, size_t *num_tok, wchar_t **(*tok))
-{
-
-        size_t alloc_tok = 0;
-        *tok             = NULL;
-        *num_tok         = 0;
-
-        wchar_t *__str = str;
-        wchar_t *next  = NULL;
-
-        while ((str = wcstok(__str, delim, &next)) != NULL) {
-                // New string
-                w_append_tok(str, &alloc_tok, num_tok, tok);
-                __str = NULL;
-        }
-}
-
-void bds_string_tokenize_w(char *str, const char *delim, size_t *num_tok, char **(*tok))
-{
-        const char *const str_end = str + strlen(str);
-        const size_t delim_len    = strlen(delim);
-
-        size_t alloc_tok = 0;
-        *tok             = NULL;
-        *num_tok         = 0;
-
-        char *__str = str;
-        char *c;
-
-        while ((c = strchr(__str, delim[0])) != NULL) {
-
-                if (str_end - c < delim_len)
-                        break;
-
-                if (strncmp(c, delim, delim_len) == 0) {
-                        // Do not include empty strings
-                        if (c - str > 0) {
-                                // New string
-                                *c = '\0';
-                                append_tok(str, &alloc_tok, num_tok, tok);
-                        }
-                        __str = str = c + delim_len;
-                } else {
-                        __str = c + 1;
-                }
-
-                if (__str >= str_end)
-                        break;
-        }
-
-        // Take care of trailing string
-        if (*num_tok > 0 && str < str_end)
-                append_tok(str, &alloc_tok, num_tok, tok);
-}
-
-void bds_wstring_tokenize_w(wchar_t *str, const wchar_t *delim, size_t *num_tok, wchar_t **(*tok))
-{
-        const wchar_t *const str_end = str + wcslen(str);
-        const size_t delim_len       = wcslen(delim);
-
-        size_t alloc_tok = 0;
-        *tok             = NULL;
-        *num_tok         = 0;
-
-        wchar_t *__str = str;
-        wchar_t *c;
-
-        while ((c = wcschr(__str, delim[0])) != NULL) {
-
-                if (str_end - c < delim_len)
-                        break;
-
-                if (wcsncmp(c, delim, delim_len) == 0) {
-                        // Do not include empty strings
-                        if (c - str > 0) {
-                                // New string
-                                *c = '\0';
-                                w_append_tok(str, &alloc_tok, num_tok, tok);
-                        }
-                        __str = str = c + delim_len;
-                } else {
-                        __str = c + 1;
-                }
-
-                if (__str >= str_end)
-                        break;
-        }
-
-        // Take care of trailing string
-        if (*num_tok > 0 && str < str_end)
-                w_append_tok(str, &alloc_tok, num_tok, tok);
-}
-
-char *bds_string_substr(const char *str, size_t len)
-{
-        if (len > strlen(str))
-                return NULL;
-
-        char *substr = malloc(len + 1);
-        // strncpy( substr, str, len );
-        memcpy(substr, str, len);
-        substr[len] = '\0';
-
-        return substr;
-}
-
-wchar_t *bds_wstring_substr(const wchar_t *str, size_t len)
-{
-        if (len > wcslen(str))
-                return NULL;
-
-        wchar_t *substr = malloc(sizeof(wchar_t) * (len + 1));
-        // strncpy( substr, str, len );
-        memcpy(substr, str, sizeof(wchar_t) * len);
-        substr[len] = '\0';
-
-        return substr;
-}
-
-char *bds_string_find(const char *str, const char *seq) { return strstr(str, seq); }
-
-wchar_t *bds_wstring_find(const wchar_t *str, const wchar_t *seq) { return wcsstr(str, seq); }
-
-char *bds_string_rfind(const char *str, const char *seq)
-{
-        const size_t seq_len = strlen(seq);
-        const char *s        = str + strlen(str) - seq_len;
-
-        while (s >= str) {
-                while (*s != seq[0]) {
-                        if (s == str)
-                                break;
-                        --s;
-                }
-
-                if (strncmp(s, seq, seq_len) == 0) {
-                        return (char *)s;
-                }
-                --s;
-        }
-
-        return NULL;
-}
-
-wchar_t *bds_wstring_rfind(const wchar_t *str, const wchar_t *seq)
-{
-        const size_t seq_len = wcslen(seq);
-        const wchar_t *s     = str + wcslen(str) - seq_len;
-
-        while (s >= str) {
-                while (*s != seq[0]) {
-                        if (s == str)
-                                break;
-                        --s;
-                }
-
-                if (wcsncmp(s, seq, seq_len) == 0) {
-                        return (wchar_t *)s;
-                }
-                --s;
-        }
-
-        return NULL;
-}
-
-bool bds_string_isnum(const char *str)
-{
-        const char *const str_end = str + strlen(str);
-        while (str != str_end) {
-                if (!isdigit(*str))
-                        return false;
-                ++str;
-        }
-        return true;
-}
-
-bool bds_wstring_isnum(const wchar_t *str)
-{
-        const wchar_t *const str_end = str + wcslen(str);
-        while (str != str_end) {
-                if (!isdigit((unsigned char)*str))
-                        return false;
-                ++str;
-        }
-        return true;
-}
-
-char *bds_string_dup(const char *str)
-{
-        const size_t str_len = strlen(str);
-        char *s              = malloc(str_len + 1);
-        if (s) {
-                memcpy(s, str, str_len + 1);
-        }
-        return s;
-}
-
-wchar_t *bds_wstring_dup(const wchar_t *str)
-{
-        const size_t str_len = wcslen(str);
-        wchar_t *s           = malloc(sizeof(wchar_t) * (str_len + 1));
-        if (s) {
-                memcpy(s, str, sizeof(wchar_t) * (str_len + 1));
-        }
-        return s;
-}
-
-char *bds_string_dup_concat(int num_str, const char *str, ...)
-{
-        va_list ap;
-
-        size_t str_len_tbl[num_str];
-        const char *str_tbl[num_str];
-        size_t str_len = 0;
-
-        str_tbl[0]     = str;
-        str_len_tbl[0] = strlen(str_tbl[0]);
-        str_len        = str_len_tbl[0];
-
-        va_start(ap, str);
-        for (int i = 1; i < num_str; ++i) {
-                str_tbl[i]     = va_arg(ap, const char *);
-                str_len_tbl[i] = strlen(str_tbl[i]);
-                str_len += str_len_tbl[i];
-        }
-        va_end(ap);
-
-        char *str_dup = malloc(str_len + 1);
-
-        if (!str_dup)
-                return NULL;
-
-        char *s = str_dup;
-
-        for (int i = 0; i < num_str; ++i) {
-                memcpy(s, str_tbl[i], str_len_tbl[i] + 1); // Copy null terminator
-                s += str_len_tbl[i];                       // Advance to the null terminator
-        }
-
-        return str_dup;
-}
-
-wchar_t *bds_wstring_dup_concat(int num_str, const wchar_t *str, ...)
-{
-        va_list ap;
-
-        size_t str_len_tbl[num_str];
-        const wchar_t *str_tbl[num_str];
-        size_t str_len = 0;
-
-        str_tbl[0]     = str;
-        str_len_tbl[0] = wcslen(str_tbl[0]);
-        str_len        = str_len_tbl[0];
-
-        va_start(ap, str);
-        for (int i = 1; i < num_str; ++i) {
-                str_tbl[i]     = va_arg(ap, const wchar_t *);
-                str_len_tbl[i] = wcslen(str_tbl[i]);
-                str_len += str_len_tbl[i];
-        }
-        va_end(ap);
-
-        wchar_t *str_dup = malloc(sizeof(wchar_t) * (str_len + 1));
-
-        if (!str_dup)
-                return NULL;
-
-        wchar_t *s = str_dup;
-
-        for (int i = 0; i < num_str; ++i) {
-                memcpy(s, str_tbl[i], sizeof(wchar_t) * (str_len_tbl[i] + 1)); // Copy null terminator
-                s += str_len_tbl[i];                                           // Advance to the null terminator
-        }
-
-        return str_dup;
-}
-
-char *bds_string_concatf(char *dest, size_t max_len, const char *fmt, ...)
-
-{
-        size_t __offset  = strlen(dest);
-        size_t __max_len = (max_len >= __offset ? max_len - __offset : 0);
-
-	va_list va;
-	va_start(va, fmt);
-        vsnprintf(dest + __offset, __max_len, fmt, va);
-	va_end(va);
-	
-        return dest;
-}
-
-wchar_t *bds_wstring_concatf(wchar_t *dest, size_t max_len, const wchar_t *fmt, ...)
-
-{
-        size_t __offset  = wcslen(dest);
-        size_t __max_len = (max_len >= __offset ? max_len - __offset : 0);
-
-	va_list va;
-	va_start(va, fmt);
-        vswprintf(dest + __offset, __max_len, fmt, va);
-	va_end(va);
-	
-        return dest;
-}
-
-static inline void append_tok(char *str, size_t *alloc_size, size_t *num_tok, char **(*tok))
-{
-        if (*num_tok == *alloc_size) {
-                *alloc_size = MAX((*alloc_size) << 1, 2);
-                *tok        = realloc(*tok, (*alloc_size) * sizeof(**tok));
-        }
-        (*tok)[(*num_tok)++] = str;
-}
-
-static inline void w_append_tok(wchar_t *str, size_t *alloc_size, size_t *num_tok, wchar_t **(*tok))
-{
-        if (*num_tok == *alloc_size) {
-                *alloc_size = MAX((*alloc_size) << 1, 2);
-                *tok        = realloc(*tok, (*alloc_size) * sizeof(**tok));
-        }
-        (*tok)[(*num_tok)++] = str;
-}
-
-static char *__adjustl(char *str, size_t *str_len)
-{
-        const char *c = str;
-        while (*c == ' ')
-                ++c;
-
-        long long move_len = c - str;
-        if (move_len == *str_len) { // Occurs when string is empty
-                *str_len = 0;
-                *str     = '\0';
-        } else if (move_len > 0) {
-                *str_len -= move_len;
-                memmove(str, c, *str_len + 1); // Copy the null character
-        }
-
-        return str;
-}
-
-static wchar_t *__w_adjustl(wchar_t *str, size_t *str_len)
-{
-        const wchar_t *c = str;
-        while (*c == ' ')
-                ++c;
-
-        long long move_len = c - str;
-        if (move_len == *str_len) { // Occurs when string is empty
-                *str_len = 0;
-                *str     = '\0';
-        } else if (move_len > 0) {
-                *str_len -= move_len;
-                memmove(str, c, sizeof(wchar_t) * (*str_len + 1)); // Copy the null character
-        }
-
-        return str;
-}
-
-static char *__trim(char *str, size_t *str_len)
-{
-        char *c = str + (*str_len);
-        while (c != str && *(c - 1) == ' ')
-                --c;
-
-        *str_len -= str + (*str_len) - c;
-        *c = '\0';
-
-        return str;
-}
-
-static wchar_t *__w_trim(wchar_t *str, size_t *str_len)
-{
-        wchar_t *c = str + (*str_len);
-        while (c != str && *(c - 1) == ' ')
-                --c;
-
-        *str_len -= str + (*str_len) - c;
-        *c = '\0';
-
-        return str;
-}
+BDS_STRING_ISNUM(string,str,char,isdigit);
+BDS_STRING_ISNUM(wstring,wcs,wchar_t,iswdigit);
+
+
+#define BDS_STRING_DUP(N,S,C)						\
+	C *bds_##N##_dup(const C *str)					\
+	{								\
+		const size_t str_len = S##len(str);			\
+		C *s = malloc(sizeof(C) * (str_len + 1));		\
+		if (s) {						\
+			memcpy(s, str, sizeof(C) * (str_len + 1));	\
+		}							\
+		return s;						\
+	}
+
+F_STRING(BDS_STRING_DUP);
+F_WSTRING(BDS_STRING_DUP);
+
+#define BDS_STRING_DUP_CONCAT(N,S,C)					\
+	C *bds_##N##_dup_concat(int num_str, const C *str, ...) \
+	{								\
+		va_list ap;						\
+									\
+		size_t str_len_tbl[num_str];				\
+		const C *str_tbl[num_str];				\
+		size_t str_len = 0;					\
+									\
+		str_tbl[0]     = str;					\
+		str_len_tbl[0] = S##len(str_tbl[0]);			\
+		str_len        = str_len_tbl[0];			\
+									\
+		va_start(ap, str);					\
+		for (int i = 1; i < num_str; ++i) {			\
+			str_tbl[i]     = va_arg(ap, const C *);		\
+			str_len_tbl[i] = S##len(str_tbl[i]);		\
+			str_len += str_len_tbl[i];			\
+		}							\
+		va_end(ap);						\
+									\
+		C *str_dup = malloc(sizeof(C) * (str_len + 1));		\
+									\
+		if (!str_dup) {						\
+			return NULL;					\
+		}							\
+									\
+		C *s = str_dup;						\
+		for (int i = 0; i < num_str; ++i) {			\
+			/* Copy null terminator */			\
+			memcpy(s, str_tbl[i], sizeof(C) * (str_len_tbl[i] + 1)); \
+			/* Advance to the null terminator */		\
+			s += str_len_tbl[i];				\
+		}							\
+		return str_dup;						\
+	}
+
+F_STRING(BDS_STRING_DUP_CONCAT);
+F_WSTRING(BDS_STRING_DUP_CONCAT);
+
+#define BDS_STRING_CONCATF(N,S,C,VSPRINTF)				\
+	C *bds_##N##_concatf(C *dest, size_t max_len, const C *fmt, ...) \
+	{								\
+		size_t __offset  = S##len(dest);			\
+		size_t __max_len = (max_len >= __offset ? max_len - __offset : 0); \
+									\
+		va_list va;						\
+		va_start(va, fmt);					\
+		VSPRINTF(dest + __offset, __max_len, fmt, va);		\
+		va_end(va);						\
+									\
+		return dest;						\
+	}
+
+BDS_STRING_CONCATF(string,str,char, vsnprintf);
+BDS_STRING_CONCATF(wstring,wcs,wchar_t, vswprintf);
