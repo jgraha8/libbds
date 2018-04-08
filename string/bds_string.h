@@ -19,7 +19,7 @@ char *bds_string_dup(const char *str);
 
 char *bds_string_dup_concat(int num_substr, const char *str, ...);
 
-char *bds_string_concatf(char *dest, size_t max_len, const char *fmt, ...);	
+char *bds_string_concatf(char *dest, size_t max_len, const char *fmt, ...); 
 
 bool bds_string_contains(const char *str, const char *substr);
 
@@ -36,6 +36,10 @@ char *bds_string_adjustr(char *str);
 char *bds_string_trim(char *str);
 
 char *bds_string_atrim(char *str);
+
+char *bds_string_toupper(char *s);
+
+char *bds_string_tolower(char *s);	
 
 void bds_string_tokenize(char *str, const char *delim, size_t *num_tok, char **(*tok));
 
@@ -66,6 +70,10 @@ wchar_t *bds_wstring_adjustr(wchar_t *str);
 wchar_t *bds_wstring_trim(wchar_t *str);
 
 wchar_t *bds_wstring_atrim(wchar_t *str);
+
+wchar_t *bds_wstring_toupper(wchar_t *s);
+
+wchar_t *bds_wstring_tolower(wchar_t *s);	
 
 void bds_wstring_tokenize(wchar_t *str, const wchar_t *delim, size_t *num_tok, wchar_t **(*tok));
 

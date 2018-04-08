@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wctype.h>
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
@@ -127,6 +128,48 @@ wchar_t *bds_wstring_atrim(wchar_t *str)
 {
         size_t str_len = wcslen(str);
         return __w_trim(__w_adjustl(str, &str_len), &str_len);
+}
+
+char *bds_string_toupper(char *str)
+{
+	char *s = str;
+	while( *s ) {
+		*s = toupper(*s);
+		++s;
+	}
+	return str;
+	
+}
+
+wchar_t *bds_wstring_toupper(wchar_t *str)
+{
+	wchar_t *s = str;
+	while( *s ) {
+		*s = towupper(*s);
+		++s;
+	}
+	return str;
+}
+
+
+char *bds_string_tolower(char *str)
+{
+	char *s = str;
+	while( *s ) {
+		*s = tolower(*s);
+		++s;
+	}
+	return str;
+}
+
+wchar_t *bds_wstring_tolower(wchar_t *str)
+{
+	wchar_t *s = str;
+	while( *s ) {
+		*s = towlower(*s);
+		++s;
+	}
+	return str;
 }
 
 void bds_string_tokenize(char *str, const char *delim, size_t *num_tok, char **(*tok))
