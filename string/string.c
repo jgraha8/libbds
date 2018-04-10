@@ -388,3 +388,16 @@ F_WSTRING(BDS_STRING_DUP_CONCAT);
 
 BDS_STRING_CONCATF(string,str,char, vsnprintf);
 BDS_STRING_CONCATF(wstring,wcs,wchar_t, vswprintf);
+
+#define BDS_STRING_COPYF(N,C,VSPRINTF)					\
+	C *bds_##N##_copyf(C *dest, size_t max_len, const C *fmt, ...)	\
+	{								\
+		va_list va;						\
+		va_start(va, fmt);					\
+		VSPRINTF(dest, max_len, fmt, va);			\
+		va_end(va);						\
+		return dest;						\
+	}
+
+BDS_STRING_COPYF(string,char,vsnprintf);
+BDS_STRING_COPYF(wstring,wchar_t,vswprintf);

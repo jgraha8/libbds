@@ -47,8 +47,11 @@ int main(int argc, char *argv[])
 	bds_string_concatf(str_dup, 100, "%s%s", atrim_wtok[0], atrim_wtok[1]);
 	assert(strcmp( str_dup, "The red dogjumps over the | big dog") == 0 );
 
+	bds_string_copyf(str_dup, 100, "%s%s", atrim_wtok[0], atrim_wtok[1]);
+	assert(strcmp( str_dup, "The red dogjumps over the | big dog") == 0 );	
+	
 	assert(strcmp( bds_string_tolower(str_dup), "the red dogjumps over the | big dog") == 0 );
-	assert(strcmp( bds_string_toupper(str_dup), "THE RED DOGJUMPS OVER THE | BIG DOG") == 0 );	
+	assert(strcmp( bds_string_toupper(str_dup), "THE RED DOGJUMPS OVER THE | BIG DOG") == 0 );
 
 	free(str_dup);
 	
