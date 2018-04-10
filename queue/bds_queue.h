@@ -282,7 +282,7 @@ typedef struct bds_queue queue_t;
 
 #define queue_islinear bds_queue_islinear
 
-#define queue_lienarize bds_queue_linearize
+#define queue_linearize bds_queue_linearize
 
 #define queue_lsearch bds_queue_lsearch
 
