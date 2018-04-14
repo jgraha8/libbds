@@ -54,6 +54,11 @@ int main(int argc, char *argv[])
 	assert(wcscmp( bds_wstring_tolower(str_dup), L"the red dogjumps over the | big dog") == 0 );
 	assert(wcscmp( bds_wstring_toupper(str_dup), L"THE RED DOGJUMPS OVER THE | BIG DOG") == 0 );	
 
+	bds_wstring_copyf(str_dup, 100, L"%ls", atrim_wtok[1]);
+	bds_wstring_prependf(str_dup, 100, L"%ls", atrim_wtok[0]);
+
+	assert(wcscmp( str_dup, L"The red dogjumps over the | big dog") == 0 );		
+
 	free(str_dup);
 	
         for (size_t n = 0; n < num_tok; ++n) {

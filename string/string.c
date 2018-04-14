@@ -372,6 +372,33 @@ F_WSTRING(BDS_STRING_DUP);
 F_STRING(BDS_STRING_DUP_CONCAT);
 F_WSTRING(BDS_STRING_DUP_CONCAT);
 
+#define BDS_STRING_PREPENDF(N,S,C,VSPRINTF)				\
+	C *bds_##N##_prependf(C *dest, size_t max_len, const C *fmt, ...) \
+	{								\
+		C buf[max_len];						\
+		S##ncpy(buf, dest, max_len);				\
+									\
+		va_list va;						\
+		va_start(va, fmt);					\
+		VSPRINTF(dest, max_len, fmt, va);			\
+		va_end(va);						\
+									\
+		size_t __offset  = S##len(dest);			\
+		size_t __max_len = (max_len >= __offset ? max_len - __offset : 0); \
+		size_t buf_len = S##len(buf);				\
+									\
+		buf_len = (  buf_len < __max_len ? buf_len : __max_len ); \
+									\
+		memcpy(dest + __offset, buf, sizeof(C)*buf_len);	\
+		memset(dest + __offset + buf_len, 0, sizeof(C));	\
+									\
+		return dest;						\
+	}
+
+BDS_STRING_PREPENDF(string,str,char, vsnprintf);
+BDS_STRING_PREPENDF(wstring,wcs,wchar_t, vswprintf);
+
+
 #define BDS_STRING_CONCATF(N,S,C,VSPRINTF)				\
 	C *bds_##N##_concatf(C *dest, size_t max_len, const C *fmt, ...) \
 	{								\

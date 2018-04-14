@@ -19,6 +19,8 @@ char *bds_string_dup(const char *str);
 
 char *bds_string_dup_concat(int num_substr, const char *str, ...);
 
+char *bds_string_prependf(char *dest, size_t max_len, const char *fmt, ...);
+	
 char *bds_string_concatf(char *dest, size_t max_len, const char *fmt, ...);
 
 char *bds_string_copyf(char *dest, size_t max_len, const char *fmt, ... );
@@ -55,6 +57,8 @@ wchar_t *bds_wstring_dup(const wchar_t *str);
 
 wchar_t *bds_wstring_dup_concat(int num_substr, const wchar_t *str, ...);
 
+wchar_t *bds_wstring_prependf(wchar_t *dest, size_t max_len, const wchar_t *fmt, ...);
+	
 wchar_t *bds_wstring_concatf(wchar_t *dest, size_t max_len, const wchar_t *fmt, ...);
 
 wchar_t *bds_wstring_copyf(wchar_t *dest, size_t max_len, const wchar_t *fmt, ... );
@@ -97,6 +101,8 @@ bool bds_wstring_isnum(const wchar_t *str);
 
 #define string_dup_concat bds_string_dup_concat
 
+#define string_prependf bds_string_prependf
+
 #define string_concatf bds_string_concatf
 
 #define string_copyf bds_string_copyf
@@ -132,6 +138,8 @@ bool bds_wstring_isnum(const wchar_t *str);
 #define wstring_dup bds_wstring_dup
 
 #define wstring_dup_concat bds_wstring_dup_concat
+
+#define wstring_prependf bds_wstring_prependf
 
 #define wstring_concatf bds_wstring_concatf
 
