@@ -25,3 +25,15 @@ string/.deps/
 string/.libs/
 string/Makefile
 libtool
+Makefile.in
+aclocal.m4
+bds_version.h
+config.guess
+config.h.in
+config.sub
+configure
+depcomp
+install-sh
+ltmain.sh
+missing
+autom4te.cache
