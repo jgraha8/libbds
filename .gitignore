@@ -27,7 +27,6 @@ string/Makefile
 libtool
 Makefile.in
 aclocal.m4
-bds_version.h
 config.guess
 config.h.in
 config.sub
