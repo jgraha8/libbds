@@ -31,6 +31,7 @@ struct bds_object_member {
 };
 
 struct bds_object_desc {
+	size_t o_len;
         size_t num_members;
         struct bds_object_member *members;
 };
