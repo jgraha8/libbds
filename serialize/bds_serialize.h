@@ -7,13 +7,15 @@
 #ifndef __BDS_SERIALIZE_H__
 #define __BDS_SERIALIZE_H__
 
+#include <stdlib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define BDS_OBJECT_MEMBER(obj, member, type, config)                                                                   \
-        {                                                                                                              \
-                (void *)&member - (void *)obj, sizeof(member), type, config                                            \
+#define BDS_OBJECT_MEMBER(obj, member, type, config)                                               \
+        {                                                                                          \
+                (void *)&(obj)->member - (void *)(obj), sizeof((obj)->member), type, config        \
         }
 
 enum bds_object_type {
@@ -24,20 +26,20 @@ enum bds_object_type {
 };
 
 struct bds_object_member {
-        size_t o_offset;
-        size_t o_len;
-        enum bds_object_type o_type;
-        void *o_config;
+        size_t offset;
+        size_t len;
+        enum bds_object_type type;
+        void *config;
 };
 
 struct bds_object_desc {
-	size_t o_len;
+        size_t object_len;
         size_t num_members;
         struct bds_object_member *members;
 };
 
-void bds_serialize(const void *object, const struct bds_object_desc *object_desc, size_t *serial_len,
-                   void **serial_object);
+void bds_serialize(const void *object, const struct bds_object_desc *object_desc,
+                   size_t *serial_len, void **serial_object);
 
 #ifdef __cplusplus
 }

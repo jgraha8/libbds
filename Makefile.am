@@ -6,6 +6,7 @@ SUBDIRS= \
 	libbds	\
 	list	\
 	queue	\
+	serialize \
 	stack	\
 	string
 
@@ -13,6 +14,7 @@ SUBDIRS= \
 SUBLIBS = \
 	list/libbdslist.la \
 	queue/libbdsqueue.la \
+	serialize/libbdsserialize.la \
 	stack/libbdsstack.la \
 	string/libbdsstring.la
 
