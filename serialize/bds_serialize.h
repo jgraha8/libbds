@@ -41,6 +41,9 @@ struct bds_object_desc {
 void bds_serialize(const void *object, const struct bds_object_desc *object_desc,
                    size_t *serial_len, void **serial_object);
 
+void bds_deserialize(const void *serial_object, const struct bds_object_desc *object_desc,
+                     void *object);
+
 #ifdef __cplusplus
 }
 #endif

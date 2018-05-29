@@ -24,10 +24,27 @@ struct bds_object_member data_members[] = {
     BDS_OBJECT_MEMBER(&__data_template, bounds, BDS_OBJECT_PTR_DATA, (void *)get_bounds_len),
     BDS_OBJECT_MEMBER(&__data_template, c_idx, BDS_OBJECT_PTR_DATA, (void *)get_c_idx_len)};
 
-struct bds_object_desc data_desc = { sizeof(struct data), ARRAY_SIZE(data_members), &data_members };
+struct bds_object_desc data_desc = { sizeof(struct data), ARRAY_SIZE(data_members), &data_members[0] };
+
+int check_data( struct data *data, struct data *serial_data)
+{
+	if( serial_data->num_dims != data->num_dims ) {
+		return 1;
+	}
+
+	if( memcmp(serial_data->bounds, data->bounds, serial_data->num_dims * sizeof(*serial_data->bounds)) != 0 ) {
+		return 1;
+	}
+
+	if( memcmp(serial_data->c_idx, data->c_idx, serial_data->num_dims * sizeof(*serial_data->c_idx)) != 0 ) {
+		return 1;
+	}
+	return 0;
+}
 
 int main(int argc, char **argv)
 {
+	int rc=0;
 	struct data d;
 
 	d.num_dims = 100;
@@ -45,29 +62,27 @@ int main(int argc, char **argv)
 	void *serial_data;
 
 	bds_serialize(&d, &data_desc, &serial_len, &serial_data);
+	rc = check_data(&d, (struct data *)serial_data);
+	free(d.bounds);
+	free(d.c_idx);
 
-	int rc=0;
-	struct data *s_d = (struct data *)serial_data;
-
-	if( s_d->num_dims != d.num_dims ) {
-		rc=1;
+	if( rc != 0 )
 		goto finish;
-	}
+	
+	struct data dd = {0};
+	bds_deserialize(serial_data, &data_desc, &dd);
 
-	if( memcmp(s_d->bounds, d.bounds, s_d->num_dims * sizeof(*s_d->bounds)) != 0 ) {
-		rc = 1;
-		goto finish;
-	}
+	rc = check_data(&dd, (struct data *)serial_data);
 
-	if( memcmp(s_d->c_idx, d.c_idx, s_d->num_dims * sizeof(*s_d->c_idx)) != 0 ) {
-		rc = 1;
+	if( rc != 0 ) {
 		goto finish;
+	} else {
+		free(dd.bounds);
+		free(dd.c_idx);
 	}
 	
 finish:
 	free(serial_data);
-	free(d.bounds);
-	free(d.c_idx);
 
 	return rc;
 }

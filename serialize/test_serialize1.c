@@ -1,3 +1,4 @@
+#include <string.h>
 #include <libbds/bds_serialize.h>
 
 struct data {
@@ -18,7 +19,7 @@ int main(int argc, char **argv)
 {
 	int rc=0;
 	struct data d = { 1, 2.0f, 3.0 };
-	struct bds_object_desc data_desc = { sizeof(struct data), ARRAY_SIZE(data_members), &data_members };
+	struct bds_object_desc data_desc = { sizeof(struct data), ARRAY_SIZE(data_members), &data_members[0] };
 
 	size_t serial_len = 0;
 	void *serial_data;
@@ -28,7 +29,15 @@ int main(int argc, char **argv)
 	if( memcmp(&d, serial_data, sizeof(d)) != 0 ) {
 		rc=1;
 	}
+
+	struct data dd;
+	bds_deserialize(serial_data, &data_desc, &dd );
+
+	if( memcmp(&dd, serial_data, sizeof(d)) != 0 ) {
+		rc=1;
+	}
+	
 	free(serial_data);
 	
-	return 0;
+	return rc;
 }
