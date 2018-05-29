@@ -18,8 +18,12 @@ int check_data(struct list_node *a, struct list_node *b)
         while (a && b) {
                 if (a->id != b->id)
                         return 1;
+
                 a = a->next;
                 b = b->next;
+		
+		if( a && !b || !a && b )
+			return 1;
         }
         return 0;
 }
@@ -55,7 +59,7 @@ int main(int argc, char **argv)
 
         if (check_data(&head, (struct list_node *)serial_data) != 0)
                 return 1;
-	free_list(head.next);
+        free_list(head.next);
 
         struct list_node dhead = {0};
         bds_deserialize(serial_data, &list_node_desc, &dhead);
@@ -63,8 +67,8 @@ int main(int argc, char **argv)
         if (check_data(&dhead, (struct list_node *)serial_data) != 0)
                 return 1;
 
-	free_list(dhead.next);
-	free(serial_data);
+        free_list(dhead.next);
+        free(serial_data);
 
         return 0;
 }
