@@ -13,9 +13,10 @@
 extern "C" {
 #endif
 
-#define BDS_OBJECT_MEMBER(obj_ptr, member, type, config)                                                               \
-        {                                                                                                              \
-                (void *)&(obj_ptr)->member - (void *)(obj_ptr), sizeof((obj_ptr)->member), type, config                \
+#define BDS_OBJECT_MEMBER(obj_ptr, member, type, config)                                           \
+        {                                                                                          \
+                (void *)&(obj_ptr)->member - (void *)(obj_ptr), sizeof((obj_ptr)->member), type,   \
+                    config                                                                         \
         }
 
 enum bds_object_type {
@@ -38,10 +39,17 @@ struct bds_object_desc {
         struct bds_object_member *members;
 };
 
-void bds_serialize(const void *object, const struct bds_object_desc *object_desc, size_t *serial_len,
-                   void **serial_object);
+void bds_serialize(const void *object, const struct bds_object_desc *object_desc,
+                   size_t *serial_len, void **serial_object);
 
-void bds_deserialize(const void *serial_object, const struct bds_object_desc *object_desc, void *object);
+void bds_serialize_rel_addr(const void *object, const struct bds_object_desc *object_desc,
+                           size_t *serial_len, void **serial_object);
+
+void bds_convert_abs_addr(void *serial_object, const struct bds_object_desc *object_desc );
+void bds_convert_rel_addr(void *serial_object, const struct bds_object_desc *object_desc );	
+
+void bds_deserialize(const void *serial_object, const struct bds_object_desc *object_desc,
+                     void *object);
 
 #ifdef __cplusplus
 }

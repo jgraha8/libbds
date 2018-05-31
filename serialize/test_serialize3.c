@@ -59,14 +59,17 @@ int main(int argc, char **argv)
 
         if (check_data(&head, (struct list_node *)serial_data) != 0)
                 return 1;
-        free_list(head.next);
 
         struct list_node dhead = {0};
         bds_deserialize(serial_data, &list_node_desc, &dhead);
 
         if (check_data(&dhead, (struct list_node *)serial_data) != 0)
                 return 1;
+        if (check_data(&dhead, &head) != 0)
+                return 1;
 
+	
+        free_list(head.next);	
         free_list(dhead.next);
         free(serial_data);
 
