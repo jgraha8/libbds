@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 	int rc=0;
 	struct data d;
 
-	d.num_dims = 100;
+	d.num_dims = 2;
 	d.bounds = calloc(d.num_dims, sizeof(*d.bounds));
 	d.c_idx = calloc(d.num_dims, sizeof(*d.c_idx));
 	
@@ -65,23 +65,25 @@ int main(int argc, char **argv)
 	bds_convert_abs_addr(serial_data, &data_desc );
 	
 	rc = check_data(&d, (struct data *)serial_data);
-	free(d.bounds);
-	free(d.c_idx);
 
 	if( rc != 0 )
 		goto finish;
+
+
+	bds_convert_rel_addr(serial_data, &data_desc );			
 	
 	struct data dd = {0};
 	bds_deserialize(serial_data, &data_desc, &dd);
 
-	rc = check_data(&dd, (struct data *)serial_data);
+	rc = check_data(&dd, &d);
 
 	if( rc != 0 ) {
 		goto finish;
-	} else {
-		free(dd.bounds);
-		free(dd.c_idx);
 	}
+	free(d.bounds);
+	free(d.c_idx);
+	free(dd.bounds);
+	free(dd.c_idx);
 	
 finish:
 	free(serial_data);

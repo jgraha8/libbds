@@ -42,7 +42,7 @@ int main(int argc, char **argv)
         struct list_node head  = {0};
         struct list_node *node = &head;
 
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 2; ++i) {
                 node->id   = i;
                 node->next = calloc(1, sizeof(*node));
                 node       = node->next;
