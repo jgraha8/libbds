@@ -13,36 +13,35 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 
-
-static void *xalloc( size_t len )
+__attribute__((unused)) static void *xalloc(size_t len)
 {
-	void *v = malloc( len );
-	assert(v);
-	memset( v, 0, len );
-	return v;
+        void *v = malloc(len);
+        assert(v);
+        memset(v, 0, len);
+        return v;
 }
 
-static void *xrealloc( void *v, size_t len_old, size_t len )
+__attribute__((unused)) static void *xrealloc(void *v, size_t len_old, size_t len)
 {
-	void *_v = realloc( v, len );
-	assert( _v );
-	if( len > len_old ) {
-		memset( _v + len_old, 0, len - len_old );
-	}
-	return _v;
+        void *_v = realloc(v, len);
+        assert(_v);
+        if (len > len_old) {
+                memset(_v + len_old, 0, len - len_old);
+        }
+        return _v;
 }
 
-static inline void xmemswap( void *a, void *b, size_t len, void *buf )
+__attribute__((unused)) static inline void xmemswap(void *a, void *b, size_t len, void *buf)
 {
-	memcpy( buf, a  , len );
-	memcpy( a  , b  , len );
-	memcpy( b  , buf, len );
+        memcpy(buf, a, len);
+        memcpy(a, b, len);
+        memcpy(b, buf, len);
 }
 
 #ifdef __cplusplus
 }
-#endif 
+#endif
 
 #endif
