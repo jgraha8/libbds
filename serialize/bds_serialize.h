@@ -42,11 +42,7 @@ struct bds_object_desc {
 void bds_serialize(const void *object, const struct bds_object_desc *object_desc,
                    size_t *serial_len, void **serial_object);
 
-void bds_serialize_rel_addr(const void *object, const struct bds_object_desc *object_desc,
-                           size_t *serial_len, void **serial_object);
-
-void bds_convert_abs_addr(void *serial_object, const struct bds_object_desc *object_desc );
-void bds_convert_rel_addr(void *serial_object, const struct bds_object_desc *object_desc );	
+void bds_update_serial_ptrs(void *serial_object, const struct bds_object_desc *object_desc );
 
 void bds_deserialize(const void *serial_object, const struct bds_object_desc *object_desc,
                      void *object);

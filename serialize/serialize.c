@@ -16,8 +16,8 @@
 
 #define FLAG_REL_ADDR 0x1
 
-static void add_serial_len(const char *object, const struct bds_object_desc *object_desc,
-                           size_t *members_len, size_t *alloc_len)
+static void add_serial_len(const char *object, const struct bds_object_desc *object_desc, size_t *members_len,
+                           size_t *alloc_len)
 {
         const char *member_ptr;
 
@@ -56,16 +56,15 @@ static void add_serial_len(const char *object, const struct bds_object_desc *obj
                         }
                         break;
                 default:
-                        fprintf(stderr,
-                                "bds::serialize::add_serial_len: incorrect object member type %d\n",
+                        fprintf(stderr, "bds::serialize::add_serial_len: incorrect object member type %d\n",
                                 member->type);
                         exit(EXIT_FAILURE);
                 }
         }
 }
 
-static void serialize_object(const char *object, const struct bds_object_desc *object_desc,
-                             long ptr_offset, char **members_seg, char **alloc_seg)
+static void serialize_object(const char *object, const struct bds_object_desc *object_desc, long ptr_offset,
+                             char **members_seg, char **alloc_seg)
 {
         // First get the storage requirements for the members
         for (size_t i = 0; i < object_desc->num_members; ++i) {
@@ -108,8 +107,7 @@ static void serialize_object(const char *object, const struct bds_object_desc *o
                         if (member->config) {
                                 member_desc   = (const struct bds_object_desc *)member->config;
                                 __members_seg = serial_member;
-                                serialize_object(object_member, member_desc, ptr_offset,
-                                                 &__members_seg, alloc_seg);
+                                serialize_object(object_member, member_desc, ptr_offset, &__members_seg, alloc_seg);
                         } else {
                                 memcpy(serial_member, object_member, member->len);
                         }
@@ -132,14 +130,12 @@ static void serialize_object(const char *object, const struct bds_object_desc *o
                                 __members_seg = *alloc_seg;
                                 *alloc_seg += member_len;
 
-                                serialize_object(member_ptr, member_desc, ptr_offset,
-                                                 &__members_seg, alloc_seg);
+                                serialize_object(member_ptr, member_desc, ptr_offset, &__members_seg, alloc_seg);
                         }
 
                         break;
                 default:
-                        fprintf(stderr,
-                                "bds::serialize::add_serial_len: incorrect object member type %d\n",
+                        fprintf(stderr, "bds::serialize::add_serial_len: incorrect object member type %d\n",
                                 member->type);
                         exit(EXIT_FAILURE);
                 }
@@ -148,8 +144,8 @@ static void serialize_object(const char *object, const struct bds_object_desc *o
         *members_seg += object_desc->object_len;
 }
 
-static void deserialize_object(const void *serial_object, const struct bds_object_desc *object_desc,
-                               long ptr_offset, void *object)
+static void deserialize_object(const void *serial_object, const struct bds_object_desc *object_desc, long ptr_offset,
+                               void *object)
 {
         // First get the storage requirements for the members
         for (size_t i = 0; i < object_desc->num_members; ++i) {
@@ -159,7 +155,7 @@ static void deserialize_object(const void *serial_object, const struct bds_objec
                 char *object_member       = object + member->offset;
                 const char *serial_member = serial_object + member->offset;
 
-                const struct bds_object_desc *member_desc;		
+                const struct bds_object_desc *member_desc;
                 size_t alloc_len;
                 char *member_ptr;
                 char *serial_ptr;
@@ -178,7 +174,7 @@ static void deserialize_object(const void *serial_object, const struct bds_objec
                                 alloc_len = ((size_t(*)(const void *))member->config)(object);
 
                                 if (member_ptr == NULL) {
-                                        assert(member_ptr = calloc(1, alloc_len));
+                                        assert(member_ptr       = calloc(1, alloc_len));
                                         *(char **)object_member = member_ptr;
                                 }
                                 memcpy(member_ptr, serial_ptr, alloc_len);
@@ -187,8 +183,7 @@ static void deserialize_object(const void *serial_object, const struct bds_objec
                 case BDS_OBJECT_DATA_OBJECT:
                         if (member->config) {
                                 member_desc = (const struct bds_object_desc *)member->config;
-                                deserialize_object(serial_member, member_desc, ptr_offset,
-                                                   object_member);
+                                deserialize_object(serial_member, member_desc, ptr_offset, object_member);
                         } else {
                                 // Treating the same as data
                                 memcpy(object_member, serial_member, member->len);
@@ -205,7 +200,7 @@ static void deserialize_object(const void *serial_object, const struct bds_objec
                                 alloc_len   = member_desc->object_len;
 
                                 if (member_ptr == NULL) {
-                                        assert(member_ptr = calloc(1, alloc_len));
+                                        assert(member_ptr       = calloc(1, alloc_len));
                                         *(char **)object_member = member_ptr;
                                 }
 
@@ -213,17 +208,14 @@ static void deserialize_object(const void *serial_object, const struct bds_objec
                         }
                         break;
                 default:
-                        fprintf(
-                            stderr,
-                            "bds::serialize::deserialize_object: incorrect object member type %d\n",
-                            member->type);
+                        fprintf(stderr, "bds::serialize::deserialize_object: incorrect object member type %d\n",
+                                member->type);
                         exit(EXIT_FAILURE);
                 }
         }
 }
 
-static void adjust_object_ptrs(void *serial_object, const struct bds_object_desc *object_desc,
-                               long ptr_offset)
+static void adjust_object_ptrs(void *serial_object, const struct bds_object_desc *object_desc, long ptr_offset)
 {
         // First get the storage requirements for the members
         for (size_t i = 0; i < object_desc->num_members; ++i) {
@@ -251,36 +243,25 @@ static void adjust_object_ptrs(void *serial_object, const struct bds_object_desc
 
                         serial_ptr = *(char **)(serial_member);
 
-                        if (ptr_offset < 0) {
-                                // Absolute to relative: first adjust the object, then the member
-                                // pointer
-                                if (member->config && serial_ptr) {
-                                        member_desc = (struct bds_object_desc *)member->config;
-                                        adjust_object_ptrs(serial_ptr, member_desc, ptr_offset);
-                                }
-                                *(char **)serial_member += ptr_offset;
-                        } else {
-                                // Relative to absolute: first adjust the member pointer then the
-                                // object
-                                *(char **)serial_member += ptr_offset;
-                                if (member->config && serial_ptr) {
+                        if (serial_ptr) {
+                                *(char **)serial_member = serial_ptr += ptr_offset;
+                                if (member->config) {
+                                        assert(serial_ptr);
                                         member_desc = (struct bds_object_desc *)member->config;
                                         adjust_object_ptrs(serial_ptr, member_desc, ptr_offset);
                                 }
                         }
                         break;
                 default:
-                        fprintf(
-                            stderr,
-                            "bds::serialize::deserialize_object: incorrect object member type %d\n",
-                            member->type);
+                        fprintf(stderr, "bds::serialize::deserialize_object: incorrect object member type %d\n",
+                                member->type);
                         exit(EXIT_FAILURE);
                 }
         }
 }
 
-static void __serialize(const void *object, const struct bds_object_desc *object_desc,
-                        bool rel_addr, size_t *serial_len, void **serial_object)
+static void __serialize(const void *object, const struct bds_object_desc *object_desc, bool rel_addr,
+                        size_t *serial_len, void **serial_object)
 {
         char *members_seg = NULL;
         long *base_addr   = NULL;
@@ -314,19 +295,13 @@ static void __serialize(const void *object, const struct bds_object_desc *object
         assert(*serial_object + *serial_len == alloc_seg);
 }
 
-void bds_serialize(const void *object, const struct bds_object_desc *object_desc,
-                   size_t *serial_len, void **serial_object)
+void bds_serialize(const void *object, const struct bds_object_desc *object_desc, size_t *serial_len,
+                   void **serial_object)
 {
         __serialize(object, object_desc, false, serial_len, serial_object);
 }
 
-void bds_serialize_rel_addr(const void *object, const struct bds_object_desc *object_desc,
-                            size_t *serial_len, void **serial_object)
-{
-        __serialize(object, object_desc, true, serial_len, serial_object);
-}
-
-void bds_convert_abs_addr(void *serial_object, const struct bds_object_desc *object_desc)
+void bds_update_serial_ptrs(void *serial_object, const struct bds_object_desc *object_desc)
 {
         long *base_addr = (long *)((char *)serial_object + object_desc->object_len);
 
@@ -336,18 +311,7 @@ void bds_convert_abs_addr(void *serial_object, const struct bds_object_desc *obj
         adjust_object_ptrs(serial_object, object_desc, ptr_offset);
 }
 
-void bds_convert_rel_addr(void *serial_object, const struct bds_object_desc *object_desc)
-{
-        long *base_addr = (long *)((char *)serial_object + object_desc->object_len);
-
-        long ptr_offset = -(*base_addr);
-        *base_addr      = 0;
-
-        adjust_object_ptrs(serial_object, object_desc, ptr_offset);
-}
-
-void bds_deserialize(const void *serial_object, const struct bds_object_desc *object_desc,
-                     void *object)
+void bds_deserialize(const void *serial_object, const struct bds_object_desc *object_desc, void *object)
 {
         long base_addr  = *(long *)((char *)serial_object + object_desc->object_len);
         long ptr_offset = (long)serial_object - base_addr;

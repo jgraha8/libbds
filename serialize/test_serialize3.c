@@ -1,4 +1,8 @@
+#include <string.h>
+
 #include <libbds/bds_serialize.h>
+
+#define N 2
 
 struct list_node {
         int id;
@@ -21,9 +25,9 @@ int check_data(struct list_node *a, struct list_node *b)
 
                 a = a->next;
                 b = b->next;
-		
-		if( a && !b || !a && b )
-			return 1;
+
+                if ((a && !b) || (!a && b))
+                        return 1;
         }
         return 0;
 }
@@ -42,10 +46,11 @@ int main(int argc, char **argv)
         struct list_node head  = {0};
         struct list_node *node = &head;
 
-        for (int i = 0; i < 2; ++i) {
-                node->id   = i;
+        node->id = 0;
+        for (int i = 1; i < N; ++i) {
                 node->next = calloc(1, sizeof(*node));
                 node       = node->next;
+                node->id   = i;
         }
 
         size_t serial_len;
@@ -60,18 +65,29 @@ int main(int argc, char **argv)
         if (check_data(&head, (struct list_node *)serial_data) != 0)
                 return 1;
 
-        struct list_node dhead = {0};
-        bds_deserialize(serial_data, &list_node_desc, &dhead);
+        struct list_node head2 = {0};
+        bds_deserialize(serial_data, &list_node_desc, &head2);
 
-        if (check_data(&dhead, (struct list_node *)serial_data) != 0)
+        if (check_data(&head2, (struct list_node *)serial_data) != 0)
                 return 1;
-        if (check_data(&dhead, &head) != 0)
+        if (check_data(&head2, &head) != 0)
                 return 1;
 
-	
-        free_list(head.next);	
-        free_list(dhead.next);
+        void *serial_data2 = calloc(1, serial_len);
+        memcpy(serial_data2, serial_data, serial_len);
+
+        bds_update_serial_ptrs(serial_data2, &list_node_desc);
+        bds_deserialize(serial_data2, &list_node_desc, &head2);
+
+        if (check_data(&head2, (struct list_node *)serial_data2) != 0)
+                return 1;
+        if (check_data(&head2, &head) != 0)
+                return 1;
+
+        free_list(head.next);
+        free_list(head2.next);
         free(serial_data);
+        free(serial_data2);
 
         return 0;
 }

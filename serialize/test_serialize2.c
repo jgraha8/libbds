@@ -44,7 +44,6 @@ int check_data( struct data *data, struct data *serial_data)
 
 int main(int argc, char **argv)
 {
-	int rc=0;
 	struct data d;
 
 	d.num_dims = 100;
@@ -62,27 +61,31 @@ int main(int argc, char **argv)
 	void *serial_data;
 
 	bds_serialize(&d, &data_desc, &serial_len, &serial_data);
-	rc = check_data(&d, (struct data *)serial_data);
-	free(d.bounds);
-	free(d.c_idx);
+	if( check_data(&d, (struct data *)serial_data) != 0 )
+		return 1;
 
-	if( rc != 0 )
-		goto finish;
-	
 	struct data dd = {0};
 	bds_deserialize(serial_data, &data_desc, &dd);
 
-	rc = check_data(&dd, (struct data *)serial_data);
+	if( check_data(&dd, (struct data *)serial_data) != 0 )
+		return 1;
 
-	if( rc != 0 ) {
-		goto finish;
-	} else {
-		free(dd.bounds);
-		free(dd.c_idx);
-	}
-	
-finish:
+	void *serial_data2 = calloc(1, serial_len);
+	memcpy(serial_data2, serial_data, serial_len);
+
+	bds_update_serial_ptrs(serial_data2, &data_desc);
+	bds_deserialize(serial_data2, &data_desc, &dd);
+
+	if( check_data(&dd, (struct data *)serial_data2) != 0 )
+		return 1;
+
+	free(d.bounds);
+	free(d.c_idx);
+	free(dd.bounds);
+	free(dd.c_idx);
 	free(serial_data);
+	free(serial_data2);
 
-	return rc;
+
+	return 0;
 }

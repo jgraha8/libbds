@@ -10,7 +10,7 @@ AM_CFLAGS = -I${top_srcdir}
 
 libbdsserialize_la_SOURCES = serialize.c
 
-check_PROGRAMS = test_serialize1 test_serialize2 test_serialize3 test_serialize4
+check_PROGRAMS = test_serialize1 test_serialize2 test_serialize3
 test_serialize1_SOURCES = test_serialize1.c
 test_serialize1_LDADD = $(top_builddir)/libbds.la
 
@@ -19,8 +19,5 @@ test_serialize2_LDADD = $(top_builddir)/libbds.la
 
 test_serialize3_SOURCES = test_serialize3.c
 test_serialize3_LDADD = $(top_builddir)/libbds.la
-
-test_serialize4_SOURCES = test_serialize4.c
-test_serialize4_LDADD = $(top_builddir)/libbds.la
 
 TESTS = $(check_PROGRAMS)
