@@ -1,4 +1,6 @@
+#include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 #include <libbds/bds_serialize.h>
 
@@ -60,8 +62,19 @@ int main(int argc, char **argv)
         list_node_desc.num_members = 2;
         list_node_desc.members     = &list_node_members[0];
 
+	printf("Current alignment: %zd\n", bds_serial_alignment(0));
+	printf("New alignment: %zd\n", bds_serial_alignment(16384));
+	printf("Default alignment: %zd\n", bds_serial_alignment(-1));	
+	printf("New alignment: %zd\n", bds_serial_alignment(16384));
+	
         bds_serialize(&head, &list_node_desc, &serial_len, &serial_data);
 
+	struct list_node *__node = (struct list_node *)serial_data;
+	while( __node ) {
+		assert( (long)__node % bds_serial_alignment(0) == 0 );
+		__node = __node->next;
+	}
+	
         if (check_data(&head, (struct list_node *)serial_data) != 0)
                 return 1;
 

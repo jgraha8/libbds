@@ -23,6 +23,16 @@ __attribute__((unused)) static void *xalloc(size_t len)
         return v;
 }
 
+__attribute__((unused)) static void *xalloc_align(size_t alignment, size_t len)
+{
+        void *v = aligned_alloc(alignment, len);
+	
+	//posix_memalign(&v, alignment, len);
+        assert(v);
+        memset(v, 0, len);
+        return v;
+}
+
 __attribute__((unused)) static void *xrealloc(void *v, size_t len_old, size_t len)
 {
         void *_v = realloc(v, len);

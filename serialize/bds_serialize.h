@@ -8,6 +8,11 @@
 #define __BDS_SERIALIZE_H__
 
 #include <stdlib.h>
+#include <unistd.h>
+
+#ifndef BDS_SERIAL_ALIGNMENT
+#define BDS_SERIAL_ALIGNMENT 16
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +44,8 @@ struct bds_object_desc {
         struct bds_object_member *members;
 };
 
+size_t bds_serial_alignment(ssize_t alignment);
+	
 void bds_serialize(const void *object, const struct bds_object_desc *object_desc,
                    size_t *serial_len, void **serial_object);
 
