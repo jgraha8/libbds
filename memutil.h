@@ -25,6 +25,7 @@ __attribute__((unused)) static void *xalloc(size_t len)
 
 __attribute__((unused)) static void *xalloc_align(size_t alignment, size_t len)
 {
+	len = alignment *((len + alignment - 1 ) / alignment );
         void *v = aligned_alloc(alignment, len);
 	
 	//posix_memalign(&v, alignment, len);
