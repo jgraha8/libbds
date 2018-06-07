@@ -10,15 +10,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "memutil.h"
 #include <libbds/bds_serialize.h>
 
-#define FLAG_REL_ADDR 0x1
-
 static size_t serial_alignment = BDS_SERIAL_ALIGNMENT;
 
-typedef size_t (*ptr_data_len_t)(const void *object);
+typedef size_t (*get_data_len_t)(const void *object);
 
 static size_t aligned_len(size_t len)
 {
@@ -52,7 +51,7 @@ static void add_serial_len(const char *object, const struct bds_object_desc *obj
                 const char *object_member              = object + member->offset;
 
                 const struct bds_object_desc *member_desc;
-                ptr_data_len_t ptr_data_len;
+                get_data_len_t get_data_len;
 
                 switch (member->type) {
                 case BDS_OBJECT_DATA:
@@ -60,8 +59,8 @@ static void add_serial_len(const char *object, const struct bds_object_desc *obj
                 case BDS_OBJECT_PTR_DATA:
                         member_ptr = *(char **)(object_member);
                         if (member->config && member_ptr) {
-                                ptr_data_len = (size_t(*)(const void *))member->config;
-                                *alloc_len += aligned_len(ptr_data_len(object));
+                                get_data_len = (size_t(*)(const void *))member->config;
+                                *alloc_len += aligned_len(get_data_len(object));
                         }
                         break;
                 case BDS_OBJECT_DATA_OBJECT:
@@ -98,12 +97,14 @@ static void serialize_object(const char *object, const struct bds_object_desc *o
 
                 const struct bds_object_desc *member_desc;
                 size_t member_len = 0;
+		size_t data_len = 0;
                 size_t alloc_len  = 0;
 
                 char *__members_seg;
                 char *member_ptr;
                 char *serial_ptr;
-                ptr_data_len_t ptr_data_len;
+		
+                size_t (*get_data_len)(const void *);
 
                 switch (member->type) {
                 case BDS_OBJECT_DATA:
@@ -119,11 +120,11 @@ static void serialize_object(const char *object, const struct bds_object_desc *o
 
                                 *(char **)serial_member = serial_ptr = *alloc_seg + ptr_offset;
 
-                                ptr_data_len = (size_t(*)(const void *))member->config;
-                                alloc_len    = aligned_len(ptr_data_len(object));
-                                memcpy(*alloc_seg, member_ptr, alloc_len);
-
-                                *alloc_seg += alloc_len;
+                                get_data_len = (size_t(*)(const void *))member->config;
+				data_len  = get_data_len(object);
+				
+                                memcpy(*alloc_seg, member_ptr, data_len);
+                                *alloc_seg += aligned_len(data_len);
                         }
 
                         break;
@@ -170,7 +171,7 @@ static void serialize_object(const char *object, const struct bds_object_desc *o
 }
 
 static void deserialize_object(const void *serial_object, const struct bds_object_desc *object_desc,
-                               long ptr_offset, void *object)
+                               int64_t ptr_offset, void *object)
 {
         // First get the storage requirements for the members
         for (size_t i = 0; i < object_desc->num_members; ++i) {
@@ -240,7 +241,7 @@ static void deserialize_object(const void *serial_object, const struct bds_objec
         }
 }
 
-static void adjust_object_ptrs(void *serial_object, const struct bds_object_desc *object_desc, long ptr_offset)
+static void adjust_object_ptrs(void *serial_object, const struct bds_object_desc *object_desc, int64_t ptr_offset)
 {
         // First get the storage requirements for the members
         for (size_t i = 0; i < object_desc->num_members; ++i) {
@@ -289,9 +290,9 @@ static void __serialize(const void *object, const struct bds_object_desc *object
                         size_t *serial_len, void **serial_object)
 {
         char *members_seg = NULL;
-        long *base_addr   = NULL;
+        int64_t *base_addr   = NULL;
         char *alloc_seg   = NULL;
-        long ptr_offset   = 0;
+        int64_t ptr_offset   = 0;
 
         size_t members_len = 0;
         size_t header_len  = 0;
@@ -307,13 +308,13 @@ static void __serialize(const void *object, const struct bds_object_desc *object
 
         // Set the segments
         members_seg = (char *)(*serial_object);
-        base_addr   = (long *)(members_seg + object_desc->object_len);
+        base_addr   = (int64_t *)(members_seg + object_desc->object_len);
         alloc_seg   = (char *)(*serial_object + header_len);
 
         // Set base address
-        *base_addr = (rel_addr ? 0 : (long)(*serial_object));
+        *base_addr = (rel_addr ? 0 : (int64_t)(*serial_object));
 
-        ptr_offset = *base_addr - (long)(*serial_object);
+        ptr_offset = *base_addr - (int64_t)(*serial_object);
 
         serialize_object(object, object_desc, ptr_offset, &members_seg, &alloc_seg);
 
@@ -330,18 +331,18 @@ void bds_serialize(const void *object, const struct bds_object_desc *object_desc
 
 void bds_update_serial_ptrs(void *serial_object, const struct bds_object_desc *object_desc)
 {
-        long *base_addr = (long *)((char *)serial_object + object_desc->object_len);
+        int64_t *base_addr = (int64_t *)((char *)serial_object + object_desc->object_len);
 
-        long ptr_offset = (long)serial_object - *base_addr;
-        *base_addr      = (long)serial_object;
+        int64_t ptr_offset = (int64_t)serial_object - *base_addr;
+        *base_addr      = (int64_t)serial_object;
 
         adjust_object_ptrs(serial_object, object_desc, ptr_offset);
 }
 
 void bds_deserialize(const void *serial_object, const struct bds_object_desc *object_desc, void *object)
 {
-        long base_addr  = *(long *)((char *)serial_object + object_desc->object_len);
-        long ptr_offset = (long)serial_object - base_addr;
+        int64_t base_addr  = *(int64_t *)((char *)serial_object + object_desc->object_len);
+        int64_t ptr_offset = (int64_t)serial_object - base_addr;
 
         deserialize_object(serial_object, object_desc, ptr_offset, object);
 }
