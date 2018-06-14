@@ -5,12 +5,12 @@
  */
 
 #include <assert.h>
+#include <inttypes.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
 
 #include "memutil.h"
 #include <libbds/bds_serialize.h>
@@ -26,11 +26,11 @@ static size_t aligned_len(size_t len)
 
 size_t bds_serial_alignment(ssize_t alignment)
 {
-	if( alignment < 0 ) {
-		serial_alignment = BDS_SERIAL_ALIGNMENT;
-	} else if( alignment > 0 ) {
+        if (alignment < 0) {
+                serial_alignment = BDS_SERIAL_ALIGNMENT;
+        } else if (alignment > 0) {
                 serial_alignment = alignment;
-	}
+        }
 
         return serial_alignment;
 }
@@ -97,13 +97,13 @@ static void serialize_object(const char *object, const struct bds_object_desc *o
 
                 const struct bds_object_desc *member_desc;
                 size_t member_len = 0;
-		size_t data_len = 0;
+                size_t data_len   = 0;
                 size_t alloc_len  = 0;
 
                 char *__members_seg;
                 char *member_ptr;
                 char *serial_ptr;
-		
+
                 size_t (*get_data_len)(const void *);
 
                 switch (member->type) {
@@ -121,8 +121,8 @@ static void serialize_object(const char *object, const struct bds_object_desc *o
                                 *(char **)serial_member = serial_ptr = *alloc_seg + ptr_offset;
 
                                 get_data_len = (size_t(*)(const void *))member->config;
-				data_len  = get_data_len(object);
-				
+                                data_len     = get_data_len(object);
+
                                 memcpy(*alloc_seg, member_ptr, data_len);
                                 *alloc_seg += aligned_len(data_len);
                         }
@@ -289,17 +289,16 @@ static void adjust_object_ptrs(void *serial_object, const struct bds_object_desc
 static void __serialize(const void *object, const struct bds_object_desc *object_desc, bool rel_addr,
                         size_t *serial_len, void **serial_object)
 {
-        char *members_seg = NULL;
-        int64_t *base_addr   = NULL;
-        char *alloc_seg   = NULL;
-        int64_t ptr_offset   = 0;
+        char *members_seg  = NULL;
+        int64_t *base_addr = NULL;
+        char *alloc_seg    = NULL;
+        int64_t ptr_offset = 0;
 
-        size_t members_len = 0;
-        size_t header_len  = 0;
-        size_t alloc_len   = 0;
+        size_t header_len = 0;
+        size_t alloc_len  = 0;
 
-        add_serial_len(object, object_desc, &members_len, &alloc_len);
-        header_len = aligned_len(members_len + sizeof(*base_addr));
+        add_serial_len(object, object_desc, NULL, &alloc_len);
+        header_len = aligned_len(object_desc->object_len + sizeof(*base_addr));
 
         // The object will be will be naturally aligned (unless __attribute__((packed)) is used),
         // so we are adding a space for flags which is the word length (e.g., sizeof(size_t))
@@ -317,10 +316,6 @@ static void __serialize(const void *object, const struct bds_object_desc *object
         ptr_offset = *base_addr - (int64_t)(*serial_object);
 
         serialize_object(object, object_desc, ptr_offset, &members_seg, &alloc_seg);
-
-        // Assert ending conditions
-        // assert(*serial_object + members_len == members_seg);
-        // assert(*serial_object + *serial_len == alloc_seg);
 }
 
 void bds_serialize(const void *object, const struct bds_object_desc *object_desc, size_t *serial_len,
@@ -334,7 +329,7 @@ void bds_update_serial_ptrs(void *serial_object, const struct bds_object_desc *o
         int64_t *base_addr = (int64_t *)((char *)serial_object + object_desc->object_len);
 
         int64_t ptr_offset = (int64_t)serial_object - *base_addr;
-        *base_addr      = (int64_t)serial_object;
+        *base_addr         = (int64_t)serial_object;
 
         adjust_object_ptrs(serial_object, object_desc, ptr_offset);
 }
