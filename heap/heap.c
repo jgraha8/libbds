@@ -1,312 +1,272 @@
 #include <assert.h>
+#include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
+#include <time.h>
 
-#include "sysutil.h"
+#define PARENT(i) (((i + 1) >> 1) - 1)
+#define LEFT(i) (((i + 1) << 1) - 1)
+#define RIGHT(i) ((i + 1) << 1)
+#define PTR(heap, i) (heap->data + heap->elem_len * (i))
+#define MAX(a, b) (a > b ? a : b)
 
-#define SETBIT( a, mask ) ( (a) |= (mask) )
-#define CLRBIT( a, mask ) ( (a) &= ( (a) ^ (mask) ) )
-#define TOGBIT( a, mask ) ( (a) ^= (mask) )
+#define BDS_HEAP_MAX (1 << 0)
+#define BDS_HEAP_MIN (1 << 1)
 
-#define HEAP_PARENT(i) ( ((i+1)>>1) - 1 )
-#define HEAP_LEFT(i) ( ((i+1)<<1) - 1 )
-#define HEAP_RIGHT(i) ( (i+1)<<1 )
-
-#define HEAP_TYPE_MIN -1
-#define HEAP_TYPE_MAX 1
-
-// flags: [00000][sorted][heaptype][isheap]
-
-#define HEAP_ISHEAP   1
-#define HEAP_TYPE_MIN 0<<1
-#define HEAP_TYPE_MAX 1<<1
-#define HEAP_SORTED   1<<2
-
-#define SET_BIT(a,mask) 
-
-// flags : isheap, heaptype, sorted
-
-typedef struct {
-	int elem_size;
-	int max_len;
-	int len;
-	int heap_len;
-	unsigned char flags;
-	void *data; // Managed internally
-	int (*compar)( const void *, const void *);
-	void (*heapify)( ds_heap_t *, int );
-	void (*heap_adjust)( ds_heap_t *, int );
-	void (*increase_key)( ds_heap_t *, int, const void *);
-	void (*build)( ds_heap_t * );
-	void (*insert)( ds_heap_t *, const void * );	
-} ds_heap_t;
-
-static inline void *heap_ptr( ds_heap_t *h, int i )
+static inline void memswap(void *a, void *b, size_t elem_len)
 {
-	assert( 0 <= i && i < h->len );
-	return h->data + i*h->elem_size;
+        char tmp[elem_len];
+        memcpy(tmp, a, elem_len);
+        memcpy(a, b, elem_len);
+        memcpy(b, tmp, elem_len);
 }
 
-static inline void heap_memswap( ds_heap_t *h, int i, int j )
-{
-	memswap( heap_ptr(h,i), heap_ptr(h,j), h->elem_size );
-}
+struct bds_heap {
+        void *data;
+        int (*compar)(const void *, const void *);
+        void (*__heapify)(struct bds_heap *, int);
+        void (*__reparent)(struct bds_heap *, int);
+        void (*__build)(struct bds_heap *);
+        void (*__change_key)(struct bds_heap *, int, const void *);
 
-static inline void heap_memcpy( ds_heap_t *h, int i, int j )
-{
-	memcpy( heap_ptr( h, i ), heap_ptr( h, j ), h->elem_size );
-}
-
-static void __max_heapify( ds_heap_t *h, int i )
-{
-	int l = HEAP_LEFT(i);
-	int r = HEAP_RIGHT(i);
-	int largest = 0;
-	
-	if( l < h->heap_len && h->compar( heap_ptr(h,l), heap_ptr(h,i) ) > 0 ) {
-		largest = l;
-	} else {
-		largest = i_;
-	}
-	if( r < h->heap_len && h->compar( heap_ptr(h,r), heap_ptr(h,largest) ) > 0 ) {
-		largest = r;
- 	}
-
-	if( largest != i ) {
-		heap_memswap( h, i, largest );
-		heap_maxheapify( h, largest );
-	}
-	
-}
-
-static void __max_heap_adjust( ds_heap_t *h, int i )
-{
-	int p = HEAP_PARENT(i);
-	while( i > 0 && h->compar( heap_ptr(h,p), heap_ptr(h,i) ) < 0 ) {
-		heap_memswap( h, i, p );
-		i = p;
-		p = HEAP_PARENT(i);
-	}
-}
-
-
-static void __max_increase_key( ds_heap_t *h, int i, const void *key )
-{
-	if( h->compar( key, heap_ptr(h,i) ) < 0 ) {
-		fprintf(stderr, "new key is smaller than current key\n");
-		exit(EXIT_FAILURE);
-	}
-
-	memcpy( heap_ptr(h,i), key, h->elem_size );
-	heap_adjust_maxheap( h, i );
-}
-
-static void __max_build( ds_heap_t *h )
-{
-	h->heap_len = h->len;
-
-	if( h->flags & ( HEAP_ISHEAP | HEAP_TYPE_MAX ) )
-		return;
-	
-	SETBIT( h->flags, HEAP_ISHEAP | HEAP_TYPE_MAX );
-	CLRBIT( h->flags, HEAP_SORTED );
-	
-	int i;
-	for( i=HEAP_PARENT(h->heap_len - 1 ); i>=0; --i ) {
-		h->heapify( h, i );
-	}
-}
-
-void __max_insert( ds_heap_t *h, const void *key )
-{
-	h->heap_len++;
-	h->len++;
-
-	if( h->heap_len > h->max_len ) {
-		size_t size = h->max_len * h->elem_size;
-		h->data = xrealloc( h->data, size, 2*size );
-		h->max_len *= 2;
-	}
-
-	memcpy( heap_ptr(h, h->heap_len-1), key, h->elem_size );
-	h->adjust( h, h->heap_len - 1 );
-}
-
-static inline void *ds_heap_data( ds_heap_t *h )
-{
-	return h->data;
-}
-
-static inline const void *ds_heap_data_const( const ds_heap_t *h )
-{
-	return (const void *)h->data;
-}
-
-void ds_heap_ctor( ds_heap_t *h, int elem_size, int len, enum heap_type type,
-		   int (*compar)(const void *, const void *) )
-{
-	memset( h, 0, sizeof(*h) );
-
-	h->elem_size = elem_size;
-	h->len = len;
-	h->max_len = len;
-	h->data = xalloc( elem_size*len );
-
-	switch( type ) {
-	case MAX_HEAP:
-		h->heapify      = __max_heapify;
-		h->adjust       = __max_heap_adjust;
-		h->increase_key = __max_increase_key;
-		h->build        = __max_build;
-		h->insert       = __max_insert;
-	case MIN_HEAP:
-		h->heapify      = __min_heapify;
-		h->adjust       = __min_heap_adjust;
-		h->increase_key = __min_increase_key;
-		h->build        = __min_build;
-		h->insert       = __min_insert;
-	default:
-		fprintf(stderr, "incorrect heap type\n");
-		exit(EXIT_FAILURE);
-	}
-	
-	h->compar = compar;
-}
-
-void ds_heap_dtor( ds_heap_t *h )
-{
-	if( h->data ) free( h->data );
-	
-	memset( h, 0, sizeof(*h) );
-}
-
-static inline void ds_heap_insert( ds_heap_t *h, const void *key )
-{
-	h->insert( h, key );
-}
-
-static inline void ds_heap_build( ds_heap_t *h )
-{
-	h->build(h);
-}
-
-void ds_heap_sort( ds_heap_t *h )
-{
-	int i;
-
-	h->build( h );
-
-	for( i = h->len-1; i>=1; --i ) {
-		heap_memswap( h, 0, i ); // Place the ith value at root
-		h->heap_len--;
-		h->heapify( h, 0 );
-	}
-
-	CLRBIT( h->flags, HEAP_ISHEAP );
-	SETBIT( h->flags, HEAP_SORTED );
-}
-
-
-
-int ds_heap_get( ds_heap_t *h, void *val )
-{
-	memcpy(val, h->data, h->elem_size );
-	return 0;
-}
-
-int ds_heap_pop( ds_heap_t *h, void *val )
-{
-	memcpy(val, h->data, h->elem_size );
-
-	// Place the last value at root
-	heap_memcpy( h, 0, h->heap_len-1 );
-	h->heap_len--;
-
-	h->heapify( h, 0 );
-	
-	return 0;
-}
-
-int compar_double( const void *a_, const void *b_ )
-{
-	if( *((double *)a_) < *((double *)b_) ) return -1;
-	if( *((double *)a_) > *((double *)b_) ) return 1;
-	return 0;
-}
-
-int compar_int( const void *a_, const void *b_ )
-{
-	if( *((int *)a_) < *((int *)b_) ) return -1;
-	if( *((int *)a_) > *((int *)b_) ) return 1;
-	return 0;
-}
-
-struct junk {
-	int key;
-	double val;
+        size_t elem_len;
+        int num_elem;
+        int num_alloc;
+        int heap_type;
+        bool data_owner;
 };
 
-int compar_junkkey( const void *a_, const void *b_ )
+static void max_heapify(struct bds_heap *heap, int node)
 {
-	if( ((struct junk *)a_)->key < ((struct junk *)b_)->key ) return -1;
-	if( ((struct junk *)a_)->key > ((struct junk *)b_)->key ) return 1;
-	return 0;
+        int left  = LEFT(node);
+        int right = RIGHT(node);
+
+        if (left >= heap->num_elem && right >= heap->num_elem)
+                return;
+
+        int c       = -INT_MAX;
+        int largest = -1;
+
+        if (left < heap->num_elem) {
+                int __c = heap->compar(PTR(heap, left), PTR(heap, node));
+                if (__c > 0 && __c > c) {
+                        c       = __c;
+                        largest = left;
+                }
+        }
+        if (right < heap->num_elem) {
+                int __c = heap->compar(PTR(heap, right), PTR(heap, node));
+                if (__c > 0 && __c > c) {
+                        c       = __c;
+                        largest = right;
+                }
+        }
+
+        if (largest > 0) {
+                memswap(PTR(heap, largest), PTR(heap, node), heap->elem_len);
+                max_heapify(heap, largest);
+        }
 }
-int compar_junkval( const void *a_, const void *b_ )
+
+static void max_build(struct bds_heap *heap)
 {
-	if( ((struct junk *)a_)->val < ((struct junk *)b_)->val ) return -1;
-	if( ((struct junk *)a_)->val > ((struct junk *)b_)->val ) return 1;
-	return 0;
+        for (int n = heap->num_elem / 2 - 1; n >= 0; --n) {
+                heap->__heapify(heap, n);
+        }
 }
 
-int main(void)
+// Flow upwards
+static void max_reparent(struct bds_heap *heap, int node)
 {
-#define N 9
+        if (node <= 0)
+                return;
 
-	int i,j;
+        int parent = PARENT(node);
+
+        if (heap->compar(PTR(heap, parent), PTR(heap, node)) < 0) {
+                memswap(PTR(heap, parent), PTR(heap, node), heap->elem_len);
+                max_reparent(heap, parent);
+        }
+}
+
+static void max_change_key(struct bds_heap *heap, int node, const void *val)
+{
+        int c = heap->compar(val, PTR(heap, node));
+
+        if (c == 0)
+                return;
+
+        memcpy(PTR(heap, node), val, heap->elem_len);
+
+        if (c < 0) {
+                heap->__heapify(heap, node);
+        } else {
+                heap->__reparent(heap, node);
+        }
+}
+
+struct bds_heap *bds_heap_alloc(int heap_type, int num_alloc, size_t elem_len,
+                                int (*compar)(const void *, const void *), void *data)
+{
+        struct bds_heap *heap = calloc(1, sizeof(*heap));
+        assert(heap);
+
+        heap->num_alloc = num_alloc;
+        heap->elem_len  = elem_len;
+        heap->compar    = compar;
+
+        if (data) {
+                heap->num_elem = num_alloc;
+                heap->data     = data;
+        } else {
+                heap->data       = calloc(num_alloc, elem_len);
+                heap->data_owner = true;
+                assert(heap->data);
+        }
+
+        heap->heap_type = heap_type;
+
+        if (heap_type == BDS_HEAP_MAX) {
+                heap->__heapify    = max_heapify;
+                heap->__reparent   = max_reparent;
+                heap->__build      = max_build;
+                heap->__change_key = max_change_key;
+        } else {
+                fprintf(stderr,"incorrect heap type\n");
+                exit(EXIT_FAILURE);
+        }
+
+        return heap;
+}
+
+void bds_heap_free(struct bds_heap **heap)
+{
+        if (*heap == NULL)
+                return;
+
+        if ((*heap)->data_owner) {
+                free((*heap)->data);
+        }
+        free(*heap);
+        *heap = NULL;
+}
+
+void bds_heap_heapify(struct bds_heap *heap, int node) { heap->__heapify(heap, node); }
+void bds_heap_reparent(struct bds_heap *heap, int node) { heap->__reparent(heap, node); }
+void bds_heap_build(struct bds_heap *heap) { heap->__build(heap); }
+void bds_heap_change_key(struct bds_heap *heap, int node, const void *val) { heap->__change_key(heap, node, val); }
+
+int bds_heap_pop(struct bds_heap *heap, void *val)
+{
+        if (heap->num_elem == 0)
+                return 1;
+
+        memcpy(val, PTR(heap, 0), heap->elem_len);
+        memcpy(PTR(heap, 0), PTR(heap, heap->num_elem - 1), heap->elem_len);
+
+        --heap->num_elem;
+        heap->__heapify(heap, 0);
+
+        return 0;
+}
+int bds_heap_insert(struct bds_heap *heap, const void *val)
+{
+        if (heap->num_elem == heap->num_alloc)
+                return 1;
+
+        ++heap->num_elem;
+        memcpy(PTR(heap, heap->num_elem - 1), val, heap->elem_len);
+        heap->__reparent(heap, heap->num_elem - 1);
+
+        return 0;
+}
+
+int bds_heap_get(struct bds_heap *heap, void *val)
+{
+        if (heap->num_elem == 0)
+                return 1;
+
+        memcpy(val, PTR(heap, 0), heap->elem_len);
+        return 0;
+}
+
+static void heapsort(void *data, int num_elem, size_t elem_len, int (*compar)(const void *, const void *))
+{
+        struct bds_heap *heap = bds_heap_alloc(BDS_HEAP_MAX, num_elem, elem_len, compar, data);
+
+        bds_heap_build(heap);
+
+        while (heap->num_elem > 1) {
+                memswap(PTR(heap, 0), PTR(heap, heap->num_elem - 1), heap->elem_len);
+                --heap->num_elem;
+                bds_heap_heapify(heap, 0);
+        }
+
+        bds_heap_free(&heap);
+}
+
+#define N 20
+
+int compar(const void *a, const void *b) { return (*((const int *)a) - *((const int *)b)); }
+
+int main(int argc, char **argv)
+{
+        int a[N];
+        int a_save[N];
+
+        srand(time(NULL));
+        for (int i = 0; i < N; ++i) {
+                a[i] = rand() % 100;
+        }
+
+	//struct bds_heap *heap = bds_heap_alloc(BDS_HEAP_MAX, N, sizeof(a[0]), compar, a);
+        struct bds_heap *heap = bds_heap_alloc(BDS_HEAP_MAX, N, sizeof(a[0]), compar, NULL);
+	memcpy(heap->data, &a[0], N*sizeof(a[0]));
+	heap->num_elem = N;
+
+        bds_heap_build(heap);
 	
-	double *A;
+        for (int i = 1; i < N; ++i) {
+                assert(a[PARENT(i)] >= a[i]);
+        }
 
-	ds_heap_t heap;
-	ds_heap_ctor( &heap, sizeof(double), N, compar_double );
+	const int key = 101;
+	bds_heap_change_key(heap,N-1, &key); 
 
-	A = ds_heap_data( &heap );
+        int val;
+        printf("a = { ");
+        for (int i = 1; i < N; ++i) {
+                // assert(a[PARENT(i)] >= a[i]);
+                assert(bds_heap_pop(heap, &val) == 0);
+                printf("%d ", val);
+        }
+        printf("}\n");
 
-	for( i=0; i<N; ++i ) {
-		j = N-1-i;
-		A[i] = j;
-		printf("A[%d] = %15.7e\n", i, A[i] );
-	}
-	printf("================================\n");
-	
-	ds_heap_build( &heap );
-	printf("maxbuild: +++++++++++++++++++\n");
-	for( i=0; i<N; ++i ) {
-		printf("A[%d] = %15.7e\n", i, A[i] );
-	}
-	printf("+++++++++++++++++++\n");
+        bds_heap_free(&heap);
 
+        printf("a = { ");
+        for (int i = 0; i < N; ++i) {
+                a[i]      = rand() % 100;
+                a_save[i] = a[i];
+                printf("%d ", a[i]);
+        }
+        printf("}\n");
 
-	double key;
+        heapsort(a, N, sizeof(a[0]), compar);
+        qsort(a_save, N, sizeof(a[0]), compar);
 
-	key = 1.687;
-	ds_heap_insert( &heap, &key );
-	A = ds_heap_data( &heap );
-	
-	printf("maxinsert: +++++++++++++++++++\n");
-	printf("heap.len = %d\n", heap.len);
-	for( i=0; i<heap.len; ++i ) {
-		printf("A[%d] = %15.7e\n", i, A[i] );
-	}
-	printf("+++++++++++++++++++\n");
-	
-	ds_heap_sort( &heap );
-	
-	for( i=0; i<heap.len; ++i ) {
-		printf("A[%d] = %15.7e\n", i, A[i] );
-	}
-	
-	ds_heap_dtor( &heap );
+        if (memcmp(a, a_save, N * sizeof(a[0])) != 0) {
+                fprintf(stderr, "failed\n");
+                // exit(EXIT_FAILURE);
+        }
+
+        printf("a = { ");
+        for (int i = 0; i < N; ++i) {
+                printf("%d ", a[i]);
+        }
+        printf("}\n");
+
+        return 0;
 }
