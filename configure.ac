@@ -68,10 +68,12 @@ AC_ARG_ENABLE([include-prefix],
     
 case $enable_include_prefix in
   no)
-	AC_SUBST([BDS_INCLUDE_PREFIX], [""])
+	AC_SUBST([AM_INCLUDE_PREFIX], [""])  
+	AC_SUBST([BDS_INCLUDE_PREFIX], ["libbds"])
 	;;
   *)
-	AC_SUBST([BDS_INCLUDE_PREFIX], ["$enable_include_prefix/"])
+	AC_SUBST([AM_INCLUDE_PREFIX], ["$enable_include_prefix"])  
+	AC_SUBST([BDS_INCLUDE_PREFIX], ["$enable_include_prefix/libbds"])
 	;;
 esac	
 
