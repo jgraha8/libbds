@@ -75,8 +75,6 @@ case $enable_include_prefix in
 	;;
 esac	
 
-AC_OUTPUT(queue/bds_queue.h)
-AC_OUTPUT(bds_modulus.h)
 dnl ## Make sure flags are set to something (otherwise macros may set them later).
 dnl AM_CFLAGS="${AM_CFLAGS}"
 dnl AM_CXXFLAGS="${AM_CXXFLAGS}"
@@ -156,6 +154,8 @@ queue/Makefile 		\
 serialize/Makefile	\
 stack/Makefile		\
 string/Makefile		\
+bds_modulus.h		\
+queue/bds_queue.h	\
 ])
 
 
