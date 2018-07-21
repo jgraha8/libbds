@@ -7,9 +7,9 @@
 #ifndef __BDS_QUEUE_H__
 #define __BDS_QUEUE_H__
 
-#include <libbds/bds_modulus.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <@BDS_INCLUDE_PREFIX@libbds/bds_modulus.h>
 
 #define BDS_QUEUE_ISLINEAR(front, back) ((front) <= (back))
 

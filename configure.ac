@@ -61,6 +61,21 @@ AS_IF([test "x$enable_optimized_mod" = "xyes"],
       [AC_SUBST([BDS_USE_OPTIMIZED_MOD],[1])],
       [AC_SUBST([BDS_USE_OPTIMIZED_MOD],[0])])
 
+AC_ARG_ENABLE([include-prefix],
+    AS_HELP_STRING([--enable-include-prefix=DIR], [set the prefix for libbds header paths]),
+    [],
+    [enable_include_prefix=no])
+    
+case $enable_include_prefix in
+  no)
+	AC_SUBST([BDS_INCLUDE_PREFIX], [""])
+	;;
+  *)
+	AC_SUBST([BDS_INCLUDE_PREFIX], ["$enable_include_prefix/"])
+	;;
+esac	
+
+AC_OUTPUT(queue/bds_queue.h)
 AC_OUTPUT(bds_modulus.h)
 dnl ## Make sure flags are set to something (otherwise macros may set them later).
 dnl AM_CFLAGS="${AM_CFLAGS}"
