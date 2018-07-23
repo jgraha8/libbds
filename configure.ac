@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 dnl AC_PREREQ([2.59])
-AC_INIT([libbds], [0.2.0], [jgraha8@gmail.com])
+AC_INIT([libbds], [0.3.0], [jgraham@compukix.net])
 
 AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADERS([config.h])
@@ -151,6 +151,7 @@ DX_INIT_DOXYGEN([libbds],[doxygen/doxygen.cfg],[docs])
 AC_CONFIG_FILES([	\
 Makefile		\
 libbds/Makefile		\
+heap/Makefile		\
 list/Makefile		\
 queue/Makefile 		\
 serialize/Makefile	\
