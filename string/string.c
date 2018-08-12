@@ -437,6 +437,7 @@ BDS_STRING_COPYF(wstring, wchar_t, vswprintf);
                         C *r = s + substr_len;                                                                    \
                         memmove(s, r, sizeof(C) * (S##len(r) + 1));                                               \
                 }                                                                                                 \
+                return str;                                                                                       \
         }
 
 F_STRING(BDS_STRING_REMOVE_SUBSTR);
