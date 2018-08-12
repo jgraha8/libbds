@@ -56,7 +56,10 @@ int main(int argc, char *argv[])
 	bds_string_copyf(str_dup, 100, "%s", atrim_wtok[1]);
 	bds_string_prependf(str_dup, 100, "%s", atrim_wtok[0]);
 	
-	assert(strcmp( str_dup, "The red dogjumps over the | big dog") == 0 );		
+	assert(strcmp( str_dup, "The red dogjumps over the | big dog") == 0 );
+
+	bds_string_remove_substr(str_dup, "dog");
+	assert( strcmp( str_dup, "The red jumps over the | big ") == 0 );
 	
 	free(str_dup);
 	

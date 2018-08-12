@@ -53,6 +53,8 @@ char *bds_string_substr(const char *str, size_t len);
 
 bool bds_string_isnum(const char *str);
 
+char *bds_string_remove_substr(char *str, const char *substr);	
+
 wchar_t *bds_wstring_dup(const wchar_t *str);
 
 wchar_t *bds_wstring_dup_concat(int num_substr, const wchar_t *str, ...);
@@ -91,6 +93,7 @@ wchar_t *bds_wstring_substr(const wchar_t *str, size_t len);
 
 bool bds_wstring_isnum(const wchar_t *str);
 
+wchar_t *bds_wstring_remove_substr(wchar_t *str, const wchar_t *substr);		
 	
 #ifdef __cplusplus
 }
@@ -135,6 +138,8 @@ bool bds_wstring_isnum(const wchar_t *str);
 
 #define string_isnum bds_string_isnum
 
+#define string_remove_substr bds_string_remove_substr
+
 #define wstring_dup bds_wstring_dup
 
 #define wstring_dup_concat bds_wstring_dup_concat
@@ -172,6 +177,8 @@ bool bds_wstring_isnum(const wchar_t *str);
 #define wstring_substr bds_wstring_substr
 
 #define wstring_isnum bds_wstring_isnum
+
+#define wstring_remove_substr bds_wstring_remove_substr
 #endif
 
 #endif // __BDS_STRING_H__

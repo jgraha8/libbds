@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 	memset(str_dup, 0, sizeof(*str_dup));
 	
 	bds_wstring_concatf(str_dup, 100, L"%ls%ls", atrim_wtok[0], atrim_wtok[1]);
-	fwprintf(stderr, L"%s\n", str_dup);
+	//fwprintf(stderr, L"%s\n", str_dup);
 	assert(wcscmp( str_dup, L"The red dogjumps over the | big dog") == 0 );
 
 	bds_wstring_copyf(str_dup, 100, L"%ls%ls", atrim_wtok[0], atrim_wtok[1]);
@@ -57,7 +57,11 @@ int main(int argc, char *argv[])
 	bds_wstring_copyf(str_dup, 100, L"%ls", atrim_wtok[1]);
 	bds_wstring_prependf(str_dup, 100, L"%ls", atrim_wtok[0]);
 
-	assert(wcscmp( str_dup, L"The red dogjumps over the | big dog") == 0 );		
+	assert(wcscmp( str_dup, L"The red dogjumps over the | big dog") == 0 );
+
+	bds_wstring_remove_substr(str_dup, L"dog");
+	//wprintf(L"%s\n", str_dup);
+	assert( wcscmp( str_dup, L"The red jumps over the | big ") == 0 );
 
 	free(str_dup);
 	
