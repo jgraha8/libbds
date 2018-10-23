@@ -39,6 +39,25 @@ void bds_stack_dtor(struct bds_stack *stack)
         memset(stack, 0, sizeof(*stack));
 }
 
+struct bds_stack *bds_stack_alloc(size_t n_alloc, size_t elem_len, void (*elem_dtor)(void *))
+{
+	struct bds_stack *stack = malloc(sizeof(*stack));
+	assert(stack);
+
+	bds_stack_ctor(stack, n_alloc, elem_len, elem_dtor);
+	return stack;
+}
+
+void bds_stack_free(struct bds_stack **stack)
+{
+        if (*stack == NULL)
+                return;
+
+        bds_stack_dtor(*stack);
+        free(*stack);
+        *stack = NULL;
+}
+
 void bds_stack_push(struct bds_stack *stack, const void *v)
 {
         if (stack->n_elem == stack->n_alloc)
