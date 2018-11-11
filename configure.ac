@@ -154,11 +154,13 @@ libbds/Makefile		\
 heap/Makefile		\
 list/Makefile		\
 queue/Makefile 		\
+queue/bds_queue.h	\
 serialize/Makefile	\
 stack/Makefile		\
 string/Makefile		\
+vector/Makefile		\
+vector/bds_vector.h	\
 bds_modulus.h		\
-queue/bds_queue.h	\
 ])
 
 

@@ -9,7 +9,8 @@ SUBDIRS= \
 	queue	\
 	serialize \
 	stack	\
-	string
+	string \
+	vector
 
 #SUBLIBS = bspline/libdscsbspline.la lagrange/libdscslagrange.la psolver/libdscspsolver.la sparselu/libdscssparselu.la
 SUBLIBS = \
@@ -18,7 +19,8 @@ SUBLIBS = \
 	queue/libbdsqueue.la \
 	serialize/libbdsserialize.la \
 	stack/libbdsstack.la \
-	string/libbdsstring.la
+	string/libbdsstring.la \
+	vector/libbdsvector.la
 
 lib_LTLIBRARIES = libbds.la
 libbds_la_SOURCES = version.c
