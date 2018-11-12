@@ -38,15 +38,17 @@ void bds_list_print(const struct bds_list *list, void (*print_object)(const void
 
 void bds_list_append(struct bds_list *list, const void *object);
 
-int bds_list_remove(struct bds_list *list, const void *key, int (*object_compar)(const void *, const void *));
+int bds_list_remove(struct bds_list *list, const void *key, int (*compar)(const void *, const void *));
 
 int bds_list_insert_after(struct bds_list *list, const void *object, const void *key,
-                          int (*object_compar)(const void *, const void *));
+                          int (*compar)(const void *, const void *));
 
 int bds_list_insert_before(struct bds_list *list, const void *object, const void *key,
-                           int (*object_compar)(const void *, const void *));
+                           int (*compar)(const void *, const void *));
 
-int bds_list_insert_sort(struct bds_list *list, const void *object, int (*object_compar)(const void *, const void *));
+int bds_list_insert_sort(struct bds_list *list, const void *object, int (*compar)(const void *, const void *));
+
+void *bds_list_lsearch(struct bds_list *list, const void *key, int (*compar)(const void *, const void *));
 
 #ifdef __cplusplus
 }

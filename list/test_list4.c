@@ -34,6 +34,8 @@ int main(void)
         for( int n=0; n < ARRAY_SIZE(i)-1; ++n, node = bds_list_iterate(node) )
 		assert( i[n+1] == *(int *)bds_list_object(node) );
 
+	assert( i[3] == *(int *)bds_list_lsearch(list, &i[3], OBJECT_COMPAR) );
+
         bds_list_free(&list);
 
         return 0;
