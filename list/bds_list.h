@@ -14,7 +14,8 @@ extern "C" {
 struct bds_list;
 struct bds_list_node;
 
-/* void bds_list_ctor(struct bds_list *list, size_t object_len, int (*object_compar)(const void *, const void *), */
+/* void bds_list_ctor(struct bds_list *list, size_t object_len, int (*object_compar)(const void *, const void *),
+ */
 /*                    void (*object_dtor)(void *)); */
 
 /* void bds_list_dtor(struct bds_list *list); */
@@ -53,5 +54,23 @@ void *bds_list_lsearch(struct bds_list *list, const void *key, int (*compar)(con
 #ifdef __cplusplus
 }
 #endif
+
+#ifdef BDS_NAMESPACE
+typedef struct bds_list list_t;
+typedef struct bds_list_node list_node_t;
+#define list_alloc bds_list_alloc
+#define list_free bds_list_free
+#define list_begin bds_list_begin
+#define list_end bds_list_end
+#define list_iterate bds_list_iterate
+#define list_object bds_list_object
+#define list_print bds_list_print
+#define list_append bds_list_append
+#define list_remove bds_list_remove
+#define list_insert_after bds_list_insert_after
+#define list_insert_before bds_list_insert_before
+#define list_insert_sort bds_list_insert_sort
+#define list_lsearch bds_list_lsearch
+#endif // BDS_NAMESPACE
 
 #endif // __BDS_LIST_H__

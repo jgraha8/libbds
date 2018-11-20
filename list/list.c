@@ -35,8 +35,8 @@ static void __list_ctor(struct bds_list *list, size_t object_len, void (*object_
 {
         memset(list, 0, sizeof(*list));
 
-        list->object_len    = object_len;
-        list->object_dtor   = object_dtor;
+        list->object_len  = object_len;
+        list->object_dtor = object_dtor;
 }
 
 static void __list_dtor(struct bds_list *list)
@@ -64,6 +64,7 @@ void bds_list_free(struct bds_list **list)
 }
 
 struct bds_list_node *bds_list_begin(struct bds_list *list) { return list->head; }
+
 struct bds_list_node *bds_list_iterate(struct bds_list_node *node) { return node->next; }
 
 void *bds_list_object(struct bds_list_node *node) { return node->object; }
@@ -103,7 +104,8 @@ int bds_list_remove(struct bds_list *list, const void *key, int (*compar)(const 
         return 0;
 }
 
-int bds_list_insert_after(struct bds_list *list, const void *object, const void *key, int (*compar)(const void *, const void *))
+int bds_list_insert_after(struct bds_list *list, const void *object, const void *key,
+                          int (*compar)(const void *, const void *))
 {
         struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, compar);
 
@@ -120,7 +122,8 @@ int bds_list_insert_after(struct bds_list *list, const void *object, const void 
         return 0;
 }
 
-int bds_list_insert_before(struct bds_list *list, const void *object, const void *key, int (*compar)(const void *, const void *))
+int bds_list_insert_before(struct bds_list *list, const void *object, const void *key,
+                           int (*compar)(const void *, const void *))
 {
         struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, compar);
 
@@ -152,11 +155,11 @@ int bds_list_insert_sort(struct bds_list *list, const void *object, int (*compar
 
 void *bds_list_lsearch(struct bds_list *list, const void *key, int (*compar)(const void *, const void *))
 {
-	struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, compar);
-	if( *node_ptr == NULL )
-		return NULL;
+        struct bds_list_node **node_ptr = find_node_ptr(&list->head, key, compar);
+        if (*node_ptr == NULL)
+                return NULL;
 
-	return (*node_ptr)->object;
+        return (*node_ptr)->object;
 }
 
 static struct bds_list_node **list_end(struct bds_list_node **node)
