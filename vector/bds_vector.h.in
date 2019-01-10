@@ -9,10 +9,8 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
-#include <sys/types.h>
 #include <string.h>
-
-#include <@BDS_HEADER_PREFIX@/bds_stack.h>
+#include <sys/types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,7 +20,11 @@ extern "C" {
  * @brief Vector data structure
  */
 struct bds_vector {
-        struct bds_stack __object;
+        size_t n_alloc;            ///< Number of elements allocated in the vector data vector
+        size_t elem_len;           ///< Length in bytes of each data element
+        size_t n_elem;             ///< Number of elements in the vector
+        void *v;                   ///< Address of vector data vector
+        void (*elem_dtor)(void *); ///< Destructor for each data element in data vector
 };
 
 /**
@@ -68,7 +70,7 @@ void bds_vector_free(struct bds_vector **vector);
  */
 static inline void *bds_vector_get(struct bds_vector *vector, size_t i)
 {
-        return (void *)((char *)vector->__object.v + i * vector->__object.elem_len);
+        return (void *)((char *)vector->v + i * vector->elem_len);
 }
 
 /**
@@ -80,7 +82,7 @@ static inline void *bds_vector_get(struct bds_vector *vector, size_t i)
  */
 static inline void bds_vector_set(struct bds_vector *vector, size_t i, const void *v)
 {
-	memcpy(bds_vector_get(vector,i), v, vector->__object.elem_len);
+        memcpy(bds_vector_get(vector, i), v, vector->elem_len);
 }
 
 /**
@@ -91,61 +93,32 @@ static inline void bds_vector_set(struct bds_vector *vector, size_t i, const voi
  */
 void bds_vector_append(struct bds_vector *vector, const void *v);
 
-/* /\** */
-/*  * @brief Pushes a data element onto the back of the vector */
-/*  * */
-/*  * @param vector Address of the vector object */
-/*  * @param v Address of the data element to be pushed onto the vector */
-/*  *\/ */
-/* void bds_vector_push(struct bds_vector *vector, const void *v); */
-
-/* /\** */
-/*  * @brief Pops a data element off of the vector */
-/*  * */
-/*  * @param vector Address of the vector object */
-/*  * @param v Address of a buffer to copy the popped data element (if @c NULL then the element is not copied) */
-/*  * @retval Address of the internal vector vector of popped data element (returns @c NULL if the vector is empty)
- */
-/*  *\/ */
-/* void *bds_vector_pop(struct bds_vector *vector, void *v); */
-
 /**
  * @brief Provides the number of elements in the vector
  *
  * @param vector Address of vector object
  */
-static inline size_t bds_vector_size(const struct bds_vector *vector)
-{
-        return bds_stack_size((const struct bds_stack *)vector);
-}
-
-/* /\** */
-/*  * @brief Gets the index of the top of the vector (index of last pushed element) */
-/*  * */
-/*  * @param vector Address of the vector object */
-/*  * @retval Index of top element in the vector (returns -1 if the vector is empty) */
-/*  *\/ */
-/* static inline ssize_t bds_vector_top(const struct bds_vector *vector) { return ((ssize_t)vector->n_elem - 1); }
- */
-
-/* /\** */
-/*  * @brief Gets the address of top data element */
-/*  * */
-/*  * @param vector Address of the vector object */
-/*  * @retval Address of the internal vector vector of the top data element (returns @c NULL if the vector is
- * empty) */
-/*  *\/ */
-/* const void *bds_vector_topptr(const struct bds_vector *vector); */
+static inline size_t bds_vector_size(const struct bds_vector *vector) { return vector->n_elem; }
 
 /**
  * @brief Gets the address of vector data vector
  *
  * @param vector Address of the vector object
- * @retval Address of the internal vector vector
+ * @retval Address of the internal vector
  */
-static inline const void *bds_vector_ptr(const struct bds_vector *vector)
+static inline const void *bds_vector_ptr(const struct bds_vector *vector) { return (const void *)vector->v; }
+
+/**
+ * @brief Gets the end address of vector data vector
+ *
+ * The end element of the vector corresponds to element @c v[n_elem].
+ *
+ * @param vector Address of the vector object
+ * @retval Address of the end address
+ */
+static inline const void *bds_vector_end(const struct bds_vector *vector)
 {
-        return bds_stack_ptr((const struct bds_stack *)vector);
+        return (const void *)((char *)bds_vector_ptr(vector) + bds_vector_size(vector));
 }
 
 /**
@@ -154,10 +127,7 @@ static inline const void *bds_vector_ptr(const struct bds_vector *vector)
  * @param vector Address of the vector object
  * @retval Returns true if the vector is empty; false otherwise
  */
-static inline bool bds_vector_isempty(const struct bds_vector *vector)
-{
-        return bds_stack_isempty((const struct bds_stack *)vector);
-}
+static inline bool bds_vector_isempty(const struct bds_vector *vector) { return (vector->n_elem == 0); }
 
 /**
  * @brief Tests if the vector is full
@@ -167,7 +137,7 @@ static inline bool bds_vector_isempty(const struct bds_vector *vector)
  */
 static inline bool bds_vector_isfull(const struct bds_vector *vector)
 {
-        return bds_stack_isfull((const struct bds_stack *)vector);
+        return (vector->n_elem == vector->n_alloc);
 }
 
 /**
@@ -222,7 +192,7 @@ typedef struct bds_vector vector_t;
 #define vector_dtor bds_vector_dtor
 #define vector_get bds_vector_get
 #define vector_set bds_vector_set
-#define vector_append bds_vector_append	
+#define vector_append bds_vector_append
 #define vector_size bds_vector_size
 //#define vector_top bds_vector_top
 //#define vector_topptr bds_vector_topptr

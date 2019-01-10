@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 dnl AC_PREREQ([2.59])
-AC_INIT([libbds], [0.7.0], [jgraham@compukix.net])
+AC_INIT([libbds], [0.7.1], [jgraham@compukix.net])
 
 AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADERS([config.h])
@@ -157,6 +157,7 @@ queue/Makefile 		\
 queue/bds_queue.h	\
 serialize/Makefile	\
 stack/Makefile		\
+stack/bds_stack.h	\
 string/Makefile		\
 vector/Makefile		\
 vector/bds_vector.h	\

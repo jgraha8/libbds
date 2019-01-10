@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+#include <@BDS_HEADER_PREFIX@/bds_vector.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,11 +21,7 @@ extern "C" {
  * @brief Stack data structure
  */
 struct bds_stack {
-        size_t n_alloc;            ///< Number of elements allocated in the stack data vector
-        size_t elem_len;           ///< Length in bytes of each data element
-        size_t n_elem;             ///< Number of elements in the stack
-        void *v;                   ///< Address of stack data vector
-        void (*elem_dtor)(void *); ///< Destructor for each data element in data vector
+        struct bds_vector __vector; ///< Inherits bds_vector
 };
 
 /**
@@ -82,7 +80,7 @@ void *bds_stack_pop(struct bds_stack *stack, void *v);
  *
  * @param stack Address of stack object
  */
-static inline size_t bds_stack_size(const struct bds_stack *stack) { return stack->n_elem; }
+static inline size_t bds_stack_size(const struct bds_stack *stack) { return stack->__vector.n_elem; }
 
 /**
  * @brief Gets the index of the top of the stack (index of last pushed element)
@@ -90,7 +88,10 @@ static inline size_t bds_stack_size(const struct bds_stack *stack) { return stac
  * @param stack Address of the stack object
  * @retval Index of top element in the stack (returns -1 if the stack is empty)
  */
-static inline ssize_t bds_stack_top(const struct bds_stack *stack) { return ((ssize_t)stack->n_elem - 1); }
+static inline ssize_t bds_stack_top(const struct bds_stack *stack)
+{
+        return ((ssize_t)stack->__vector.n_elem - 1);
+}
 
 /**
  * @brief Gets the address of top data element
@@ -106,7 +107,7 @@ const void *bds_stack_topptr(const struct bds_stack *stack);
  * @param stack Address of the stack object
  * @retval Address of the internal stack vector
  */
-static inline const void *bds_stack_ptr(const struct bds_stack *stack) { return (const void *)stack->v; }
+static inline const void *bds_stack_ptr(const struct bds_stack *stack) { return (const void *)stack->__vector.v; }
 
 /**
  * @brief Tests if the stack is empty
@@ -114,7 +115,7 @@ static inline const void *bds_stack_ptr(const struct bds_stack *stack) { return 
  * @param stack Address of the stack object
  * @retval Returns true if the stack is empty; false otherwise
  */
-static inline bool bds_stack_isempty(const struct bds_stack *stack) { return (stack->n_elem == 0); }
+static inline bool bds_stack_isempty(const struct bds_stack *stack) { return (stack->__vector.n_elem == 0); }
 
 /**
  * @brief Tests if the stack is full
@@ -122,7 +123,10 @@ static inline bool bds_stack_isempty(const struct bds_stack *stack) { return (st
  * @param stack Address of the stack object
  * @retval Returns true if the stack is full; false otherwise
  */
-static inline bool bds_stack_isfull(const struct bds_stack *stack) { return (stack->n_elem == stack->n_alloc); }
+static inline bool bds_stack_isfull(const struct bds_stack *stack)
+{
+        return (stack->__vector.n_elem == stack->__vector.n_alloc);
+}
 
 /**
  * @brief Clears the stack (does not deallocate memory)

@@ -12,60 +12,21 @@
 #include "memutil.h"
 #include <libbds/bds_stack.h>
 
-static void resize_stack(struct bds_stack *stack)
-{
-        const size_t len = (stack->n_alloc * stack->elem_len);
-        stack->v         = xrealloc(stack->v, len, len << 1);
-        stack->n_alloc <<= 1;
-}
-
 void bds_stack_ctor(struct bds_stack *stack, size_t n_alloc, size_t elem_len, void (*elem_dtor)(void *))
 {
-        memset(stack, 0, sizeof(*stack));
-        assert(n_alloc > 0);
-
-        stack->n_alloc   = n_alloc;
-        stack->elem_len  = elem_len;
-        stack->v         = xalloc(n_alloc * elem_len);
-        stack->elem_dtor = elem_dtor;
+        bds_vector_ctor((struct bds_vector *)stack, n_alloc, elem_len, elem_dtor);
 }
 
-void bds_stack_dtor(struct bds_stack *stack)
-{
-        if (stack->v != NULL) {
-                bds_stack_clear(stack);
-                free(stack->v);
-        }
-        memset(stack, 0, sizeof(*stack));
-}
+void bds_stack_dtor(struct bds_stack *stack) { bds_vector_dtor((struct bds_vector *)stack); }
 
 struct bds_stack *bds_stack_alloc(size_t n_alloc, size_t elem_len, void (*elem_dtor)(void *))
 {
-	struct bds_stack *stack = malloc(sizeof(*stack));
-	assert(stack);
-
-	bds_stack_ctor(stack, n_alloc, elem_len, elem_dtor);
-	return stack;
+        return (struct bds_stack *)bds_vector_alloc(n_alloc, elem_len, elem_dtor);
 }
 
-void bds_stack_free(struct bds_stack **stack)
-{
-        if (*stack == NULL)
-                return;
+void bds_stack_free(struct bds_stack **stack) { bds_vector_free((struct bds_vector **)stack); }
 
-        bds_stack_dtor(*stack);
-        free(*stack);
-        *stack = NULL;
-}
-
-void bds_stack_push(struct bds_stack *stack, const void *v)
-{
-        if (stack->n_elem == stack->n_alloc)
-                resize_stack(stack);
-
-        stack->n_elem++;
-        memcpy((void *)bds_stack_topptr(stack), v, stack->elem_len);
-}
+void bds_stack_push(struct bds_stack *stack, const void *v) { bds_vector_append((struct bds_vector *)stack, v); }
 
 void *bds_stack_pop(struct bds_stack *stack, void *v)
 {
@@ -76,48 +37,33 @@ void *bds_stack_pop(struct bds_stack *stack, void *v)
         // Only perform the copy if a buffer is provided; otherwise we
         // are just poping and discarding
         if (v != NULL)
-                memcpy(v, v_top, stack->elem_len);
+                memcpy(v, v_top, stack->__vector.elem_len);
 
-        stack->n_elem--;
+        stack->__vector.n_elem--;
 
         return v_top;
 }
 
-void bds_stack_clear(struct bds_stack *stack)
-{
-        if (stack->elem_dtor != NULL) {
-                while (!bds_stack_isempty(stack)) {
-                        stack->elem_dtor(bds_stack_pop(stack, NULL));
-                }
-        }
-        stack->n_elem = 0;
-}
+void bds_stack_clear(struct bds_stack *stack) { bds_vector_clear((struct bds_vector *)stack); }
 
 const void *bds_stack_topptr(const struct bds_stack *stack)
 {
-	if( bds_stack_isempty( stack ) )
-		return NULL;
-	
-	return (char *)stack->v + bds_stack_top( stack ) * stack->elem_len;
+        if (bds_stack_isempty(stack))
+                return NULL;
+
+        return (char *)stack->__vector.v + bds_stack_top(stack) * stack->__vector.elem_len;
 }
 
 const void *bds_stack_lsearch(const struct bds_stack *stack, const void *key,
                               int (*compar)(const void *a, const void *b))
 {
-	size_t i;
-	const void *v;
-
-	for( i=0; i<stack->n_elem; ++i ) {
-		v = (char *)stack->v + i*stack->elem_len;
-		if( compar( key, v ) == 0 ) return v;
-	}
-	return NULL;
+        return bds_vector_lsearch((const struct bds_vector *)stack, key, compar);
 }
 
 const void *bds_stack_bsearch(const struct bds_stack *stack, const void *key,
                               int (*compar)(const void *a, const void *b))
 {
-        return bsearch(key, stack->v, stack->n_elem, stack->elem_len, compar);
+        return bds_vector_bsearch((struct bds_vector *)stack, key, compar);
 }
 
 const void *bds_stack_modify(struct bds_stack *stack, const void *key, const void *v,
@@ -127,12 +73,12 @@ const void *bds_stack_modify(struct bds_stack *stack, const void *key, const voi
 
         if (v_key == NULL)
                 return NULL;
-        memcpy(v_key, v, sizeof(stack->elem_len));
+        memcpy(v_key, v, sizeof(stack->__vector.elem_len));
 
         return v_key;
 }
 
 void bds_stack_qsort(struct bds_stack *stack, int (*compar)(const void *, const void *))
 {
-        qsort(stack->v, stack->n_elem, stack->elem_len, compar);
+        bds_vector_qsort((struct bds_vector *)stack, compar);
 }
