@@ -6,7 +6,7 @@ AC_INIT([libbds], [0.8.0], [jgraham@compukix.net])
 
 AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADERS([config.h])
-AM_INIT_AUTOMAKE([gnu])
+AM_INIT_AUTOMAKE([foreign])
 
 ## AM_MAINTAINER_MODE turns off "rebuild rules" that contain dependencies
 ## for Makefiles, configure, src/H5config.h, etc.  If AM_MAINTAINER_MODE
