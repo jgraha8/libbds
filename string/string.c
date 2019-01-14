@@ -1,6 +1,5 @@
-/**
- * @file
- * @brief C-string module
+/*
+ * C-string module
  *
  * Copyright (C) 2017-2018 Jason Graham <jgraham@compukix.net>
  *

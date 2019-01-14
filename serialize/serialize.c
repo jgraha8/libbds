@@ -1,6 +1,5 @@
-/**
- * @file
- * @brief Stack data structure module
+/*
+ * Data-structure serialization module
  *
  * Copyright (C) 2018 Jason Graham <jgraham@compukix.net>
  *
@@ -20,7 +19,6 @@
  * License along with libbds. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-
 #include <assert.h>
 #include <inttypes.h>
 #include <stdbool.h>

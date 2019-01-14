@@ -1,6 +1,5 @@
-/**
- * @file
- * @brief Linked list data structure module
+/*
+ * Linked list data structure module
  *
  * Copyright (C) 2017-2018 Jason Graham <jgraham@compukix.net>
  *

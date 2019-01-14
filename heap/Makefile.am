@@ -5,6 +5,7 @@
 noinst_LTLIBRARIES = libbdsheap.la
 
 pkginclude_HEADERS = bds_heap.h
+noinst_HEADERS = heap_util.h
 
 AM_CFLAGS = -I${top_srcdir}
 
