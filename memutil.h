@@ -1,9 +1,25 @@
-/** @file
- *  @brief Memory management utilities used by the ckunkwurx library
+/**
+ * @file
+ * @brief Memory management utilities used by the libbds library
  *
- *  @author Jason Graham <jgraha8@gmail.com>
+ * Copyright (C) 2017-2018 Jason Graham <jgraham@compukix.net>
+ *
+ * This file is part of libbds.
+ *
+ * libbds is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * libbds is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with libbds. If not, see
+ * <https://www.gnu.org/licenses/>.
  */
-
 #ifndef __MEMUTIL_H__
 #define __MEMUTIL_H__
 
@@ -25,10 +41,10 @@ __attribute__((unused)) static void *xalloc(size_t len)
 
 __attribute__((unused)) static void *xalloc_align(size_t alignment, size_t len)
 {
-	len = alignment *((len + alignment - 1 ) / alignment );
+        len     = alignment * ((len + alignment - 1) / alignment);
         void *v = aligned_alloc(alignment, len);
-	
-	//posix_memalign(&v, alignment, len);
+
+        // posix_memalign(&v, alignment, len);
         assert(v);
         memset(v, 0, len);
         return v;
