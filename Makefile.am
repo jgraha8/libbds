@@ -59,7 +59,7 @@ noinst_HEADERS = memutil.h
 
 #include doxygen/doxygen.am
 
-EXTRA_DIST = doxygen/doxygen.cfg
+EXTRA_DIST = COPYING.LESSER README.md INSTALL doxygen/doxygen.cfg
 
 MOSTLYCLEANFILES = $(DX_CLEANFILES)
 
