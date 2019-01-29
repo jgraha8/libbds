@@ -2,13 +2,13 @@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example /usr/lib
-noinst_LTLIBRARIES = libbdsqueue.la
+noinst_LTLIBRARIES = libbds_queue.la
 
 pkginclude_HEADERS = bds_queue.h
 
 AM_CFLAGS = -I${top_srcdir}
 
-libbdsqueue_la_SOURCES = queue.c
+libbds_queue_la_SOURCES = queue.c
 
 ## Process this file with automake to produce Makefile.in
 check_PROGRAMS = test_queue

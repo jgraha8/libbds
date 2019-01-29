@@ -16,13 +16,13 @@ SUBDIRS= \
 #SUBLIBS = bspline/libdscsbspline.la lagrange/libdscslagrange.la psolver/libdscspsolver.la sparselu/libdscssparselu.la
 SUBLIBS = \
 	fsm/libbds_fsm.la \
-	heap/libbdsheap.la \
-	list/libbdslist.la \
-	queue/libbdsqueue.la \
-	serialize/libbdsserialize.la \
-	stack/libbdsstack.la \
-	string/libbdsstring.la \
-	vector/libbdsvector.la
+	heap/libbds_heap.la \
+	list/libbds_list.la \
+	queue/libbds_queue.la \
+	serialize/libbds_serialize.la \
+	stack/libbds_stack.la \
+	string/libbds_string.la \
+	vector/libbds_vector.la
 
 lib_LTLIBRARIES = libbds.la
 libbds_la_SOURCES = version.c

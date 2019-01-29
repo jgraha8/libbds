@@ -2,14 +2,14 @@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example /usr/lib
-noinst_LTLIBRARIES = libbdsheap.la
+noinst_LTLIBRARIES = libbds_heap.la
 
 pkginclude_HEADERS = bds_heap.h
 noinst_HEADERS = heap_util.h
 
 AM_CFLAGS = -I${top_srcdir}
 
-libbdsheap_la_SOURCES = heap.c
+libbds_heap_la_SOURCES = heap.c
 
 check_PROGRAMS = test_heap1 test_heap2 test_heap3
 test_heap1_SOURCES = test_heap1.c

@@ -2,13 +2,13 @@
 # The list of libraries we are building seperated by spaces.
 # The 'lib_' indicates that these build products will be installed
 # in the $(libdir) directory. For example /usr/lib
-noinst_LTLIBRARIES = libbdsstack.la
+noinst_LTLIBRARIES = libbds_stack.la
 
 pkginclude_HEADERS = bds_stack.h
 
 AM_CFLAGS = -I${top_srcdir}
 
-libbdsstack_la_SOURCES = stack.c
+libbds_stack_la_SOURCES = stack.c
 
 check_PROGRAMS = test_stack
 test_stack_SOURCES = test_stack.c
