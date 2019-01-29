@@ -4,6 +4,7 @@ ACLOCAL_AMFLAGS = -I m4
 #SUBDIRS= dscs bspline lagrange psolver sparselu
 SUBDIRS= \
 	libbds	\
+	fsm	\
 	heap	\
 	list	\
 	queue	\
@@ -14,6 +15,7 @@ SUBDIRS= \
 
 #SUBLIBS = bspline/libdscsbspline.la lagrange/libdscslagrange.la psolver/libdscspsolver.la sparselu/libdscssparselu.la
 SUBLIBS = \
+	fsm/libbds_fsm.la \
 	heap/libbdsheap.la \
 	list/libbdslist.la \
 	queue/libbdsqueue.la \
@@ -37,7 +39,7 @@ libbds_la_SOURCES = version.c
 #
 # version-info current:revision:age
 #
-libbds_la_LDFLAGS=-version-info 10:10:9
+libbds_la_LDFLAGS=-version-info 11:11:10
 libbds_la_LIBADD = $(SUBLIBS)
 
 pkginclude_HEADERS = bds_version.h bds_modulus.h
