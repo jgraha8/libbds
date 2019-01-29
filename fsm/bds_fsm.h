@@ -56,7 +56,7 @@
 extern "C" {
 #endif
 
-typedef int (*bds_fsm_transition_t)(void *param, int state);
+typedef int (*bds_fsm_transition_t)(void *param, int state, int *dst_state);
 
 struct bds_fsm {
         int num_states;
@@ -74,9 +74,11 @@ void bds_fsm_free(struct bds_fsm **fsm);
 
 int bds_fsm_transition(struct bds_fsm *fsm, void *param, int dst_state);
 
-int bds_fsm_err_transition(void *param, int state);
+int bds_fsm_err_transition(void *param, int state, int *dst_state);
 
-int bds_fsm_self_transition(void *param, int state);
+int bds_fsm_self_transition(void *param, int state, int *dst_state);
+
+int bds_fsm_direct_transition(void *param, int state, int *dst_state);
 
 #ifdef __cplusplus
 }

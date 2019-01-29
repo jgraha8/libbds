@@ -86,7 +86,7 @@ int bds_fsm_transition(struct bds_fsm *fsm, void *param, int dst_state)
                 trans = fsm->transition_table[dst_state][fsm->state];
                 assert(trans);
 
-                new_state = trans(param, fsm->state);
+                new_state = trans(param, fsm->state, &dst_state);
 
                 if (new_state < 0) // Error occurred
                         return fsm->state;
@@ -99,12 +99,17 @@ int bds_fsm_transition(struct bds_fsm *fsm, void *param, int dst_state)
 	return fsm->state;
 }
 
-int bds_fsm_self_transition(void *param, int state)
+int bds_fsm_self_transition(void *param, int state, int *dst_state)
 {
         return state;
 }
 
-int bds_fsm_err_transition(void *param, int state)
+int bds_fsm_err_transition(void *param, int state, int *dst_state)
 {
         return -1;
+}
+
+int bds_fsm_direct_transition(void *param, int state, int *dst_state)
+{
+	return *dst_state;
 }
