@@ -17,6 +17,7 @@
  * License along with libbds. If not, see
  * <https://www.gnu.org/licenses/>.
  */
+
 /**
  * @file
  * @brief Finite-state-machine (FSM) module
@@ -52,6 +53,9 @@
  * @f}
  */
 
+#ifndef __BDS_FSM_H__
+#define __BDS_FSM_H__
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -82,4 +86,6 @@ int bds_fsm_direct_transition(void *param, int state, int *dst_state);
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
