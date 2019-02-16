@@ -413,12 +413,18 @@ BDS_STRING_PREPENDF(wstring, wcs, wchar_t, vswprintf);
 #define BDS_STRING_CONCATF(N, S, C, VSPRINTF)                                                                     \
         C *bds_##N##_concatf(C *dest, size_t max_len, const C *fmt, ...)                                          \
         {                                                                                                         \
+                int rc           = 0;                                                                             \
                 size_t __offset  = S##len(dest);                                                                  \
                 size_t __max_len = (max_len >= __offset ? max_len - __offset : 0);                                \
                                                                                                                   \
                 va_list va;                                                                                       \
                 va_start(va, fmt);                                                                                \
-                VSPRINTF(dest + __offset, __max_len, fmt, va);                                                    \
+                                                                                                                  \
+                if ((rc = VSPRINTF(dest + __offset, __max_len, fmt, va)) < 0) {                                   \
+                        return NULL;                                                                              \
+                } else if (rc >= (int)max_len) { /* Truncated */                                                  \
+                        dest[__offset + __max_len - 1] = 0;                                                       \
+                }                                                                                                 \
                 va_end(va);                                                                                       \
                                                                                                                   \
                 return dest;                                                                                      \
@@ -430,9 +436,15 @@ BDS_STRING_CONCATF(wstring, wcs, wchar_t, vswprintf);
 #define BDS_STRING_COPYF(N, C, VSPRINTF)                                                                          \
         C *bds_##N##_copyf(C *dest, size_t max_len, const C *fmt, ...)                                            \
         {                                                                                                         \
+                int rc = 0;                                                                                       \
                 va_list va;                                                                                       \
                 va_start(va, fmt);                                                                                \
-                VSPRINTF(dest, max_len, fmt, va);                                                                 \
+                                                                                                                  \
+                if ((rc = VSPRINTF(dest, max_len, fmt, va)) < 0) {                                                \
+                        return NULL;                                                                              \
+                } else if (rc >= (int)max_len) { /* Truncated */                                                  \
+                        dest[max_len - 1] = 0;                                                                    \
+                }                                                                                                 \
                 va_end(va);                                                                                       \
                 return dest;                                                                                      \
         }
