@@ -65,6 +65,7 @@ typedef int (*bds_fsm_transition_t)(void *param, int state, int *dst_state);
 struct bds_fsm {
         int num_states;
         int state;
+	int prev_state;
         bds_fsm_transition_t **transition_table;
 };
 

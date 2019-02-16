@@ -80,20 +80,29 @@ int bds_fsm_transition(struct bds_fsm *fsm, void *param, int dst_state)
 {
         int new_state;
         bds_fsm_transition_t trans;
-
+	int prev_dst_state = dst_state;
+	
+	fsm->prev_state = fsm->state;
+	
         while (fsm->state != dst_state) {
-
+		
                 trans = fsm->transition_table[dst_state][fsm->state];
                 assert(trans);
 
                 new_state = trans(param, fsm->state, &dst_state);
 
                 if (new_state < 0) // Error occurred
-                        return fsm->state;
+                        break;
+		
+		if( new_state == fsm->state &&
+		    prev_dst_state == dst_state ) { // No transition (results in infinite loop)
+			break; 
+		}
 
                 assert(new_state < fsm->num_states);
 
                 fsm->state = new_state;
+		prev_dst_state = dst_state;
         }
 
 	return fsm->state;
