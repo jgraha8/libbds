@@ -26,6 +26,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <malloc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,9 +43,16 @@ __attribute__((unused)) static void *xalloc(size_t len)
 __attribute__((unused)) static void *xalloc_align(size_t alignment, size_t len)
 {
         len     = alignment * ((len + alignment - 1) / alignment);
-        void *v = aligned_alloc(alignment, len);
-
-        // posix_memalign(&v, alignment, len);
+	void *v = NULL;
+#if (__STDC_VERSION__ >= 201112L)
+        v = aligned_alloc(alignment, len);
+#else 
+  #if( _POSIX_C_SOURCE >= 200112L)
+	posix_memalign(&v, alignment, len);
+  #else
+	v = memalign(alignment, len);
+  #endif
+#endif
         assert(v);
         memset(v, 0, len);
         return v;
