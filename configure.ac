@@ -33,8 +33,8 @@ AC_PROG_AWK
 AC_PROG_INSTALL
 AC_PROG_LN_S
 
-# Add C11 flag
-CFLAGS="${CFLAGS} -std=c11"
+# Add C99 flag (required)
+CFLAGS="${CFLAGS} -std=c99"
 
 dnl Initialize Libtool
 LT_INIT
