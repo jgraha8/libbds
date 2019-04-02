@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <limits.h>
 
 #define BDS_NAMESPACE
 #include <libbds/bds_heap.h>
@@ -30,22 +31,35 @@
 
 #define N 20
 
+struct test {
+	double v;
+	int i;
+};
+
 int compar(const void *a, const void *b)
 {
-        return (*((const int *)a) - *((const int *)b));
+	const struct test *__a = (const struct test *)a;
+	const struct test *__b = (const struct test *)b;
+
+	if( __a->v < __b->v ) 
+		return -1;
+	if( __a->v > __b->v )
+		return 1;
+	return 0;
 }
+
 
 int main(int argc, char **argv)
 {
-        int a[N];
-	const int *a_ptr;
+        struct test a[N];
+	const struct test *a_ptr;
 
         srand(time(NULL));
         for (int i = 0; i < N; ++i) {
-                a[i] = rand() % 100;
+                a[i].v = 0.123 * (rand() % 100);
+		a[i].i = i;
         }
 
-        // struct bds_heap *heap = bds_heap_alloc(BDS_HEAP_MAX, N, sizeof(a[0]), compar, a);
         heap_t *heap = heap_alloc(HEAP_MIN, 1, sizeof(a[0]), compar, NULL);
 
 	for( int i=0; i<N; ++i ) {
@@ -53,13 +67,18 @@ int main(int argc, char **argv)
 	}
         assert(heap_size(heap) == N);
 
-        heap_build(heap);
-
 	a_ptr = heap_ptr(heap);
-
+	
         for (int i = 1; i < N; ++i) {
-                assert(a_ptr[PARENT(i)] <= a_ptr[i]);
+                assert(a_ptr[PARENT(i)].v <= a_ptr[i].v);
         }
+
+	double v_prev = -1.0e32;
+	struct test v;
+	while(bds_heap_pop(heap, &v) == 0 ) {
+		assert(v.v >= v_prev);
+		v_prev = v.v;
+	}
 
         return 0;
 }

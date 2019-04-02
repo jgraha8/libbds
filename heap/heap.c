@@ -34,10 +34,11 @@
 
 struct bds_heap {
         void *data;
+	void *tmp_data;
         int (*compar)(const void *, const void *);
-        void (*__heapify)(struct bds_heap *, int);
-        void (*__reparent)(struct bds_heap *, int);
-        void (*__change_key)(struct bds_heap *, int, const void *);
+        void (*heapify)(struct bds_heap *, int);
+        void (*reparent)(struct bds_heap *, int);
+        void (*change_key)(struct bds_heap *, int, const void *);
         size_t elem_len;
         int num_elem;
         int num_alloc;
@@ -50,31 +51,26 @@ static void max_heapify(struct bds_heap *heap, int node)
         int left  = LEFT(node);
         int right = RIGHT(node);
 
-        if (left >= heap->num_elem && right >= heap->num_elem)
-                return;
+        int child = -1;
 
-        int c       = -INT_MAX;
-        int largest = -1;
+	if( left < heap->num_elem && right < heap->num_elem ) {
+		/* Find the largest child node */
+		if( heap->compar(PTR(heap, left), PTR(heap, right)) >= 0) {
+			child = left;
+		} else {
+			child = right;
+		}
+	} else if( left < heap->num_elem ) {
+		child = left;
+	} else if( right < heap->num_elem ) {
+		child = right;
+	} else { /* Both left and right are out of bounds */
+		return;
+	}
 
-        if (left < heap->num_elem) {
-                int __c = heap->compar(PTR(heap, left), PTR(heap, node));
-                if (__c > 0 && __c > c) {
-                        c       = __c;
-                        largest = left;
-                }
-        }
-        if (right < heap->num_elem) {
-                int __c = heap->compar(PTR(heap, right), PTR(heap, node));
-                if (__c > 0 && __c > c) {
-                        c       = __c;
-                        largest = right;
-                }
-        }
-
-        if (largest > 0) {
-                char tmp[heap->elem_len];
-                xmemswap(PTR(heap, largest), PTR(heap, node), heap->elem_len, tmp);
-                max_heapify(heap, largest);
+	if( heap->compar(PTR(heap,node), PTR(heap,child)) < 0 ) {
+                xmemswap(PTR(heap, child), PTR(heap, node), heap->elem_len, heap->tmp_data);
+                max_heapify(heap, child);
         }
 }
 
@@ -83,31 +79,26 @@ static void min_heapify(struct bds_heap *heap, int node)
         int left  = LEFT(node);
         int right = RIGHT(node);
 
-        if (left >= heap->num_elem && right >= heap->num_elem)
-                return;
+        int child = -1;
 
-        int c        = INT_MAX;
-        int smallest = -1;
+	if( left < heap->num_elem && right < heap->num_elem ) {
+		/* Find the smallest child node */
+		if( heap->compar(PTR(heap, left), PTR(heap, right)) <= 0) {
+			child = left;
+		} else {
+			child = right;
+		}
+	} else if( left < heap->num_elem ) {
+		child = left;
+	} else if( right < heap->num_elem ) {
+		child = right;
+	} else { /* Both left and right are out of bounds */
+		return;
+	}
 
-        if (left < heap->num_elem) {
-                int __c = heap->compar(PTR(heap, left), PTR(heap, node));
-                if (__c < 0 && __c < c) {
-                        c        = __c;
-                        smallest = left;
-                }
-        }
-        if (right < heap->num_elem) {
-                int __c = heap->compar(PTR(heap, right), PTR(heap, node));
-                if (__c < 0 && __c < c) {
-                        c        = __c;
-                        smallest = right;
-                }
-        }
-
-        if (smallest > 0) {
-                char tmp[heap->elem_len];
-                xmemswap(PTR(heap, smallest), PTR(heap, node), heap->elem_len, tmp);
-                min_heapify(heap, smallest);
+	if( heap->compar(PTR(heap,node), PTR(heap,child)) > 0 ) {
+                xmemswap(PTR(heap, child), PTR(heap, node), heap->elem_len, heap->tmp_data);
+                min_heapify(heap, child);
         }
 }
 
@@ -120,8 +111,7 @@ static void max_reparent(struct bds_heap *heap, int node)
         int parent = PARENT(node);
 
         if (heap->compar(PTR(heap, parent), PTR(heap, node)) < 0) {
-                char tmp[heap->elem_len];
-                xmemswap(PTR(heap, parent), PTR(heap, node), heap->elem_len, tmp);
+                xmemswap(PTR(heap, parent), PTR(heap, node), heap->elem_len, heap->tmp_data);
                 max_reparent(heap, parent);
         }
 }
@@ -134,8 +124,7 @@ static void min_reparent(struct bds_heap *heap, int node)
         int parent = PARENT(node);
 
         if (heap->compar(PTR(heap, parent), PTR(heap, node)) > 0) {
-                char tmp[heap->elem_len];
-                xmemswap(PTR(heap, parent), PTR(heap, node), heap->elem_len, tmp);
+                xmemswap(PTR(heap, parent), PTR(heap, node), heap->elem_len, heap->tmp_data);
                 min_reparent(heap, parent);
         }
 }
@@ -150,9 +139,9 @@ static void max_change_key(struct bds_heap *heap, int node, const void *val)
         memcpy(PTR(heap, node), val, heap->elem_len);
 
         if (c < 0) {
-                heap->__heapify(heap, node);
+                heap->heapify(heap, node);
         } else {
-                heap->__reparent(heap, node);
+                heap->reparent(heap, node);
         }
 }
 
@@ -166,9 +155,9 @@ static void min_change_key(struct bds_heap *heap, int node, const void *val)
         memcpy(PTR(heap, node), val, heap->elem_len);
 
         if (c < 0) {
-                heap->__reparent(heap, node);
+                heap->reparent(heap, node);
         } else {
-                heap->__heapify(heap, node);
+                heap->heapify(heap, node);
         }
 }
 
@@ -181,13 +170,13 @@ struct bds_heap *bds_heap_alloc(int heap_type, int num_alloc, size_t elem_len,
         heap->heap_type = heap_type;
 
         if (heap_type == BDS_HEAP_MAX) {
-                heap->__heapify    = max_heapify;
-                heap->__reparent   = max_reparent;
-                heap->__change_key = max_change_key;
+                heap->heapify    = max_heapify;
+                heap->reparent   = max_reparent;
+                heap->change_key = max_change_key;
         } else if (heap_type == BDS_HEAP_MIN) {
-                heap->__heapify    = min_heapify;
-                heap->__reparent   = min_reparent;
-                heap->__change_key = min_change_key;
+                heap->heapify    = min_heapify;
+                heap->reparent   = min_reparent;
+                heap->change_key = min_change_key;
         } else {
                 free(heap);
                 fprintf(stderr, "incorrect heap type\n");
@@ -207,6 +196,7 @@ struct bds_heap *bds_heap_alloc(int heap_type, int num_alloc, size_t elem_len,
 
                 heap->data_owner = true;
         }
+	heap->tmp_data = calloc(1, elem_len);
 
         return heap;
 }
@@ -220,6 +210,7 @@ void bds_heap_free(struct bds_heap **heap)
                 if ((*heap)->data)
                         free((*heap)->data);
         }
+	free((*heap)->tmp_data);
         free(*heap);
         *heap = NULL;
 }
@@ -256,21 +247,21 @@ size_t bds_heap_size(const struct bds_heap *heap)
 
 void bds_heap_heapify(struct bds_heap *heap, int node)
 {
-        heap->__heapify(heap, node);
+        heap->heapify(heap, node);
 }
 void bds_heap_reparent(struct bds_heap *heap, int node)
 {
-        heap->__reparent(heap, node);
+        heap->reparent(heap, node);
 }
 void bds_heap_change_key(struct bds_heap *heap, int node, const void *val)
 {
-        heap->__change_key(heap, node, val);
+        heap->change_key(heap, node, val);
 }
 
 void bds_heap_build(struct bds_heap *heap)
 {
         for (int n = heap->num_elem / 2 - 1; n >= 0; --n) {
-                heap->__heapify(heap, n);
+                heap->heapify(heap, n);
         }
 }
 
@@ -283,7 +274,7 @@ int bds_heap_pop(struct bds_heap *heap, void *val)
         memcpy(PTR(heap, 0), PTR(heap, heap->num_elem - 1), heap->elem_len);
 
         --heap->num_elem;
-        heap->__heapify(heap, 0);
+        heap->heapify(heap, 0);
 
         return 0;
 }
@@ -302,7 +293,7 @@ int bds_heap_insert(struct bds_heap *heap, const void *val)
 
         ++heap->num_elem;
         memcpy(PTR(heap, heap->num_elem - 1), val, heap->elem_len);
-        heap->__reparent(heap, heap->num_elem - 1);
+        heap->reparent(heap, heap->num_elem - 1);
 
         return 0;
 }
@@ -323,8 +314,7 @@ void bds_heapsort(void *data, int num_elem, size_t elem_len, int (*compar)(const
         bds_heap_build(heap);
 
         while (heap->num_elem > 1) {
-                char tmp[heap->elem_len];
-                xmemswap(PTR(heap, 0), PTR(heap, heap->num_elem - 1), heap->elem_len, tmp);
+                xmemswap(PTR(heap, 0), PTR(heap, heap->num_elem - 1), heap->elem_len, heap->tmp_data);
                 --heap->num_elem;
                 bds_heap_heapify(heap, 0);
         }
