@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 dnl AC_PREREQ([2.59])
-AC_INIT([libbds], [0.10.2], [jgraham@compukix.net])
+AC_INIT([libbds], [0.10.3], [jgraham@compukix.net])
 
 AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADERS([config.h])
