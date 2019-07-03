@@ -25,8 +25,8 @@
 #include <string.h>
 
 #include "memutil.h"
-#include <libbds/bds_vector.h>
 #include <libbds/bds_stack.h>
+#include <libbds/bds_vector.h>
 
 static void resize_vector(struct bds_vector *vector)
 {
@@ -93,8 +93,13 @@ void bds_vector_clear(struct bds_vector *vector)
         vector->n_elem = 0;
 }
 
-const void *bds_vector_lsearch(const struct bds_vector *vector, const void *key,
-                               int (*compar)(const void *a, const void *b))
+void *bds_vector_lsearch(struct bds_vector *vector, const void *key, int (*compar)(const void *a, const void *b))
+{
+        return (void *)bds_vector_lsearch_const(vector, key, compar);
+}
+
+const void *bds_vector_lsearch_const(const struct bds_vector *vector, const void *key,
+                                     int (*compar)(const void *a, const void *b))
 {
         size_t i;
         const void *v;
@@ -107,8 +112,13 @@ const void *bds_vector_lsearch(const struct bds_vector *vector, const void *key,
         return NULL;
 }
 
-const void *bds_vector_bsearch(const struct bds_vector *vector, const void *key,
-                               int (*compar)(const void *a, const void *b))
+void *bds_vector_bsearch(struct bds_vector *vector, const void *key, int (*compar)(const void *a, const void *b))
+{
+        return (void *)bsearch(key, vector->v, vector->n_elem, vector->elem_len, compar);
+}
+
+const void *bds_vector_bsearch_const(const struct bds_vector *vector, const void *key,
+                                     int (*compar)(const void *a, const void *b))
 {
         return bsearch(key, vector->v, vector->n_elem, vector->elem_len, compar);
 }

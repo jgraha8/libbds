@@ -115,7 +115,15 @@ static inline ssize_t bds_stack_top(const struct bds_stack *stack)
  * @param stack Address of the stack object
  * @retval Address of the internal stack vector of the top data element (returns @c NULL if the stack is empty)
  */
-const void *bds_stack_topptr(const struct bds_stack *stack);
+void *bds_stack_topptr(struct bds_stack *stack);
+
+/**
+ * @brief Gets the address of top data constant element
+ *
+ * @param stack Address of the stack object
+ * @retval Address of the internal stack vector of the top data element (returns @c NULL if the stack is empty)
+ */
+const void *bds_stack_topptr_const(const struct bds_stack *stack);
 
 /**
  * @brief Gets the address of stack data vector
@@ -123,7 +131,18 @@ const void *bds_stack_topptr(const struct bds_stack *stack);
  * @param stack Address of the stack object
  * @retval Address of the internal stack vector
  */
-static inline const void *bds_stack_ptr(const struct bds_stack *stack) { return (const void *)stack->__vector.v; }
+static inline void *bds_stack_ptr(struct bds_stack *stack) { return (void *)stack->__vector.v; }
+
+/**
+ * @brief Gets the address of stack constant data vector
+ *
+ * @param stack Address of the stack object
+ * @retval Address of the internal stack vector
+ */
+static inline const void *bds_stack_ptr_const(const struct bds_stack *stack)
+{
+        return (const void *)stack->__vector.v;
+}
 
 /**
  * @brief Tests if the stack is empty
@@ -158,8 +177,17 @@ void bds_stack_clear(struct bds_stack *stack);
  * @param key Address of the key object
  * @param compar Address of the comparator function
  */
-const void *bds_stack_lsearch(const struct bds_stack *stack, const void *key,
-                              int (*compar)(const void *, const void *));
+void *bds_stack_lsearch(struct bds_stack *stack, const void *key, int (*compar)(const void *, const void *));
+
+/**
+ * @brief Peforms a linear search for a constant data element
+ *
+ * @param stack Address of the stack object
+ * @param key Address of the key object
+ * @param compar Address of the comparator function
+ */
+const void *bds_stack_lsearch_const(const struct bds_stack *stack, const void *key,
+                                    int (*compar)(const void *, const void *));
 
 /**
  * @brief Peforms a binary search for a data element using bsearch
@@ -168,8 +196,17 @@ const void *bds_stack_lsearch(const struct bds_stack *stack, const void *key,
  * @param key Address of the key object
  * @param compar Address of the comparator function
  */
-const void *bds_stack_bsearch(const struct bds_stack *stack, const void *key,
-                              int (*compar)(const void *a, const void *b));
+void *bds_stack_bsearch(struct bds_stack *stack, const void *key, int (*compar)(const void *a, const void *b));
+
+/**
+ * @brief Peforms a binary search for a constant data element using bsearch
+ *
+ * @param stack Address of the stack object
+ * @param key Address of the key object
+ * @param compar Address of the comparator function
+ */
+const void *bds_stack_bsearch_const(const struct bds_stack *stack, const void *key,
+                                    int (*compar)(const void *a, const void *b));
 
 /**
  * @brief Modifies a stack data element
@@ -179,8 +216,8 @@ const void *bds_stack_bsearch(const struct bds_stack *stack, const void *key,
  * @param v Address of new object (copied to element matching @c key)
  * @param compar Address of the comparator function
  */
-const void *bds_stack_modify(struct bds_stack *stack, const void *key, const void *v,
-                             int (*compar)(const void *, const void *));
+void *bds_stack_modify(struct bds_stack *stack, const void *key, const void *v,
+                       int (*compar)(const void *, const void *));
 
 /**
  * @brief Sorts all elements in the stack using qsort
@@ -199,12 +236,16 @@ typedef struct bds_stack stack_t;
 #define stack_size bds_stack_size
 #define stack_top bds_stack_top
 #define stack_topptr bds_stack_topptr
+#define stack_topptr_const bds_stack_topptr_const
 #define stack_ptr bds_stack_ptr
+#define stack_ptr_const bds_stack_ptr_const
 #define stack_isempty bds_stack_isempty
 #define stack_isfull bds_stack_isfull
 #define stack_clear bds_stack_clear
 #define stack_lsearch bds_stack_lsearch
+#define stack_lsearch_const bds_stack_lsearch_const
 #define stack_bsearch bds_stack_bsearch
+#define stack_bsearch_const bds_stack_bsearch_const
 #define stack_modify bds_stack_modify
 #define stack_qsort bds_stack_qsort
 #endif

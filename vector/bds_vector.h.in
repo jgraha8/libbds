@@ -90,6 +90,18 @@ static inline void *bds_vector_get(struct bds_vector *vector, size_t i)
 }
 
 /**
+ * @brief Returns the address of the specified constant element
+ *
+ * @param vector Address of the vector object
+ * @param i Index of the specified element
+ * @retval Address of the element at index @c i
+ */
+static inline const void *bds_vector_get_const(const struct bds_vector *vector, size_t i)
+{
+        return (const void *)((const char *)vector->v + i * vector->elem_len);
+}
+
+/**
  * @brief Sets the value of the specified element
  *
  * @param vector Address of the vector object
@@ -122,7 +134,15 @@ static inline size_t bds_vector_size(const struct bds_vector *vector) { return v
  * @param vector Address of the vector object
  * @retval Address of the internal vector
  */
-static inline const void *bds_vector_ptr(const struct bds_vector *vector) { return (const void *)vector->v; }
+static inline void *bds_vector_ptr(struct bds_vector *vector) { return (void *)vector->v; }
+
+/**
+ * @brief Gets the address of vector constant data vector
+ *
+ * @param vector Address of the vector object
+ * @retval Address of the internal vector
+ */
+static inline const void *bds_vector_ptr_const(const struct bds_vector *vector) { return (const void *)vector->v; }
 
 /**
  * @brief Gets the end address of vector data vector
@@ -134,7 +154,7 @@ static inline const void *bds_vector_ptr(const struct bds_vector *vector) { retu
  */
 static inline const void *bds_vector_end(const struct bds_vector *vector)
 {
-        return (const void *)((char *)bds_vector_ptr(vector) + bds_vector_size(vector));
+        return (const void *)((char *)bds_vector_ptr_const(vector) + bds_vector_size(vector));
 }
 
 /**
@@ -170,8 +190,17 @@ void bds_vector_clear(struct bds_vector *vector);
  * @param key Address of the key object
  * @param compar Address of the comparator function
  */
-const void *bds_vector_lsearch(const struct bds_vector *vector, const void *key,
-                               int (*compar)(const void *, const void *));
+void *bds_vector_lsearch(struct bds_vector *vector, const void *key, int (*compar)(const void *, const void *));
+
+/**
+ * @brief Peforms a linear search for a constant data element
+ *
+ * @param vector Address of the vector object
+ * @param key Address of the key object
+ * @param compar Address of the comparator function
+ */
+const void *bds_vector_lsearch_const(const struct bds_vector *vector, const void *key,
+                                     int (*compar)(const void *, const void *));
 
 /**
  * @brief Peforms a binary search for a data element using bsearch
@@ -180,8 +209,17 @@ const void *bds_vector_lsearch(const struct bds_vector *vector, const void *key,
  * @param key Address of the key object
  * @param compar Address of the comparator function
  */
-const void *bds_vector_bsearch(const struct bds_vector *vector, const void *key,
-                               int (*compar)(const void *a, const void *b));
+void *bds_vector_bsearch(struct bds_vector *vector, const void *key, int (*compar)(const void *a, const void *b));
+
+/**
+ * @brief Peforms a binary search for a constant data element using bsearch
+ *
+ * @param vector Address of the vector object
+ * @param key Address of the key object
+ * @param compar Address of the comparator function
+ */
+const void *bds_vector_bsearch_const(const struct bds_vector *vector, const void *key,
+                                     int (*compar)(const void *a, const void *b));
 
 /* /\** */
 /*  * @brief Modifies a vector data element */
@@ -207,17 +245,19 @@ typedef struct bds_vector vector_t;
 #define vector_ctor bds_vector_ctor
 #define vector_dtor bds_vector_dtor
 #define vector_get bds_vector_get
+#define vector_get_const bds_vector_get_const
 #define vector_set bds_vector_set
 #define vector_append bds_vector_append
 #define vector_size bds_vector_size
-//#define vector_top bds_vector_top
-//#define vector_topptr bds_vector_topptr
 #define vector_ptr bds_vector_ptr
+#define vector_ptr_const bds_vector_ptr_const
 #define vector_isempty bds_vector_isempty
 #define vector_isfull bds_vector_isfull
 #define vector_clear bds_vector_clear
 #define vector_lsearch bds_vector_lsearch
+#define vector_lsearch_const bds_vector_lsearch_const
 #define vector_bsearch bds_vector_bsearch
+#define vector_bsearch_const bds_vector_bsearch_const
 //#define vector_modify bds_vector_modify
 #define vector_qsort bds_vector_qsort
 #endif

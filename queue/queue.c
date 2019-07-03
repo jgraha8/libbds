@@ -45,7 +45,7 @@ inline static size_t __queue_end(const struct bds_queue *queue)
 
 inline static const void *__queue_endptr(const struct bds_queue *queue)
 {
-	return (const void *)( (char *)queue->v + __queue_end( queue ) * queue->elem_len );
+        return (const void *)((char *)queue->v + __queue_end(queue) * queue->elem_len);
 }
 
 void bds_queue_ctor(struct bds_queue *queue, size_t n_alloc, size_t elem_len, void (*elem_dtor)(void *))
@@ -107,7 +107,7 @@ int bds_queue_push(struct bds_queue *queue, const void *v)
                 if (queue->auto_resize) {
                         bds_queue_resize(queue);
                 } else {
-			return 1;
+                        return 1;
                 }
         }
 
@@ -115,7 +115,7 @@ int bds_queue_push(struct bds_queue *queue, const void *v)
         memcpy((void *)__queue_endptr(queue), v, queue->elem_len);
         queue->n_elem++;
 
-	return 0;
+        return 0;
 }
 
 void *bds_queue_pop(struct bds_queue *queue, void *v)
@@ -175,27 +175,34 @@ void bds_queue_linearize(struct bds_queue *queue)
         const size_t blk_len = (queue->n_alloc - front) * queue->elem_len;
         void *buffer         = xalloc(blk_len);
 
-	// Store the trailing segment of the data vector into a buffer
-	memcpy( buffer, bds_queue_frontptr(queue), blk_len );
-	// Shift the remaining elements to make room for the front of the data vector
-	memmove( (char *)queue->v + blk_len, queue->v, front * queue->elem_len );
-	// Copy the front data vector block to the front
-	memcpy( queue->v, buffer, blk_len );
-	free(buffer);
+        // Store the trailing segment of the data vector into a buffer
+        memcpy(buffer, bds_queue_frontptr(queue), blk_len);
+        // Shift the remaining elements to make room for the front of the data vector
+        memmove((char *)queue->v + blk_len, queue->v, front * queue->elem_len);
+        // Copy the front data vector block to the front
+        memcpy(queue->v, buffer, blk_len);
+        free(buffer);
 
         queue->front = 0;
 }
 
-const void *bds_queue_lsearch(const struct bds_queue *queue, const void *key, int (*compar)(const void *, const void *))
+void *bds_queue_lsearch(struct bds_queue *queue, const void *key, int (*compar)(const void *, const void *))
 {
-	size_t i,j;
-	const void *v;
+        return (void *)bds_queue_lsearch_const(queue, key, compar);
+}
 
-	j=queue->front;
-	for( i=0; i<queue->n_elem; ++i ) {
-		v = (char *)queue->v + j*queue->elem_len;
-		if( compar( key, v ) == 0 ) return v;
-		j = BDS_MOD( j + 1,  queue->n_alloc );
-	}
-	return NULL;
+const void *bds_queue_lsearch_const(const struct bds_queue *queue, const void *key,
+                                    int (*compar)(const void *, const void *))
+{
+        size_t i, j;
+        const void *v;
+
+        j = queue->front;
+        for (i = 0; i < queue->n_elem; ++i) {
+                v = (char *)queue->v + j * queue->elem_len;
+                if (compar(key, v) == 0)
+                        return v;
+                j = BDS_MOD(j + 1, queue->n_alloc);
+        }
+        return NULL;
 }

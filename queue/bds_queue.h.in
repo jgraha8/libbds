@@ -26,6 +26,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+
 #include <@BDS_HEADER_PREFIX@/bds_modulus.h>
 
 #define BDS_QUEUE_ISLINEAR(front, back) ((front) <= (back))
@@ -141,7 +142,8 @@ static inline size_t bds_queue_size(const struct bds_queue *queue) { return queu
  *
  * @param queue Address of queue object
  * @param v Address of data element to enqueue
- * @retval Returns 0 upon successful push and non-zero otherwise (e.g. if queue is full and auto-resize is disabled; see @c bds_queue_set_autoresize)
+ * @retval Returns 0 upon successful push and non-zero otherwise (e.g. if queue is full and auto-resize is
+ * disabled; see @c bds_queue_set_autoresize)
  */
 int bds_queue_push(struct bds_queue *queue, const void *v);
 
@@ -177,7 +179,15 @@ void bds_queue_clear_nfront(struct bds_queue *queue, size_t n_clear);
  * @param queue Address of the queue object
  * @retval Address of the internal queue vector
  */
-inline static const void *bds_queue_ptr(const struct bds_queue *queue) { return (const void *)queue->v; }
+inline static void *bds_queue_ptr(struct bds_queue *queue) { return (void *)queue->v; }
+
+/**
+ * @brief Gets the address of queue constant data vector
+ *
+ * @param queue Address of the queue object
+ * @retval Address of the internal queue vector
+ */
+inline static const void *bds_queue_ptr_const(const struct bds_queue *queue) { return (const void *)queue->v; }
 
 /**
  * @brief Gets the index of the front of the queue
@@ -194,11 +204,25 @@ inline static size_t bds_queue_front(const struct bds_queue *queue) { return que
  * @retval address of the internal queue vector of the front data element (returns @c NULL if the queue is
  * empty)
  */
-inline static const void *bds_queue_frontptr(const struct bds_queue *queue)
+inline static void *bds_queue_frontptr(struct bds_queue *queue)
 {
-	if( bds_queue_isempty( queue ) )
-		return NULL;
-	return (const void *)( (char *)queue->v + queue->front * queue->elem_len );
+        if (bds_queue_isempty(queue))
+                return NULL;
+        return (void *)((char *)queue->v + queue->front * queue->elem_len);
+}
+
+/**
+ * @brief Gets the address of front constant data element
+ *
+ * @param stack address of the stack object
+ * @retval address of the internal queue vector of the front data element (returns @c NULL if the queue is
+ * empty)
+ */
+inline static const void *bds_queue_frontptr_const(const struct bds_queue *queue)
+{
+        if (bds_queue_isempty(queue))
+                return NULL;
+        return (const void *)((char *)queue->v + queue->front * queue->elem_len);
 }
 
 /**
@@ -219,11 +243,24 @@ inline static size_t bds_queue_back(const struct bds_queue *queue)
  * @param stack Address of the stack object
  * @retval Address of the internal queue vector of the back data element (returns @c NULL if the queue is empty)
  */
-inline static const void *bds_queue_backptr(const struct bds_queue *queue)
+inline static void *bds_queue_backptr(struct bds_queue *queue)
 {
-	if( bds_queue_isempty( queue ) )
-		return NULL;	
-	return (const void *)( (char *)queue->v + bds_queue_back( queue ) * queue->elem_len );
+        if (bds_queue_isempty(queue))
+                return NULL;
+        return (void *)((char *)queue->v + bds_queue_back(queue) * queue->elem_len);
+}
+
+/**
+ * @brief Gets the address of back constant data element
+ *
+ * @param stack Address of the stack object
+ * @retval Address of the internal queue vector of the back data element (returns @c NULL if the queue is empty)
+ */
+inline static const void *bds_queue_backptr_const(const struct bds_queue *queue)
+{
+        if (bds_queue_isempty(queue))
+                return NULL;
+        return (const void *)((char *)queue->v + bds_queue_back(queue) * queue->elem_len);
 }
 
 /**
@@ -248,9 +285,24 @@ static inline bool bds_queue_islinear(struct bds_queue *queue)
  */
 void bds_queue_linearize(struct bds_queue *queue);
 
-const void *bds_queue_lsearch(const struct bds_queue *queue, const void *key,
-                              int (*compar)(const void *, const void *));
+/**
+ * @brief Peforms a linear search for a data element
+ *
+ * @param stack Address of the stack object
+ * @param key Address of the key object
+ * @param compar Address of the comparator function
+ */
+void *bds_queue_lsearch(struct bds_queue *queue, const void *key, int (*compar)(const void *, const void *));
 
+/**
+ * @brief Peforms a linear search for a constant data element
+ *
+ * @param stack Address of the stack object
+ * @param key Address of the key object
+ * @param compar Address of the comparator function
+ */
+const void *bds_queue_lsearch_const(const struct bds_queue *queue, const void *key,
+                                    int (*compar)(const void *, const void *));
 
 #ifdef __cplusplus
 }
@@ -289,19 +341,27 @@ typedef struct bds_queue queue_t;
 
 #define queue_ptr bds_queue_ptr
 
+#define queue_ptr_const bds_queue_ptr_const
+
 #define queue_front bds_queue_front
 
 #define queue_frontptr bds_queue_frontptr
 
+#define queue_frontptr_const bds_queue_frontptr_const
+
 #define queue_back bds_queue_back
 
 #define queue_backptr bds_queue_backptr
+
+#define queue_backptr_const bds_queue_backptr_const
 
 #define queue_islinear bds_queue_islinear
 
 #define queue_linearize bds_queue_linearize
 
 #define queue_lsearch bds_queue_lsearch
+
+#define queue_lsearch_const bds_queue_lsearch_const
 
 #endif
 

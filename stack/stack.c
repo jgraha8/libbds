@@ -61,27 +61,42 @@ void *bds_stack_pop(struct bds_stack *stack, void *v)
 
 void bds_stack_clear(struct bds_stack *stack) { bds_vector_clear((struct bds_vector *)stack); }
 
-const void *bds_stack_topptr(const struct bds_stack *stack)
+void *bds_stack_topptr(struct bds_stack *stack)
+{
+        return (void *)bds_stack_topptr_const((const struct bds_stack *)stack);
+}
+
+const void *bds_stack_topptr_const(const struct bds_stack *stack)
 {
         if (bds_stack_isempty(stack))
                 return NULL;
 
-        return (char *)stack->__vector.v + bds_stack_top(stack) * stack->__vector.elem_len;
+        return (const char *)stack->__vector.v + bds_stack_top(stack) * stack->__vector.elem_len;
 }
 
-const void *bds_stack_lsearch(const struct bds_stack *stack, const void *key,
-                              int (*compar)(const void *a, const void *b))
+void *bds_stack_lsearch(struct bds_stack *stack, const void *key, int (*compar)(const void *a, const void *b))
 {
-        return bds_vector_lsearch((const struct bds_vector *)stack, key, compar);
+        return bds_vector_lsearch((struct bds_vector *)stack, key, compar);
 }
 
-const void *bds_stack_bsearch(const struct bds_stack *stack, const void *key,
-                              int (*compar)(const void *a, const void *b))
+const void *bds_stack_lsearch_const(const struct bds_stack *stack, const void *key,
+                                    int (*compar)(const void *a, const void *b))
+{
+        return bds_vector_lsearch_const((const struct bds_vector *)stack, key, compar);
+}
+
+void *bds_stack_bsearch(struct bds_stack *stack, const void *key, int (*compar)(const void *a, const void *b))
 {
         return bds_vector_bsearch((struct bds_vector *)stack, key, compar);
 }
 
-const void *bds_stack_modify(struct bds_stack *stack, const void *key, const void *v,
+const void *bds_stack_bsearch_const(const struct bds_stack *stack, const void *key,
+                                    int (*compar)(const void *a, const void *b))
+{
+        return bds_vector_bsearch_const((const struct bds_vector *)stack, key, compar);
+}
+
+void *bds_stack_modify(struct bds_stack *stack, const void *key, const void *v,
                              int (*compar)(const void *a, const void *b))
 {
         void *v_key = (void *)bds_stack_lsearch(stack, key, compar);
