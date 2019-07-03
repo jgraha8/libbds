@@ -39,7 +39,7 @@ libbds_la_SOURCES = version.c
 #
 # version-info current:revision:age
 #
-libbds_la_LDFLAGS=-version-info 11:13:11
+libbds_la_LDFLAGS=-version-info 12:14:11
 libbds_la_LIBADD = $(SUBLIBS)
 
 pkginclude_HEADERS = bds_version.h bds_modulus.h
