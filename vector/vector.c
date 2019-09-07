@@ -28,11 +28,12 @@
 #include <libbds/bds_stack.h>
 #include <libbds/bds_vector.h>
 
-static void resize_vector(struct bds_vector *vector)
+static void realloc_vector(struct bds_vector *vector, size_t num_alloc)
 {
-        const size_t len = (vector->n_alloc * vector->elem_len);
-        vector->v        = xrealloc(vector->v, len, len << 1);
-        vector->n_alloc <<= 1;
+        const size_t prev_len = (vector->n_alloc * vector->elem_len);
+	const size_t len = num_alloc * vector->elem_len;
+        vector->v        = xrealloc(vector->v, prev_len, len);
+        vector->n_alloc = num_alloc;
 }
 
 void bds_vector_ctor(struct bds_vector *vector, size_t n_alloc, size_t elem_len, void (*elem_dtor)(void *))
@@ -74,21 +75,67 @@ void bds_vector_free(struct bds_vector **vector)
         *vector = NULL;
 }
 
+size_t bds_vector_resize(struct bds_vector *vector, size_t num_elem)
+{
+	if( num_elem <= vector->n_elem ) {
+		/*
+		  Shrinking size (or the same size)
+		*/
+		// Destroy old elements
+		if( vector->elem_dtor ) {
+			for( size_t i = num_elem; i<vector->n_elem; ++i ) {
+				vector->elem_dtor(bds_vector_get(vector,i));
+			}
+		}
+	} else {
+		/*
+		  Growing size
+		*/
+		size_t num_alloc = vector->n_alloc;
+		while( num_elem > num_alloc ) {
+			num_alloc <<= 1;
+		}
+		realloc_vector(vector, num_alloc);
+	}
+
+	vector->n_elem = num_elem;
+	return vector->n_elem;
+}
+
+
 void bds_vector_append(struct bds_vector *vector, const void *v)
 {
         if (vector->n_elem == vector->n_alloc)
-                resize_vector(vector);
+                realloc_vector(vector, vector->n_alloc << 1);
 
         memcpy((char *)vector->v + vector->n_elem * vector->elem_len, v, vector->elem_len);
         vector->n_elem++;
 }
 
+void bds_vector_remove(struct bds_vector *vector, size_t i)
+{
+	if( vector->n_elem == 0 )
+		return;
+	
+	size_t num_move = (vector->n_elem - 1) - i;
+
+	char *dst = (char *)vector->v + i * vector->elem_len;
+	char *src = dst + vector->elem_len;
+
+	if( vector->elem_dtor ) {
+		vector->elem_dtor(dst);
+	}
+
+	memmove(dst, src, num_move * vector->elem_len );
+	--vector->n_elem;
+}
+
 void bds_vector_clear(struct bds_vector *vector)
 {
         if (vector->elem_dtor != NULL) {
-                while (!bds_vector_isempty(vector)) {
-                        vector->elem_dtor(bds_stack_pop((struct bds_stack *)vector, NULL));
-                }
+		for( size_t i=0; i<vector->n_elem; ++i ) {
+			vector->elem_dtor(bds_vector_get(vector, i));
+		}
         }
         vector->n_elem = 0;
 }

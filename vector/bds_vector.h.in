@@ -129,6 +129,18 @@ void bds_vector_append(struct bds_vector *vector, const void *v);
 static inline size_t bds_vector_size(const struct bds_vector *vector) { return vector->n_elem; }
 
 /**
+ * @brief Change the size of the vector
+ *
+ * @param vector Address of vector object
+ * @param num_elem New number elements (size) of the vector
+ *
+ * @retval The new vector size
+ *
+ * @note The actual allocation size will be greater than or equal to the specified @c num_elem value.
+ */
+size_t bds_vector_resize(struct bds_vector *vector, size_t num_elem);
+	
+/**
  * @brief Gets the address of vector data vector
  *
  * @param vector Address of the vector object
