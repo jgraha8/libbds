@@ -122,6 +122,20 @@ static inline void bds_vector_set(struct bds_vector *vector, size_t i, const voi
 void bds_vector_append(struct bds_vector *vector, const void *v);
 
 /**
+ * @brief Removes the data element at a specified index 
+ *
+ * The data element at index @c i is removed by calling the registered
+ * element destructor (if exists) and then shifting all elements
+ * { j : i < j < N } to { k : i <= k < N - 1} locations (i.e., down one index),
+ * where @c N is the original number of elements in the vector. The new
+ * number of elements in the vector is @c N - 1.
+ * 
+ * @param vector Address of the vector object
+ * @param i Element to remove at index @c i
+ */
+ void bds_vector_remove(struct bds_vector *vector, size_t i);	
+
+/**
  * @brief Provides the number of elements in the vector
  *
  * @param vector Address of vector object
@@ -159,7 +173,8 @@ static inline const void *bds_vector_ptr_const(const struct bds_vector *vector) 
 /**
  * @brief Gets the end address of vector data vector
  *
- * The end element of the vector corresponds to element @c v[n_elem].
+ * The end element of the vector corresponds to element @c v[N] where @c N
+ * is the number of elements in the vector.
  *
  * @param vector Address of the vector object
  * @retval Address of the end address
