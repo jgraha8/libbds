@@ -1,7 +1,7 @@
 /*
  * C-string module
  *
- * Copyright (C) 2017-2018 Jason Graham <jgraham@compukix.net>
+ * Copyright (C) 2017-2018,2020 Jason Graham <jgraham@compukix.net>
  *
  * This file is part of libbds.
  *
@@ -19,15 +19,13 @@
  * License along with libbds. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-#define _POSIX_C_SOURCE 1
 
-#include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <wctype.h>
+#include <wchar.h>
 
 #include <libbds/bds_string.h>
 

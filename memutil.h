@@ -2,7 +2,7 @@
  * @file
  * @brief Memory management utilities used by the libbds library
  *
- * Copyright (C) 2017-2018 Jason Graham <jgraham@compukix.net>
+ * Copyright (C) 2017-2018,2020 Jason Graham <jgraham@compukix.net>
  *
  * This file is part of libbds.
  *
@@ -23,10 +23,17 @@
 #ifndef __MEMUTIL_H__
 #define __MEMUTIL_H__
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef HAVE_MALLOC_H
 #include <malloc.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -44,14 +51,22 @@ __attribute__((unused)) static void *xalloc_align(size_t alignment, size_t len)
 {
         len     = alignment * ((len + alignment - 1) / alignment);
 	void *v = NULL;
-#if (__STDC_VERSION__ >= 201112L)
+#if __linux__
+  #if defined(_ISOC11_SOURCE)
         v = aligned_alloc(alignment, len);
-#else 
-  #if( _POSIX_C_SOURCE >= 200112L)
+  #else 
+    #if( _POSIX_C_SOURCE >= 200112L)
 	posix_memalign(&v, alignment, len);
-  #else
+    #else
+      #ifdef HAVE_MALLOC_H
 	v = memalign(alignment, len);
+      #else
+        #error "No aligned memory allocation function available"
+      #endif
+    #endif
   #endif
+#elif __APPLE__ && __MACH__
+	posix_memalign(&v, alignment, len);
 #endif
         assert(v);
         memset(v, 0, len);

@@ -34,7 +34,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 
 # Add C99 flag (required)
-CFLAGS="${CFLAGS} -std=c99"
+#CFLAGS="${CFLAGS} -std=c99"
 
 dnl Initialize Libtool
 LT_INIT
@@ -49,17 +49,17 @@ AC_CHECK_LIB([m],[cos])
 #AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
 
 # Checks for header files.
-AC_CHECK_HEADERS([assert.h stdbool.h stdio.h stdlib.h string.h math.h assert.h stdint.h stdarg.h wchar.h wctype.h])
+AC_CHECK_HEADERS([assert.h math.h malloc.h stdbool.h stdio.h stdlib.h string.h stdint.h stdarg.h wchar.h])
 #AC_CHECK_HEADERS([gsl/gsl_errno.h gsl/gsl_spline.h])
 
 # Process options
 dnl Example of default-disabled feature
 AC_ARG_ENABLE([optimized_mod],
-    AS_HELP_STRING([--enable-optimized-mod], [enable optimized modulus operations (enforces power-of-two allocation for relevant vectors)]))
+    AS_HELP_STRING([--disable-optimized-mod], [disables power-of-two allocation for relevant vectors]))
 
-AS_IF([test "x$enable_optimized_mod" = "xyes"],
-      [AC_SUBST([BDS_USE_OPTIMIZED_MOD],[1])],
-      [AC_SUBST([BDS_USE_OPTIMIZED_MOD],[0])])
+AS_IF([test "x$disable_optimized_mod" = "xyes"],
+      [AC_SUBST([BDS_USE_OPTIMIZED_MOD],[0])],
+      [AC_SUBST([BDS_USE_OPTIMIZED_MOD],[1])])
 
 AC_ARG_ENABLE([header_prefix],
     AS_HELP_STRING([--enable-header-prefix=DIR], [set the prefix for libbds header paths]),
