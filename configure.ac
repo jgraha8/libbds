@@ -49,7 +49,18 @@ AC_CHECK_LIB([m],[cos])
 #AC_CHECK_LIB([gsl],[gsl_blas_dgemm])
 
 # Checks for header files.
-AC_CHECK_HEADERS([assert.h math.h malloc.h stdbool.h stdio.h stdlib.h string.h stdint.h stdarg.h wchar.h])
+AC_CHECK_HEADERS([ assert.h \
+		   ctype.h \
+		   math.h \
+		   malloc.h \
+		   stdbool.h \
+		   stdio.h \
+		   stdlib.h \
+		   string.h \
+		   stdint.h \
+		   stdarg.h \
+		   wchar.h \
+		   wctype.h])
 #AC_CHECK_HEADERS([gsl/gsl_errno.h gsl/gsl_spline.h])
 
 # Process options

@@ -20,12 +20,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
+#include <wctype.h>
 
 #include <libbds/bds_string.h>
 
