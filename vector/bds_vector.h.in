@@ -2,7 +2,7 @@
  * @file
  * @brief Vector data structure module definitions
  *
- * Copyright (C) 2018-2019 Jason Graham <jgraham@compukix.net>
+ * Copyright (C) 2018-2020 Jason Graham <jgraham@compukix.net>
  *
  * This file is part of libbds.
  *
@@ -121,6 +121,15 @@ static inline void bds_vector_set(struct bds_vector *vector, size_t i, const voi
  */
 void bds_vector_append(struct bds_vector *vector, const void *v);
 
+/** 
+ * @brief Performs and sorted inseration of the provided element into the vector
+ *
+ * @param vector Address of vector object
+ * @param elem Address of the element to insert
+ * @param compar Address of the comparator function 
+ */	
+void bds_vector_insert_sort(struct bds_vector *vector, const void *elem, int (*compar)(const void *, const void *));
+	
 /**
  * @brief Removes the data element at a specified index 
  *
@@ -275,6 +284,7 @@ typedef struct bds_vector vector_t;
 #define vector_get_const bds_vector_get_const
 #define vector_set bds_vector_set
 #define vector_append bds_vector_append
+#define vector_insert_sort bds_vector_insert_sort
 #define vector_size bds_vector_size
 #define vector_ptr bds_vector_ptr
 #define vector_ptr_const bds_vector_ptr_const

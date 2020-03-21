@@ -1,7 +1,7 @@
 /*
  * Vector data structure module
  *
- * Copyright (C) 2018-2019 Jason Graham <jgraham@compukix.net>
+ * Copyright (C) 2018-2020 Jason Graham <jgraham@compukix.net>
  *
  * This file is part of libbds.
  *
@@ -27,6 +27,11 @@
 #include "memutil.h"
 #include <libbds/bds_stack.h>
 #include <libbds/bds_vector.h>
+
+/*
+ * Defines a data array that can be indexed as __data[i] 
+ */
+#define DEFINE_DATA_ARRAY(__data, __vector) char (*__data)[(__vector)->elem_len] = (char (*)[(__vector)->elem_len])(__vector)->v
 
 static void realloc_vector(struct bds_vector *vector, size_t num_alloc)
 {
@@ -110,6 +115,28 @@ void bds_vector_append(struct bds_vector *vector, const void *v)
 
         memcpy((char *)vector->v + vector->n_elem * vector->elem_len, v, vector->elem_len);
         vector->n_elem++;
+}
+
+void bds_vector_insert_sort(struct bds_vector *vector, const void *elem, int (*compar)(const void *, const void *))
+{
+	bds_vector_append(vector, elem);
+	assert( vector->n_elem > 0 );
+	
+	if( 1 == vector->n_elem ) {
+		return;
+	}
+
+	DEFINE_DATA_ARRAY(data, vector);
+	
+	size_t i = vector->n_elem - 1;
+	char tmp[vector->elem_len];
+	
+	while( i > 0 && compar(data[i], data[i-1]) < 0) {
+		memcpy(tmp, data[i-1], vector->elem_len);
+		memcpy(data[i-1], data[i], vector->elem_len);
+		memcpy(data[i], tmp, vector->elem_len);
+		--i;
+	}
 }
 
 void bds_vector_remove(struct bds_vector *vector, size_t i)

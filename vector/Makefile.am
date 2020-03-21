@@ -10,6 +10,14 @@ AM_CFLAGS = -I${top_srcdir}
 
 libbds_vector_la_SOURCES = vector.c
 
+check_PROGRAMS = test_vector1
+
+test_vector1_SOURCES = test_vector1.c
+test_vector1_LDADD = $(top_builddir)/libbds.la
+
+TESTS = $(check_PROGRAMS)
+
+
 # check_PROGRAMS = test_vector
 # test_vector_SOURCES = test_vector.c
 # test_vector_LDADD = $(top_builddir)/libbds.la
