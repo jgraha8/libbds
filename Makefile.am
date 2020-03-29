@@ -8,6 +8,7 @@ SUBDIRS= \
 	heap	\
 	list	\
 	queue	\
+	rbtree	\
 	serialize \
 	stack	\
 	string \
@@ -19,6 +20,7 @@ SUBLIBS = \
 	heap/libbds_heap.la \
 	list/libbds_list.la \
 	queue/libbds_queue.la \
+	rbtree/libbds_rbtree.la \
 	serialize/libbds_serialize.la \
 	stack/libbds_stack.la \
 	string/libbds_string.la \

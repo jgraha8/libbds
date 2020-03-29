@@ -35,6 +35,8 @@
 #include <malloc.h>
 #endif
 
+#define ALIGN16_LEN(__len) (16 * (((__len) + 15) / 16))
+
 #ifdef __cplusplus
 extern "C" {
 #endif

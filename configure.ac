@@ -167,6 +167,8 @@ heap/Makefile		\
 list/Makefile		\
 queue/Makefile 		\
 queue/bds_queue.h	\
+rbtree/Makefile		\
+rbtree/bds_rbtree.h	\
 serialize/Makefile	\
 stack/Makefile		\
 stack/bds_stack.h	\
