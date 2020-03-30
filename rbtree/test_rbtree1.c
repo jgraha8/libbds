@@ -22,10 +22,12 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
 
 #include <libbds/bds_rbtree.h>
 
-#define N 1000
+#define N 1000000
 
 struct my_struct {
 	int key;
@@ -44,10 +46,29 @@ void run_tests()
 	int key_prev;
 	int key;
 	size_t n=0;
+	int key_delete = 0;
+	int key_search = 0;
+
+	srand(time(NULL));
 	
-	for( int i=N; i>0; --i ) {
-		struct my_struct m = { .key = i, .value = 2*i };
-		bds_rbtree_insert(rb, &m);
+	for( int i=0; i<N; ++i ) {
+		int r = 0;
+		while(1) {
+			r = rand() % (1U << 30);
+			struct my_struct m = { .key = r, .value = 2*(double)i };
+
+			if( NULL == bds_rbtree_search(rb, &m) ) {
+				bds_rbtree_insert(rb, &m);
+				break;
+			}
+		}
+
+		if( i == N/2 ) {
+			key_delete = r;
+		}
+		if( i == N/4 ) {
+			key_search = r;
+		}
 	}
 	assert( N == bds_rbtree_size(rb) );
 
@@ -64,14 +85,12 @@ void run_tests()
 		key_prev = mp->key;
 	}
 	
-	key = 5;
-	bds_rbtree_delete(rb, &key);
-	assert( NULL == bds_rbtree_search(rb, &key));
+	bds_rbtree_delete(rb, &key_delete);
+	assert( NULL == bds_rbtree_search(rb, &key_delete));
 	assert( N-1 == bds_rbtree_size(rb) );
 
-	key = 4;
-	assert( (mp = bds_rbtree_search(rb, &key)) );
-	assert( mp->key == key );
+	assert( (mp = bds_rbtree_search(rb, &key_search)) );
+	assert( mp->key == key_search );
 	
 	n = 0;
 	for( bds_rbnode_t *node = bds_rbtree_iterate_begin(rb);
@@ -79,12 +98,13 @@ void run_tests()
 	     node = bds_rbtree_iterate_next(rb, node), ++n ) {
 
 		mp = bds_rbnode_key(node);
-		assert( mp->key != 5 );
+		assert( mp->key != key_delete );
 		if( n > 0 ) {
 			assert(mp->key >= key_prev );
 		}
 		key_prev = mp->key;
 	}
+	assert( n == N-1);
 
 	bds_rbtree_free(&rb);
 }

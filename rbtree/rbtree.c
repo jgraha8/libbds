@@ -42,25 +42,22 @@ void *bds_rbnode_key(bds_rbnode_t *rbnode)
 	return rbnode->key;
 }
 
-static bds_rbnode_t NIL_NODE = { .key = NULL,
-				 .parent = NULL,
-				 .left = NULL,
-				 .right = NULL,
-				 .color = RB_BLACK };
-
 #define NIL (&NIL_NODE)
+
+static bds_rbnode_t NIL_NODE = { .key = NULL,
+				 .parent = NIL,
+				 .left   = NIL,
+				 .right  = NIL,
+				 .color  = RB_BLACK };
 
 static bds_rbnode_t *rbnode_alloc( size_t key_len, const void *key )
 {
 	bds_rbnode_t *node = xalloc( ALIGN16_LEN(sizeof(bds_rbnode_t)) + key_len );
+
+	*node = *NIL;
 	
 	node->key = (char *)node + ALIGN16_LEN(sizeof(bds_rbnode_t));
 	memcpy( node->key, key, key_len );
-
-	node->color = RB_BLACK;
-	node->parent = NIL;
-	node->left   = NIL;
-	node->right  = NIL;
 
 	return node;
 }
