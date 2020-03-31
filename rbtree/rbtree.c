@@ -30,6 +30,8 @@
 #define RB_BLACK (0U)
 #define RB_RED   (1U)
 
+// #define ASSERT_DELETE
+
 typedef struct bds_rbnode {
 	void *key;
 	struct bds_rbnode *parent;
@@ -94,6 +96,9 @@ static bds_rbnode_t *tree_maximum(bds_rbnode_t *x)
 
 static void tree_delete(bds_rbnode_t *x, void (*key_dtor)(void *))
 {
+	if( x == NIL ) {
+		return;
+	}
 	if( x->left != NIL ) {
 		tree_delete(x->left, key_dtor);
 	}
@@ -242,6 +247,17 @@ void bds_rbtree_delete(bds_rbtree_t *rb, const void *key)
 		rbtree_delete_fixup(rb, x);
 	}
 
+#ifdef ASSERT_DELETE	
+	for( bds_rbnode_t *node = bds_rbtree_iterate_begin(rb);
+	     node != bds_rbtree_iterate_end(rb);
+	     node = bds_rbtree_iterate_next(rb, node) ) {
+		assert(node != z);
+		assert(node->parent != z);
+		assert(node->left != z);
+		assert(node->right != z);
+	}
+#endif
+	
 	rbnode_free(&z, rb->key_dtor);
 	assert( rb->num_elem-- > 0 );
 }
@@ -400,9 +416,11 @@ static void rbtree_transplant(bds_rbtree_t *rb, bds_rbnode_t *u, bds_rbnode_t *v
 
 static void rbtree_delete_fixup(bds_rbtree_t *rb, bds_rbnode_t *x)
 {
-	while( x != NIL && x->color == RB_BLACK ) {
+	bds_rbnode_t *w = NULL;
+	
+	while( x != rb->root && x->color == RB_BLACK ) {
 		if( x == x->parent->left ) {
-			bds_rbnode_t *w = x->parent->right;
+			w = x->parent->right;
 			if( w->color == RB_RED ) {                 // Case 1
 				w->color = RB_BLACK;
 				x->parent->color = RB_RED;
@@ -427,7 +445,7 @@ static void rbtree_delete_fixup(bds_rbtree_t *rb, bds_rbnode_t *x)
 				x = rb->root;
 			}
 		} else {
-			bds_rbnode_t *w = x->parent->left;
+			w = x->parent->left;
 			if( w->color == RB_RED ) {                 // Case 1
 				w->color = RB_BLACK;
 				x->parent->color = RB_RED;

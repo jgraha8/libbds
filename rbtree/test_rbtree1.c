@@ -26,8 +26,9 @@
 #include <stdlib.h>
 
 #include <libbds/bds_rbtree.h>
+#include <libbds/bds_vector.h>
 
-#define N 1000000
+#define N 10000
 
 struct my_struct {
 	int key;
@@ -42,6 +43,8 @@ int compare_my_struct(const void *a, const void *b)
 void run_tests()
 {	
 	bds_rbtree_t *rb = bds_rbtree_alloc(sizeof(struct my_struct), compare_my_struct, NULL);
+	struct bds_vector *inputs = bds_vector_alloc(1, sizeof(struct my_struct), NULL);
+	
 	struct my_struct *mp;
 	int key_prev;
 	int key;
@@ -59,6 +62,7 @@ void run_tests()
 
 			if( NULL == bds_rbtree_search(rb, &m) ) {
 				bds_rbtree_insert(rb, &m);
+				bds_vector_append(inputs, &m);
 				break;
 			}
 		}
@@ -104,9 +108,18 @@ void run_tests()
 		}
 		key_prev = mp->key;
 	}
-	assert( n == N-1);
+	assert( n == N-1 );
+
+	for( size_t i=0; i<bds_vector_size(inputs); ++i ) {
+		const struct my_struct *m = bds_vector_get_const(inputs, i);
+		bds_rbtree_delete(rb, m);
+		assert( NULL == bds_rbtree_search(rb, m) );
+	}
+
+	assert( 0 == bds_rbtree_size(rb) );
 
 	bds_rbtree_free(&rb);
+	bds_vector_free(&inputs);
 }
 		
 
