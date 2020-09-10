@@ -41,7 +41,7 @@ libbds_la_SOURCES = version.c
 #
 # version-info current:revision:age
 #
-libbds_la_LDFLAGS=-version-info 14:17:13
+libbds_la_LDFLAGS=-version-info 15:18:13
 libbds_la_LIBADD = $(SUBLIBS)
 
 pkginclude_HEADERS = bds_version.h bds_modulus.h
@@ -56,7 +56,7 @@ noinst_HEADERS = memutil.h
 #html-local: doxygen-run
 
 # # Target for all documentation
-# docs: 
+# docs:
 # 	cd bspline     && make docs && \
 # 	cd ../psolver  && make docs && \
 # 	cd ../sparselu && make docs

@@ -45,8 +45,8 @@ static void test1()
 		data[i].f = i;
 		data[i].i = N - i;
 	}
-	
-	struct bds_vector *vector = bds_vector_alloc(1, sizeof(struct my_data), NULL);
+
+	bds_vector_t *vector = bds_vector_create(0, sizeof(struct my_data), NULL);
 
 	for( int i=0; i<N; ++i ) {
 		if( i > 0 ) {
@@ -61,7 +61,7 @@ static void test1()
 		}
 	}
 
-	bds_vector_free(&vector);
+	bds_vector_destroy(&vector);
 }
 
 

@@ -22,8 +22,8 @@
 
 #include <assert.h>
 #include <stdio.h>
-#include <time.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <libbds/bds_rbtree.h>
 #include <libbds/bds_vector.h>
@@ -31,100 +31,97 @@
 #define N 10000
 
 struct my_struct {
-	int key;
-	double value;
+        int key;
+        double value;
 };
 
 int compare_my_struct(const void *a, const void *b)
 {
-	return ((const struct my_struct *)a)->key - ((const struct my_struct *)b)->key;
+        return ((const struct my_struct *)a)->key - ((const struct my_struct *)b)->key;
 }
 
 void run_tests()
-{	
-	bds_rbtree_t *rb = bds_rbtree_alloc(sizeof(struct my_struct), compare_my_struct, NULL);
-	struct bds_vector *inputs = bds_vector_alloc(1, sizeof(struct my_struct), NULL);
-	
-	struct my_struct *mp;
-	int key_prev;
-	int key;
-	size_t n=0;
-	int key_delete = 0;
-	int key_search = 0;
+{
+        bds_rbtree_t *rb     = bds_rbtree_alloc(sizeof(struct my_struct), compare_my_struct, NULL);
+        bds_vector_t *inputs = bds_vector_create(0, sizeof(struct my_struct), NULL);
 
-	srand(time(NULL));
-	
-	for( int i=0; i<N; ++i ) {
-		int r = 0;
-		while(1) {
-			r = rand() % (1U << 30);
-			struct my_struct m = { .key = r, .value = 2*(double)i };
+        struct my_struct *mp;
+        int key_prev;
+        int key;
+        size_t n       = 0;
+        int key_delete = 0;
+        int key_search = 0;
 
-			if( NULL == bds_rbtree_search(rb, &m) ) {
-				bds_rbtree_insert(rb, &m);
-				bds_vector_append(inputs, &m);
-				break;
-			}
-		}
+        srand(time(NULL));
 
-		if( i == N/2 ) {
-			key_delete = r;
-		}
-		if( i == N/4 ) {
-			key_search = r;
-		}
-	}
-	assert( N == bds_rbtree_size(rb) );
+        for (int i = 0; i < N; ++i) {
+                int r = 0;
+                while (1) {
+                        r                  = rand() % (1U << 30);
+                        struct my_struct m = {.key = r, .value = 2 * (double)i};
 
-	n=0;
-	for( bds_rbnode_t *node = bds_rbtree_iterate_begin(rb);
-	     node != bds_rbtree_iterate_end();
-	     node = bds_rbtree_iterate_next(rb, node), ++n ) {
+                        if (NULL == bds_rbtree_search(rb, &m)) {
+                                bds_rbtree_insert(rb, &m);
+                                bds_vector_append(inputs, &m);
+                                break;
+                        }
+                }
 
-		struct my_struct *mp = bds_rbnode_key(node);
-		
-		if( n > 0 ) {
-			assert(mp->key >= key_prev );
-		}
-		key_prev = mp->key;
-	}
-	
-	bds_rbtree_delete(rb, &key_delete);
-	assert( NULL == bds_rbtree_search(rb, &key_delete));
-	assert( N-1 == bds_rbtree_size(rb) );
+                if (i == N / 2) {
+                        key_delete = r;
+                }
+                if (i == N / 4) {
+                        key_search = r;
+                }
+        }
+        assert(N == bds_rbtree_size(rb));
 
-	assert( (mp = bds_rbtree_search(rb, &key_search)) );
-	assert( mp->key == key_search );
-	
-	n = 0;
-	for( bds_rbnode_t *node = bds_rbtree_iterate_begin(rb);
-	     node != bds_rbtree_iterate_end();
-	     node = bds_rbtree_iterate_next(rb, node), ++n ) {
+        n = 0;
+        for (bds_rbnode_t *node = bds_rbtree_iterate_begin(rb); node != bds_rbtree_iterate_end();
+             node               = bds_rbtree_iterate_next(rb, node), ++n) {
 
-		mp = bds_rbnode_key(node);
-		assert( mp->key != key_delete );
-		if( n > 0 ) {
-			assert(mp->key >= key_prev );
-		}
-		key_prev = mp->key;
-	}
-	assert( n == N-1 );
+                struct my_struct *mp = bds_rbnode_key(node);
 
-	for( size_t i=0; i<bds_vector_size(inputs); ++i ) {
-		const struct my_struct *m = bds_vector_get_const(inputs, i);
-		bds_rbtree_delete(rb, m);
-		assert( NULL == bds_rbtree_search(rb, m) );
-	}
+                if (n > 0) {
+                        assert(mp->key >= key_prev);
+                }
+                key_prev = mp->key;
+        }
 
-	assert( 0 == bds_rbtree_size(rb) );
+        bds_rbtree_delete(rb, &key_delete);
+        assert(NULL == bds_rbtree_search(rb, &key_delete));
+        assert(N - 1 == bds_rbtree_size(rb));
 
-	bds_rbtree_free(&rb);
-	bds_vector_free(&inputs);
+        assert((mp = bds_rbtree_search(rb, &key_search)));
+        assert(mp->key == key_search);
+
+        n = 0;
+        for (bds_rbnode_t *node = bds_rbtree_iterate_begin(rb); node != bds_rbtree_iterate_end();
+             node               = bds_rbtree_iterate_next(rb, node), ++n) {
+
+                mp = bds_rbnode_key(node);
+                assert(mp->key != key_delete);
+                if (n > 0) {
+                        assert(mp->key >= key_prev);
+                }
+                key_prev = mp->key;
+        }
+        assert(n == N - 1);
+
+        for (size_t i = 0; i < bds_vector_size(inputs); ++i) {
+                const struct my_struct *m = bds_vector_get_const(inputs, i);
+                bds_rbtree_delete(rb, m);
+                assert(NULL == bds_rbtree_search(rb, m));
+        }
+
+        assert(0 == bds_rbtree_size(rb));
+
+        bds_rbtree_free(&rb);
+        bds_vector_destroy(&inputs);
 }
-		
 
 int main(int argc, char **argv)
 {
-	run_tests();
-	return 0;
+        run_tests();
+        return 0;
 }

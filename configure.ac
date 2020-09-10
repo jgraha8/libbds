@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 dnl AC_PREREQ([2.59])
-AC_INIT([libbds], [0.13.0], [jgraham@compukix.net])
+AC_INIT([libbds], [1.0.0], [jgraham@compukix.net])
 
 AC_CONFIG_AUX_DIR([.])
 AC_CONFIG_HEADERS([config.h])
@@ -40,7 +40,7 @@ dnl Initialize Libtool
 LT_INIT
 
 dnl Check if Libtool is present
-dnl Libtool is used for building share libraries 
+dnl Libtool is used for building share libraries
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
@@ -76,17 +76,17 @@ AC_ARG_ENABLE([header_prefix],
     AS_HELP_STRING([--enable-header-prefix=DIR], [set the prefix for libbds header paths]),
     [],
     [enable_header_prefix=no])
-    
+
 case $enable_header_prefix in
   no)
 	AC_SUBST([AM_HEADER_PREFIX], [""])
 	AC_SUBST([BDS_HEADER_PREFIX], ["libbds"])
 	;;
   *)
-	AC_SUBST([AM_HEADER_PREFIX], ["$enable_header_prefix"])  
+	AC_SUBST([AM_HEADER_PREFIX], ["$enable_header_prefix"])
 	AC_SUBST([BDS_HEADER_PREFIX], ["$enable_header_prefix/libbds"])
 	;;
-esac	
+esac
 
 dnl ## Make sure flags are set to something (otherwise macros may set them later).
 dnl AM_CFLAGS="${AM_CFLAGS}"
@@ -125,7 +125,7 @@ dnl ## Set default settings
 dnl if [ test "x$AM_FCFLAGS" = "x" ]; then
 dnl   AM_FCFLAGS="-I/usr/local/include -I/usr/include"
 dnl else
-dnl   AM_FCFLAGS="$AM_FCFLAGS -I/usr/local/include -I/usr/include"	
+dnl   AM_FCFLAGS="$AM_FCFLAGS -I/usr/local/include -I/usr/include"
 dnl fi
 
 dnl ## ----------------------------------------------------------------------
