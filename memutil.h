@@ -53,10 +53,12 @@ __attribute__((unused)) static void *xalloc_align(size_t alignment, size_t len)
 {
         len     = alignment * ((len + alignment - 1) / alignment);
 	void *v = NULL;
-#if __linux__
+#if __APPLE__ && __MACH__
+	posix_memalign(&v, alignment, len);
+#else
   #if defined(_ISOC11_SOURCE)
         v = aligned_alloc(alignment, len);
-  #else 
+  #else
     #if( _POSIX_C_SOURCE >= 200112L)
 	posix_memalign(&v, alignment, len);
     #else
@@ -67,8 +69,6 @@ __attribute__((unused)) static void *xalloc_align(size_t alignment, size_t len)
       #endif
     #endif
   #endif
-#elif __APPLE__ && __MACH__
-	posix_memalign(&v, alignment, len);
 #endif
         assert(v);
         memset(v, 0, len);
