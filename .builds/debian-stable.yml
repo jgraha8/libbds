@@ -1,6 +1,9 @@
 image: debian/stable
 packages:
   - build-essential
+  - automake
+  - autoconf
+  - libtool
 sources:
   - https://git.sr.ht/~jgraha8/libbds  
 environment:
