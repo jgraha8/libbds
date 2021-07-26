@@ -12,13 +12,16 @@ environment:
   AUTOMAKE_VERSION: 1.16
 tasks:
   - configure: |
+      env
       pwd
       cd ~/libbds
       ./autogen.sh
       ./configure
   - build: |
+      pwd
       cd ~/libbds
       make
   - test: |
+      pwd
       cd ~/libbds
       make check
