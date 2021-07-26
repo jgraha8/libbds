@@ -1,6 +1,6 @@
 # libbds
 
-Copyright (C) 2017-2019 Jason Graham <jgraham@compukix.net>
+Copyright (C) 2017-2021 Jason Graham <jgraham@compukix.net>
 
 Copying and distribution of this file, with or without modification,
 are permitted in any medium without royalty provided the copyright
@@ -23,12 +23,14 @@ To include support for a particular module in your source code, include the
 respective header file(s) as needed. For example, to use the vector and string
 module in your source file foo.c, add:
 
-  #include <libbds/bds_vector.h>
-  #include <libbds/bds_string.h>
+```
+#include <libbds/bds_vector.h>
+#include <libbds/bds_string.h>
+```
 
-in foo.c and then link with -lbds.
+in `foo.c` and then link with `-lbds`.
 
 ## API
 
 The API is documented using doxygen. To generate the documentation in the 'docs'
-directory, run 'make docs' after configuring and building the library.
+directory, run `make docs` after configuring and building the library.
