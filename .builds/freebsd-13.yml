@@ -1,0 +1,25 @@
+image: freebsd/13.x
+packages:
+  - gcc
+  - automake
+  - autoconf
+  - libtool
+sources:
+  - https://git.sr.ht/~jgraha8/libbds  
+environment:
+  CC: gcc
+tasks:
+  - configure: |
+      env
+      pwd
+      cd ~/libbds
+      ./autogen.sh
+      ./configure
+  - build: |
+      pwd
+      cd ~/libbds
+      make
+  - test: |
+      pwd
+      cd ~/libbds
+      make check
