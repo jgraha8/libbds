@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Jason Graham <jgraham@compukix.net>
+ * Copyright (C) 2018,2021 Jason Graham <jgraham@compukix.net>
  *
  * This file is part of libbds.
  *
@@ -18,25 +18,23 @@
  * <https://www.gnu.org/licenses/>.
  */
 #include <assert.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <libbds/bds_serialize.h>
 
-#define N 2
+#define N 8
 
 struct list_node {
-        int id;
+        int               id;
         struct list_node *next;
 };
-
-struct list_node __list_node;
 
 static struct bds_object_desc list_node_desc;
 
 struct bds_object_member list_node_members[] = {
-    BDS_OBJECT_MEMBER(&__list_node, id, BDS_OBJECT_DATA, NULL),
-    BDS_OBJECT_MEMBER(&__list_node, next, BDS_OBJECT_PTR_OBJECT, (void *)&list_node_desc)};
+    BDS_OBJECT_MEMBER(struct list_node, id, BDS_OBJECT_DATA, NULL),
+    BDS_OBJECT_MEMBER(struct list_node, next, BDS_OBJECT_PTR_OBJECT, (void *)&list_node_desc)};
 
 int check_data(struct list_node *a, struct list_node *b)
 {
@@ -64,7 +62,7 @@ void free_list(struct list_node *node)
 
 int main(int argc, char **argv)
 {
-        struct list_node head  = {0};
+        struct list_node  head = {0};
         struct list_node *node = &head;
 
         node->id = 0;
@@ -75,25 +73,25 @@ int main(int argc, char **argv)
         }
 
         size_t serial_len;
-        void *serial_data;
+        void * serial_data;
 
         list_node_desc.object_len  = sizeof(struct list_node);
         list_node_desc.num_members = 2;
         list_node_desc.members     = &list_node_members[0];
 
-	printf("Current alignment: %zd\n", bds_serial_alignment(0));
-	printf("New alignment: %zd\n", bds_serial_alignment(16384));
-	printf("Default alignment: %zd\n", bds_serial_alignment(-1));	
-	printf("New alignment: %zd\n", bds_serial_alignment(16384));
-	
+        printf("Current alignment: %zd\n", bds_serial_alignment(0));
+        printf("New alignment: %zd\n", bds_serial_alignment(16384));
+        printf("Default alignment: %zd\n", bds_serial_alignment(-1));
+        printf("New alignment: %zd\n", bds_serial_alignment(16384));
+
         bds_serialize(&head, &list_node_desc, &serial_len, &serial_data);
 
-	struct list_node *__node = (struct list_node *)serial_data;
-	while( __node ) {
-		assert( (long)__node % bds_serial_alignment(0) == 0 );
-		__node = __node->next;
-	}
-	
+        struct list_node *__node = (struct list_node *)serial_data;
+        while (__node) {
+                assert((long)__node % bds_serial_alignment(0) == 0);
+                __node = __node->next;
+        }
+
         if (check_data(&head, (struct list_node *)serial_data) != 0)
                 return 1;
 

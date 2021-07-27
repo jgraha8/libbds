@@ -2,7 +2,7 @@
  * @file
  * @brief Data-structure serialization module
  *
- * Copyright (C) 2018 Jason Graham <jgraham@compukix.net> 
+ * Copyright (C) 2018,2021 Jason Graham <jgraham@compukix.net>
  *
  * This file is part of libbds.
  *
@@ -23,6 +23,7 @@
 #ifndef __BDS_SERIALIZE_H__
 #define __BDS_SERIALIZE_H__
 
+#include <stddef.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -34,10 +35,11 @@
 extern "C" {
 #endif
 
-#define BDS_OBJECT_MEMBER(obj_ptr, member, type, config)                                           \
-        {                                                                                          \
-                (void *)&(obj_ptr)->member - (void *)(obj_ptr), sizeof((obj_ptr)->member), type,   \
-                    config                                                                         \
+#define bds_member_sizeof(obj_type, obj_member) sizeof(((obj_type *)0)->obj_member)
+#define BDS_OBJECT_MEMBER(obj_type, obj_member, member_type, member_config)                                       \
+        {                                                                                                         \
+                .offset = offsetof(obj_type, obj_member), .len = bds_member_sizeof(obj_type, obj_member),         \
+                .type = member_type, .config = member_config                                                      \
         }
 
 enum bds_object_type {
@@ -48,27 +50,28 @@ enum bds_object_type {
 };
 
 struct bds_object_member {
-        size_t offset;
-        size_t len;
+        size_t               offset;
+        size_t               len;
         enum bds_object_type type;
-        void *config;
+        void *               config;
 };
 
 struct bds_object_desc {
-        size_t object_len;
-        size_t num_members;
+        size_t                    object_len;
+        size_t                    num_members;
         struct bds_object_member *members;
 };
 
 size_t bds_serial_alignment(ssize_t alignment);
-	
-void bds_serialize(const void *object, const struct bds_object_desc *object_desc,
-                   size_t *serial_len, void **serial_object);
 
-void bds_update_serial_ptrs(void *serial_object, const struct bds_object_desc *object_desc );
+void bds_serialize(const void *                  object,
+                   const struct bds_object_desc *object_desc,
+                   size_t *                      serial_len,
+                   void **                       serial_object);
 
-void bds_deserialize(const void *serial_object, const struct bds_object_desc *object_desc,
-                     void *object);
+void bds_update_serial_ptrs(void *serial_object, const struct bds_object_desc *object_desc);
+
+void bds_deserialize(const void *serial_object, const struct bds_object_desc *object_desc, void *object);
 
 #ifdef __cplusplus
 }

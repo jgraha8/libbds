@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Jason Graham <jgraham@compukix.net>
+ * Copyright (C) 2018,2021 Jason Graham <jgraham@compukix.net>
  *
  * This file is part of libbds.
  *
@@ -21,25 +21,24 @@
 #include <string.h>
 
 struct data {
-        int i;
-        float f;
+        int    i;
+        float  f;
         double d;
 };
 
-struct data __data_template;
-struct bds_object_member data_members[] = {BDS_OBJECT_MEMBER(&__data_template, i, BDS_OBJECT_DATA, NULL),
-                                           BDS_OBJECT_MEMBER(&__data_template, f, BDS_OBJECT_DATA, NULL),
-                                           BDS_OBJECT_MEMBER(&__data_template, d, BDS_OBJECT_DATA, NULL)};
+struct bds_object_member data_members[] = {BDS_OBJECT_MEMBER(struct data, i, BDS_OBJECT_DATA, NULL),
+                                           BDS_OBJECT_MEMBER(struct data, f, BDS_OBJECT_DATA, NULL),
+                                           BDS_OBJECT_MEMBER(struct data, d, BDS_OBJECT_DATA, NULL)};
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 int main(int argc, char **argv)
 {
-        struct data d                    = {1, 2.0f, 3.0};
+        struct data            d         = {1, 2.0f, 3.0};
         struct bds_object_desc data_desc = {sizeof(struct data), ARRAY_SIZE(data_members), &data_members[0]};
 
         size_t serial_len = 0;
-        void *serial_data;
+        void * serial_data;
 
         bds_serialize(&d, &data_desc, &serial_len, &serial_data);
 
